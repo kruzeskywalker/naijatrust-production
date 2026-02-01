@@ -11,6 +11,10 @@ const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
+// Compression middleware - reduces response size by 60-80%
+const compression = require('compression');
+app.use(compression());
+
 app.use(express.json());
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',

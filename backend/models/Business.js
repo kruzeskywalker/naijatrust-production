@@ -38,9 +38,14 @@ const businessSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-// Index for efficient searches
-businessSchema.index({ name: 'text', description: 'text' });
-businessSchema.index({ category: 1, location: 1 });
-businessSchema.index({ claimStatus: 1 });
+// Indexes for efficient searches and queries
+businessSchema.index({ name: 'text', description: 'text' }); // Text search
+businessSchema.index({ category: 1, location: 1 }); // Category + location filtering
+businessSchema.index({ category: 1, rating: -1 }); // Category with top-rated sorting
+businessSchema.index({ rating: -1, reviewCount: -1 }); // Top-rated businesses
+businessSchema.index({ claimStatus: 1 }); // Claim status filtering
+businessSchema.index({ isVerified: 1 }); // Verified businesses
+businessSchema.index({ createdAt: -1 }); // Newest businesses
+
 
 module.exports = mongoose.model('Business', businessSchema);

@@ -17,4 +17,10 @@ const reviewSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+// Indexes for efficient queries
+reviewSchema.index({ business: 1, createdAt: -1 }); // Business reviews sorted by date
+reviewSchema.index({ user: 1, createdAt: -1 }); // User reviews sorted by date
+reviewSchema.index({ rating: -1 }); // Sort by rating
+reviewSchema.index({ isHidden: 1 }); // Filter hidden reviews
+
 module.exports = mongoose.model('Review', reviewSchema);

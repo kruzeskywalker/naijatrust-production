@@ -52,4 +52,9 @@ userSchema.methods.createPasswordResetToken = function () {
     return resetToken;
 };
 
+// Indexes for efficient queries
+userSchema.index({ email: 1 }, { unique: true }); // Email lookup
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true }); // Google OAuth
+userSchema.index({ isVerified: 1 }); // Filter verified users
+
 module.exports = mongoose.model('User', userSchema);

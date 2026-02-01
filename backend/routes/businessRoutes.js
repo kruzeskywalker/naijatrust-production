@@ -2,10 +2,10 @@ const express = require('express');
 const Business = require('../models/Business');
 const router = express.Router();
 
-// Get all businesses (with search and category filters)
+// Get all businesses (with search, category filters, and pagination)
 router.get('/', async (req, res) => {
     try {
-        const { category, q } = req.query;
+        const { category, q, rating, verified, page = 1, limit = 20 } = req.query;
         let query = {};
 
         if (category) {
@@ -20,20 +20,39 @@ router.get('/', async (req, res) => {
         }
 
         // Filter by Rating (Greater than or equal)
-        if (req.query.rating) {
-            query.rating = { $gte: Number(req.query.rating) };
+        if (rating) {
+            query.rating = { $gte: Number(rating) };
         }
 
         // Filter by Verification (Optional)
-        if (req.query.verified === 'true') {
+        if (verified === 'true') {
             query.isVerified = true;
         }
-        // If nothing specified, show all (or maybe verified only? Let's show all for search completeness unless filtered)
-        // Previous behavior was ONLY verified. I will comment it out to allow all, enabling the filter to work meaningfully.
-        // query.isVerified = true;
 
-        const businesses = await Business.find(query).sort('-rating');
-        res.status(200).json({ status: 'success', data: { businesses } });
+        // Pagination
+        const pageNum = parseInt(page, 10);
+        const limitNum = parseInt(limit, 10);
+        const skip = (pageNum - 1) * limitNum;
+
+        const businesses = await Business.find(query)
+            .sort('-rating')
+            .limit(limitNum)
+            .skip(skip);
+
+        const total = await Business.countDocuments(query);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                businesses,
+                pagination: {
+                    page: pageNum,
+                    limit: limitNum,
+                    total,
+                    pages: Math.ceil(total / limitNum)
+                }
+            }
+        });
     } catch (err) {
         res.status(400).json({ status: 'fail', message: err.message });
     }
