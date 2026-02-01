@@ -1,0 +1,130 @@
+.categories-page {
+    padding: 4rem 1.5rem;
+}
+
+.categories-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem;
+}
+
+.categories-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.categories-header p {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+
+.cat-search {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.cat-search input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 30px;
+    font-size: 1.1rem;
+    box-shadow: var(--shadow);
+}
+
+.categories-full-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 6rem;
+}
+
+.cat-full-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.cat-full-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+    border-color: var(--cat-color);
+}
+
+.cat-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    background: #f8fafc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cat-color);
+    transition: background 0.2s;
+}
+
+.cat-full-card:hover .cat-icon-wrapper {
+    background: var(--cat-color);
+    color: white;
+}
+
+.cat-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.cat-info span {
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.top-businesses-preview {
+    background: white;
+    padding: 3rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.top-businesses-preview h2 {
+    margin-bottom: 2rem;
+}
+
+.biz-mini-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 2rem;
+}
+
+.biz-mini-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.biz-mini-logo {
+    width: 48px;
+    height: 48px;
+    background: #e2e8f0;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.biz-mini-details h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.biz-mini-stars {
+    display: flex;
+    gap: 2px;
+}

@@ -1,0 +1,73 @@
+.write-review-page {
+    padding: 4rem 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.review-flow-card {
+    background: white;
+    padding: 3rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 600px;
+}
+
+.review-biz-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.mini-biz-logo {
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.rating-step {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.rating-step h3 {
+    margin-bottom: 1.5rem;
+}
+
+.star-picker {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.rating-label {
+    margin-top: 1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    min-height: 1.5rem;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+.w-100 {
+    width: 100%;
+}

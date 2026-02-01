@@ -1,0 +1,31 @@
+{
+  "name": "naija-trust-2",
+  "version": "1.0.0",
+  "description": "A trusted review platform empowering Nigerians to make better choices through transparent business reviews.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kruzeskywalker/Naija-Trust-2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kruzeskywalker/Naija-Trust-2/issues"
+  },
+  "homepage": "https://github.com/kruzeskywalker/Naija-Trust-2#readme",
+  "lint-staged": {
+    "frontend/src/**/*.{js,jsx}": [
+      "cd frontend && npm run lint"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
+  }
+}

@@ -1,0 +1,410 @@
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const User = require('../models/User');
+
+const crypto = require('crypto');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const router = express.Router();
+
+const signToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
+        expiresIn: '30d'
+    });
+};
+
+// Middleware to verify JWT token
+const verifyToken = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'No token provided' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+        req.user = await User.findById(decoded.id);
+        next();
+    } catch (err) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
+// Auth-specific rate limiter
+const rateLimit = require('express-rate-limit');
+const authLimiter = rateLimit({
+    max: 10, // 10 requests per hour
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many login/signup attempts, please try again in an hour!'
+});
+
+// Signup route
+router.post('/signup', authLimiter, async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ status: 'fail', message: 'Email already registered' });
+        }
+
+        // Create new user
+        const newUser = await User.create({
+            name,
+            email,
+            password,
+            isVerified: false
+        });
+
+        // Generate verification token
+        const verificationToken = newUser.generateVerificationToken();
+        await newUser.save();
+
+        // Send verification email
+        try {
+            await sendVerificationEmail(email, name, verificationToken);
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+            // Continue even if email fails - user can resend
+        }
+
+        const token = signToken(newUser._id);
+
+        res.status(201).json({
+            status: 'success',
+            token,
+            data: {
+                user: {
+                    id: newUser._id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    isVerified: newUser.isVerified,
+                    avatar: newUser.avatar
+                }
+            },
+            message: 'Registration successful! Please check your email to verify your account.'
+        });
+    } catch (err) {
+        console.error('Signup error:', err);
+        console.error('Error stack:', err.stack);
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Login route
+router.post('/login', authLimiter, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Please provide email and password' });
+        }
+
+        const user = await User.findOne({ email }).select('+password');
+        if (!user || !user.password || !(await user.comparePassword(password))) {
+            return res.status(401).json({ message: 'Incorrect email or password' });
+        }
+
+        const token = signToken(user._id);
+
+        res.status(200).json({
+            status: 'success',
+            token,
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                    avatar: user.avatar
+                }
+            }
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Verify email route
+router.get('/verify-email/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        const user = await User.findOne({
+            verificationToken: token,
+            verificationTokenExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Invalid or expired verification token'
+            });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        user.verificationTokenExpires = undefined;
+        await user.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Email verified successfully! You can now login.'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Resend verification email
+router.post('/resend-verification', verifyToken, authLimiter, async (req, res) => {
+    try {
+        const user = req.user;
+
+        if (user.isVerified) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Email is already verified'
+            });
+        }
+
+        // Generate new verification token
+        const verificationToken = user.generateVerificationToken();
+        await user.save();
+
+        // Send verification email
+        await sendVerificationEmail(user.email, user.name, verificationToken);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Verification email sent! Please check your inbox.'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Google OAuth routes (only if credentials are configured)
+if (process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id.apps.googleusercontent.com' &&
+    process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id') {
+    router.get('/google',
+        passport.authenticate('google', {
+            scope: ['profile', 'email'],
+            prompt: 'select_account'
+        })
+    );
+
+    router.get('/google/callback',
+        passport.authenticate('google', {
+            failureRedirect: '/login',
+            session: false
+        }),
+        (req, res) => {
+            // Generate JWT token
+            const token = signToken(req.user._id);
+
+            // Redirect to frontend with token
+            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${token}`);
+        }
+    );
+} else {
+    // Return error if Google OAuth is not configured
+    router.get('/google', (req, res) => {
+        res.status(503).json({
+            status: 'fail',
+            message: 'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file.'
+        });
+    });
+
+    router.get('/google/callback', (req, res) => {
+        res.status(503).json({
+            status: 'fail',
+            message: 'Google OAuth is not configured.'
+        });
+    });
+}
+
+// Update profile information (name, email)
+router.patch('/updateMe', verifyToken, async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        const user = req.user;
+
+        if (name) user.name = name;
+        if (email) {
+            // Check if email is already taken
+            if (email !== user.email) {
+                const existingUser = await User.findOne({ email });
+                if (existingUser) {
+                    return res.status(400).json({ status: 'fail', message: 'Email already in use' });
+                }
+                user.email = email;
+                user.isVerified = false; // Re-verify if email changes
+            }
+        }
+
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                    avatar: user.avatar
+                }
+            },
+            message: 'Profile updated successfully'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Update password
+router.patch('/updatePassword', verifyToken, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user._id).select('+password');
+
+        if (!(await user.comparePassword(currentPassword))) {
+            return res.status(401).json({ status: 'fail', message: 'Current password incorrect' });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        const token = signToken(user._id);
+
+        res.status(200).json({
+            status: 'success',
+            token,
+            message: 'Password updated successfully'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Update avatar URL (simulated)
+router.patch('/updateAvatar', verifyToken, async (req, res) => {
+    try {
+        const { avatar } = req.body;
+        const user = req.user;
+
+        if (avatar) user.avatar = avatar;
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                    avatar: user.avatar
+                }
+            },
+            message: 'Avatar updated successfully'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Get current user
+router.get('/me', verifyToken, async (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: {
+                id: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                isVerified: req.user.isVerified,
+                avatar: req.user.avatar
+            }
+        }
+    });
+});
+
+// Forgot Password
+router.post('/forgot-password', authLimiter, async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'There is no user with that email address.' });
+        }
+
+        const resetToken = user.createPasswordResetToken();
+        await user.save({ validateBeforeSave: false });
+
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+
+
+        try {
+            await sendPasswordResetEmail(user.email, resetUrl, user.name);
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Token sent to email!'
+            });
+        } catch (err) {
+            user.passwordResetToken = undefined;
+            user.passwordResetExpires = undefined;
+            await user.save({ validateBeforeSave: false });
+
+            return res.status(500).json({ status: 'fail', message: 'There was an error sending the email. Try again later!' });
+        }
+    } catch (err) {
+        res.status(500).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Reset Password
+router.patch('/reset-password/:token', authLimiter, async (req, res) => {
+    try {
+        const hashedToken = crypto
+            .createHash('sha256')
+            .update(req.params.token)
+            .digest('hex');
+
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ status: 'fail', message: 'Token is invalid or has expired' });
+        }
+
+        user.password = req.body.password;
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        await user.save();
+
+        const token = signToken(user._id);
+
+        res.status(200).json({
+            status: 'success',
+            token,
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                    avatar: user.avatar
+                }
+            },
+            message: 'Password reset successful!'
+        });
+    } catch (err) {
+        res.status(500).json({ status: 'fail', message: err.message });
+    }
+});
+
+module.exports = router;

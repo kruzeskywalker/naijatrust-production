@@ -1,0 +1,155 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { Star, ShieldCheck, MapPin, Globe, Phone, Mail, Loader2 } from 'lucide-react';
+import './BusinessProfile.css';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
+
+const BusinessProfile = () => {
+    const { id } = useParams();
+    const [business, setBusiness] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBusinessData = async () => {
+            try {
+                const [bizRes, revRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/businesses/${id}`),
+                    fetch(`${API_BASE_URL}/reviews/${id}`)
+                ]);
+
+                const bizData = await bizRes.json();
+                const revData = await revRes.json();
+
+                if (bizData.status === 'success') {
+                    setBusiness(bizData.data.business);
+                }
+                if (revData.status === 'success') {
+                    setReviews(revData.data.reviews);
+                }
+            } catch (error) {
+                console.error('Error fetching business data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBusinessData();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="loading-state container">
+                <Loader2 className="animate-spin" size={48} />
+                <p>Loading business profile...</p>
+            </div>
+        );
+    }
+
+    if (!business) {
+        return (
+            <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>
+                <h2>Business not found</h2>
+                <Link to="/search" className="btn btn-primary">Back to search</Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="profile-page">
+            <div className="profile-header">
+                <div className="container profile-header-content">
+                    <div className="biz-main-info">
+                        <div className="biz-logo-large">K</div>
+                        <div className="biz-details">
+                            <div className="title-row">
+                                <h1>{business.name}</h1>
+                                {business.verified && <span className="verified-badge"><ShieldCheck size={16} /> Verified</span>}
+                            </div>
+                            <p>{business.reviewCount} reviews • {business.category}</p>
+                            <div className="trust-score-row">
+                                <div className="huge-stars">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} size={40} fill={i < Math.floor(business.rating) ? "var(--primary-color)" : "none"} color="var(--primary-color)" />
+                                    ))}
+                                </div>
+                                <div className="score-text">
+                                    <span className="score">{business.rating}</span>
+                                    <span className="label">TrustScore</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="biz-actions">
+                        <Link to={`/review/${business._id || id}`} className="btn btn-primary btn-large">Write a review</Link>
+                        {business.website && (
+                            <a href={business.website} target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+                                Visit website
+                            </a>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="container profile-layout">
+                <main className="reviews-section">
+                    <h2>Reviews</h2>
+                    <div className="review-filters">
+                        {/* Review filters here */}
+                    </div>
+                    <div className="reviews-list">
+                        {reviews.length > 0 ? (
+                            reviews.map(rev => (
+                                <div key={rev._id} className="review-card-full">
+                                    <div className="reviewer-info">
+                                        <div className="avatar">
+                                            {rev.user?.avatar ? <img src={rev.user.avatar} alt={rev.user.name} /> : rev.user?.name?.[0] || 'U'}
+                                        </div>
+                                        <div>
+                                            <p className="name">{rev.user?.name || 'Anonymous User'}</p>
+                                            <p className="meta">{rev.user?.reviewCount || 1} review • Nigeria</p>
+                                        </div>
+                                    </div>
+                                    <div className="review-content">
+                                        <div className="review-stars-small">
+                                            {[...Array(5)].map((_, j) => (
+                                                <Star key={j} size={18} fill={j < rev.rating ? "var(--primary-color)" : "none"} color="var(--primary-color)" />
+                                            ))}
+                                        </div>
+                                        <h3>{rev.title}</h3>
+                                        <p>{rev.content}</p>
+                                        <p className="date">Published {new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="empty-reviews">
+                                <p>No reviews yet for this business. Be the first to share your experience!</p>
+                            </div>
+                        )}
+                    </div>
+                </main>
+
+                <aside className="biz-sidebar">
+                    <div className="sidebar-card">
+                        <h3>About {business.name}</h3>
+                        <p>{business.description}</p>
+                        <div className="contact-info">
+                            <p><Globe size={18} /> {business.website}</p>
+                            <p><Phone size={18} /> {business.phone}</p>
+                            <p><MapPin size={18} /> {business.location}</p>
+                        </div>
+                    </div>
+                    <div className="sidebar-card company-is">
+                        <h3>Company activity</h3>
+                        <p><ShieldCheck size={18} /> Claims their profile</p>
+                        <p><Mail size={18} /> Responds to reviews</p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    );
+};
+
+export default BusinessProfile;

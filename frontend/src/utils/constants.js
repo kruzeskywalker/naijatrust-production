@@ -1,0 +1,21 @@
+export const BUSINESS_CATEGORIES = [
+    'Agriculture',
+    'Banks',
+    'Ecommerce',
+    'Education',
+    'Energy',
+    'Fintech',
+    'Food & Beverage',
+    'Health',
+    'Hospitality',
+    'Insurance',
+    'IT Services',
+    'Jobs',
+    'Legal Services',
+    'Logistics',
+    'Media',
+    'Real Estate',
+    'Telecom',
+    'Travel & Hotels',
+    'Other'
+];

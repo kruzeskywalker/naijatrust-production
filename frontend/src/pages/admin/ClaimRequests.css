@@ -1,0 +1,371 @@
+/* ClaimRequests.css */
+
+.claims-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.claims-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.filter-tabs {
+    display: flex;
+    background: #e2e8f0;
+    padding: 0.25rem;
+    border-radius: 8px;
+}
+
+.tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.tab.active {
+    background: white;
+    color: #1a202c;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.claims-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+}
+
+.claims-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.claims-table th {
+    text-align: left;
+    padding: 1rem 1.5rem;
+    background-color: #f7fafc;
+    color: #718096;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.claims-table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #edf2f7;
+    color: #2d3748;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.clickable-row:hover {
+    background-color: #f8fafc;
+}
+
+.biz-cell,
+.user-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.site-link {
+    color: #4299e1;
+    display: inline-flex;
+    margin-left: 0.5rem;
+}
+
+.location-sub,
+.email-sub,
+.position-sub {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge.new-reg {
+    background-color: #ebf8ff;
+    color: #2b6cb0;
+}
+
+.badge.claim {
+    background-color: #f0fff4;
+    color: #2f855a;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-pill.pending {
+    background-color: #fffaf0;
+    color: #c05621;
+}
+
+.status-pill.approved {
+    background-color: #f0fff4;
+    color: #276749;
+}
+
+.status-pill.rejected {
+    background-color: #fff5f5;
+    color: #c53030;
+}
+
+.review-btn {
+    padding: 0.4rem 0.8rem;
+    background-color: white;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.review-btn:hover {
+    border-color: #4a5568;
+    background-color: #f7fafc;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 12px;
+    color: #a0aec0;
+}
+
+.empty-state h3 {
+    margin-top: 1rem;
+    color: #4a5568;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+}
+
+.request-modal {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #2d3748;
+}
+
+.detail-section {
+    margin-bottom: 2rem;
+}
+
+.detail-section h3 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: #718096;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 0.5rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-bottom: 0.25rem;
+}
+
+.info-item p {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.notes-box {
+    background: #f7fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    font-style: italic;
+    color: #4a5568;
+}
+
+.action-area {
+    margin-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1.5rem;
+}
+
+.primary-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-approve {
+    background-color: #48bb78;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-approve:hover {
+    background-color: #38a169;
+}
+
+.btn-reject {
+    background-color: white;
+    color: #e53e3e;
+    border: 1px solid #e53e3e;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover {
+    background-color: #fff5f5;
+}
+
+.confirmation-box {
+    background: #f7fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    animation: fadeIn 0.2s;
+}
+
+.notes-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    min-height: 80px;
+    margin: 1rem 0;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-confirm {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-confirm.approve {
+    background-color: #48bb78;
+}
+
+.btn-confirm.reject {
+    background-color: #e53e3e;
+}
+
+.btn-cancel {
+    background: white;
+    border: 1px solid #cbd5e0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.final-status-bar {
+    background: #edf2f7;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    color: #4a5568;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

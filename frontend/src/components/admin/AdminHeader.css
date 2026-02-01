@@ -1,0 +1,154 @@
+/* AdminHeader.css */
+.admin-header {
+    background-color: #1a202c;
+    color: white;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.admin-header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.admin-brand .text-green-500 {
+    color: #48bb78;
+}
+
+.admin-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    color: #cbd5e0;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+    color: white;
+    background-color: #2d3748;
+    font-weight: 600;
+}
+
+.nav-divider {
+    height: 24px;
+    width: 1px;
+    background-color: #4a5568;
+    margin: 0 0.5rem;
+}
+
+.admin-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+}
+
+.admin-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.admin-role {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.logout-link {
+    background: none;
+    border: 1px solid #4a5568;
+    color: #cbd5e0;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+
+.logout-link:hover {
+    border-color: #e53e3e;
+    color: #e53e3e;
+}
+
+.admin-mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .admin-mobile-menu-btn {
+        display: block;
+    }
+
+    .admin-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #1a202c;
+        flex-direction: column;
+        padding: 1rem;
+        border-top: 1px solid #2d3748;
+    }
+
+    .admin-nav.mobile-open {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .nav-divider {
+        display: none;
+    }
+
+    .admin-user-info {
+        align-items: flex-start;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #2d3748;
+        width: 100%;
+    }
+
+    .logout-link {
+        margin-top: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+}
