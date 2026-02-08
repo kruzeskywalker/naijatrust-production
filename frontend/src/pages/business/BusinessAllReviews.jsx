@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
-import { Loader2, Star, MessageCircle, Reply } from 'lucide-react';
+import { Loader2, MessageCircle, ArrowLeft, AlertTriangle, Clock, X, Send } from 'lucide-react';
+import StarRating from '../../components/StarRating';
 import { Link } from 'react-router-dom';
-import './BusinessDashboard.css';
+import toast from 'react-hot-toast';
+import './BusinessReviews.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
 
@@ -12,7 +14,12 @@ const BusinessAllReviews = () => {
     const [loading, setLoading] = useState(true);
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyContent, setReplyContent] = useState('');
-    const [submitLoading, setSubmitLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
+    // Dispute State
+    const [showDisputeModal, setShowDisputeModal] = useState(false);
+    const [selectedReview, setSelectedReview] = useState(null);
+    const [disputeReason, setDisputeReason] = useState('');
 
     useEffect(() => {
         if (token) fetchReviews();
@@ -29,6 +36,7 @@ const BusinessAllReviews = () => {
             }
         } catch (error) {
             console.error('Error fetching reviews:', error);
+            toast.error('Failed to load reviews');
         } finally {
             setLoading(false);
         }
@@ -37,7 +45,7 @@ const BusinessAllReviews = () => {
     const handleReplySubmit = async (reviewId) => {
         if (!replyContent.trim()) return;
 
-        setSubmitLoading(true);
+        setSubmitting(true);
         try {
             const response = await fetch(`${API_BASE_URL}/business-portal/reviews/${reviewId}/reply`, {
                 method: 'POST',
@@ -48,110 +56,257 @@ const BusinessAllReviews = () => {
                 body: JSON.stringify({ content: replyContent })
             });
 
-            if (response.ok) {
-                // Refresh reviews
+            const data = await response.json();
+            if (data.status === 'success') {
                 await fetchReviews();
                 setReplyingTo(null);
                 setReplyContent('');
+                toast.success('Reply posted successfully');
+            } else {
+                toast.error(data.message || 'Failed to post reply');
             }
         } catch (error) {
             console.error('Reply error:', error);
+            toast.error('Failed to submit reply');
         } finally {
-            setSubmitLoading(false);
+            setSubmitting(false);
+        }
+    };
+
+    const initiateDispute = (review) => {
+        console.log('Initiating dispute for review:', review._id); // Debug Log
+        setSelectedReview(review);
+        setDisputeReason('');
+        setShowDisputeModal(true);
+        console.log('Modal state set to true'); // Debug Log
+    };
+
+    const submitDispute = async (e) => {
+        e.preventDefault();
+        console.log('Submitting dispute...'); // Debug Log
+        if (!disputeReason.trim()) return;
+
+        setSubmitting(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/business-portal/reviews/${selectedReview._id}/dispute`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason: disputeReason })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                toast.success('Dispute submitted for review');
+                fetchReviews();
+                setShowDisputeModal(false);
+            } else {
+                toast.error(data.message || 'Failed to submit dispute');
+            }
+        } catch (error) {
+            console.error('Error submitting dispute:', error);
+            toast.error('Failed to submit dispute');
+        } finally {
+            setSubmitting(false);
         }
     };
 
     if (loading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-green-600" /></div>;
 
     return (
-        <div className="business-dashboard container" style={{ padding: '2rem 1rem' }}>
-            <div className="section-header">
-                <h2>All Reviews</h2>
-                <Link to="/business/dashboard" className="btn btn-outline btn-sm">Back to Dashboard</Link>
-            </div>
+        <div className="business-reviews-container">
+            <header className="dashboard-header">
+                <Link to="/business/dashboard" className="back-link">
+                    <ArrowLeft size={16} /> Back to Dashboard
+                </Link>
+                <h1>All Reviews</h1>
+            </header>
 
             <div className="reviews-list">
                 {reviews.length === 0 ? (
-                    <div className="empty-state">
-                        <MessageCircle size={48} color="#cbd5e0" />
-                        <p>No reviews yet.</p>
+                    <div className="empty-state-card">
+                        <MessageCircle size={48} style={{ margin: '0 auto 1rem', display: 'block' }} />
+                        <h3>No Reviews Yet</h3>
+                        <p>No reviews found across your businesses.</p>
                     </div>
                 ) : (
-                    reviews.map(review => (
-                        <div key={review._id} className="review-card" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
-                            <div className="flex justify-between items-start mb-2">
-                                <div>
-                                    <h4 className="font-bold text-lg">{review.title}</h4>
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <div className="flex text-yellow-500">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
-                                            ))}
+                    reviews.map(rev => (
+                        <div key={rev._id} className="review-card">
+                            <div className="review-header">
+                                <div className="reviewer-profile">
+                                    <div className="reviewer-avatar">
+                                        {rev.user?.name?.[0] || 'U'}
+                                    </div>
+                                    <div className="reviewer-details">
+                                        <h3>{rev.user?.name || 'Anonymous User'}</h3>
+                                        <div className="flex items-center gap-1">
+                                            <StarRating rating={rev.rating} size={14} showLabel={true} />
+                                            <span className="text-xs text-gray-500 ml-2">for {rev.business?.name}</span>
                                         </div>
-                                        <span>• {new Date(review.createdAt).toLocaleDateString()}</span>
-                                        <span>• for <strong>{review.business?.name}</strong></span>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="font-medium">{review.user?.name || 'Anonymous'}</span>
-                                </div>
+                                <span className="review-date">
+                                    {new Date(rev.createdAt).toLocaleDateString(undefined, {
+                                        year: 'numeric', month: 'short', day: 'numeric'
+                                    })}
+                                </span>
                             </div>
 
-                            <p className="text-gray-700 mb-4">{review.content}</p>
+                            <div className="review-body">
+                                <strong className="review-title">{rev.title}</strong>
+                                <p className="review-text">{rev.content}</p>
+                            </div>
 
                             {/* Replies */}
-                            {review.replies?.length > 0 && (
-                                <div className="bg-gray-50 p-3 rounded-md mb-3 border-l-4 border-green-500">
-                                    {review.replies.map((reply, idx) => (
-                                        <div key={idx} className="text-sm">
-                                            <strong>{reply.isBusiness ? 'Business Response' : reply.user?.name}: </strong>
-                                            {reply.content}
+                            {rev.replies?.length > 0 && (
+                                <div className="replies-section">
+                                    {rev.replies.map((reply, idx) => (
+                                        <div key={idx} className={`reply-item ${reply.isBusiness ? 'reply-business' : 'reply-user'}`}>
+                                            <div className="reply-header">
+                                                <span className={`reply-author ${reply.isBusiness ? 'is-business' : 'is-user'}`}>
+                                                    {reply.isBusiness ? 'Your Response' : (reply.user?.name || 'Customer')}
+                                                </span>
+                                                <span className="reply-timestamp">
+                                                    {new Date(reply.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p>{reply.content}</p>
                                         </div>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Reply Action */}
-                            {!review.replies?.some(r => r.isBusiness) && (
-                                <div>
-                                    {replyingTo === review._id ? (
-                                        <div className="mt-2">
-                                            <textarea
-                                                className="w-full p-2 border rounded mb-2"
-                                                placeholder="Write your response..."
-                                                value={replyContent}
-                                                onChange={e => setReplyContent(e.target.value)}
-                                            />
-                                            <div className="flex gap-2">
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    onClick={() => handleReplySubmit(review._id)}
-                                                    disabled={submitLoading}
-                                                >
-                                                    {submitLoading ? 'Posting...' : 'Post Reply'}
-                                                </button>
-                                                <button
-                                                    className="btn btn-outline btn-sm"
-                                                    onClick={() => setReplyingTo(null)}
-                                                >
-                                                    Cancel
-                                                </button>
+                            {/* Actions Footer */}
+                            <div className="review-actions">
+                                {rev.business?.subscriptionTier === 'basic' ? (
+                                    <div className="upgrade-prompt">
+                                        <span>Upgrade to verification status to reply.</span>
+                                        <Link to="/business/settings" className="upgrade-link">Verify Now</Link>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {replyingTo === rev._id ? (
+                                            <div className="reply-form">
+                                                <textarea
+                                                    className="reply-textarea"
+                                                    placeholder="Write your professional response..."
+                                                    value={replyContent}
+                                                    onChange={e => setReplyContent(e.target.value)}
+                                                    autoFocus
+                                                />
+                                                <div className="form-actions">
+                                                    <button
+                                                        className="btn-premium btn-cancel"
+                                                        onClick={() => setReplyingTo(null)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        className="btn-premium btn-reply"
+                                                        onClick={() => handleReplySubmit(rev._id)}
+                                                        disabled={submitting}
+                                                    >
+                                                        {submitting ? <Loader2 className="animate-spin" size={16} /> : <><Send size={16} /> Post Reply</>}
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            className="text-green-600 font-medium flex items-center gap-1 hover:text-green-700"
-                                            onClick={() => setReplyingTo(review._id)}
-                                        >
-                                            <Reply size={16} /> Reply to review
-                                        </button>
-                                    )}
-                                </div>
-                            )}
+                                        ) : (
+                                            <>
+                                                {/* Dispute Status / Button */}
+                                                {rev.disputeStatus === 'none' && (
+                                                    <button
+                                                        className="btn-premium btn-dispute"
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            initiateDispute(rev);
+                                                        }}
+                                                        title="Report this review"
+                                                    >
+                                                        <AlertTriangle size={16} /> Report
+                                                    </button>
+                                                )}
+
+                                                {rev.disputeStatus === 'pending' && (
+                                                    <span className="status-pill status-pending">
+                                                        <Clock size={14} /> Dispute Pending
+                                                    </span>
+                                                )}
+
+                                                {rev.disputeStatus === 'rejected' && (
+                                                    <span className="status-pill status-rejected">
+                                                        <X size={14} /> Dispute Rejected
+                                                    </span>
+                                                )}
+
+                                                <button
+                                                    className="btn-premium btn-reply"
+                                                    onClick={() => setReplyingTo(rev._id)}
+                                                >
+                                                    <MessageCircle size={16} /> Reply
+                                                </button>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </div>
                         </div>
                     ))
                 )}
             </div>
+
+            {/* Dispute Modal using new CSS classes */}
+            {showDisputeModal && (
+                <div className="dispute-modal-overlay">
+                    <div className="dispute-modal-content">
+                        <div className="modal-header">
+                            <h3>
+                                <AlertTriangle size={20} /> Report Review
+                            </h3>
+                            <button onClick={() => setShowDisputeModal(false)} className="close-modal-btn">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={submitDispute}>
+                            <div className="modal-body">
+                                <p>
+                                    Use this form to report reviews that violate our content policy.
+                                    False reporting may lead to account suspension.
+                                </p>
+
+                                <label>Reason for Dispute</label>
+                                <textarea
+                                    className="modal-textarea"
+                                    placeholder="Please explain specifically why this review should be removed..."
+                                    value={disputeReason}
+                                    onChange={(e) => setDisputeReason(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="cancel-modal-btn"
+                                    onClick={() => setShowDisputeModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="submit-dispute-btn"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? <Loader2 className="animate-spin" size={18} /> : 'Submit Report'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -14,12 +14,13 @@ const Categories = () => {
     const getCategoryData = (name) => {
         const mapping = {
             'Agriculture': { icon: <Globe size={32} />, color: '#48bb78' },
+            'Automobiles': { icon: <Car size={32} />, color: '#e53e3e' },
             'Banks': { icon: <CreditCard size={32} />, color: '#4299e1' },
             'Ecommerce': { icon: <ShoppingBag size={32} />, color: '#ed8936' },
             'Education': { icon: <GraduationCap size={32} />, color: '#667eea' },
             'Energy': { icon: <Zap size={32} />, color: '#fbbf24' },
             'Fintech': { icon: <Zap size={32} />, color: '#38b2ac' },
-            'Food & Beverage': { icon: <Utensils size={32} />, color: '#ecc94b' },
+            'Food & Drink': { icon: <Utensils size={32} />, color: '#ecc94b' },
             'Health': { icon: <HeartPulse size={32} />, color: '#f687b3' },
             'Hospitality': { icon: <Coffee size={32} />, color: '#9f7aea' },
             'Insurance': { icon: <ShieldCheck size={32} />, color: '#008751' },

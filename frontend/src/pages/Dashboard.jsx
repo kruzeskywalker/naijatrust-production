@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, MessageSquare, Settings, User, AlertCircle, Mail, MapPin, Calendar, Edit3, Trash2, X, Loader2 } from 'lucide-react';
+import { MessageSquare, Settings, User, AlertCircle, Mail, MapPin, Calendar, Edit3, Trash2, X, Loader2, Star } from 'lucide-react';
+import StarRating from '../components/StarRating';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import './Dashboard.css';
@@ -23,10 +24,9 @@ const Dashboard = () => {
     const isReviewsPage = location.pathname === '/dashboard/reviews';
 
     useEffect(() => {
-        if (isReviewsPage) {
-            fetchUserReviews();
-        }
-    }, [isReviewsPage]);
+        // Fetch reviews on both main dashboard (for stats) and reviews page
+        fetchUserReviews();
+    }, [location.pathname]);
 
     const fetchUserReviews = async () => {
         setLoading(true);
@@ -216,9 +216,7 @@ const Dashboard = () => {
                                                 <span className="rev-date">{new Date(rev.createdAt).toLocaleDateString()}</span>
                                             </div>
                                             <div className="rev-stars-mini">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} size={14} fill={i < rev.rating ? "var(--star-gold)" : "none"} color="var(--star-gold)" />
-                                                ))}
+                                                <StarRating rating={rev.rating} size={14} />
                                             </div>
                                             <p>"{rev.content}"</p>
                                         </div>
@@ -251,9 +249,7 @@ const Dashboard = () => {
                                                     <span className="rev-date">{new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                                 </div>
                                                 <div className="rev-stars-mini">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star key={i} size={16} fill={i < rev.rating ? "var(--star-gold)" : "none"} color="var(--star-gold)" />
-                                                    ))}
+                                                    <StarRating rating={rev.rating} size={16} showLabel={true} />
                                                 </div>
                                                 <h5 className="rev-title">{rev.title}</h5>
                                                 <p className="rev-text">"{rev.content}"</p>

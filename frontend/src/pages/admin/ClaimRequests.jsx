@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import AdminHeader from '../../components/admin/AdminHeader';
@@ -71,7 +72,7 @@ const ClaimRequests = () => {
             : { rejectionReason: notes, adminNotes: notes };
 
         if (modalAction === 'reject' && !notes.trim()) {
-            alert('Please provide a reason for rejection.');
+            toast.error('Please provide a reason for rejection.');
             setProcessing(false);
             return;
         }
@@ -93,12 +94,13 @@ const ClaimRequests = () => {
                 setSelectedClaim(null);
                 setModalAction(null);
                 setNotes('');
+                toast.success(`Request ${modalAction === 'approve' ? 'approved' : 'rejected'} successfully`);
             } else {
-                alert(data.message || 'Action failed');
+                toast.error(data.message || 'Action failed');
             }
         } catch (error) {
             console.error('Action error:', error);
-            alert('An error occurred');
+            toast.error('An error occurred');
         } finally {
             setProcessing(false);
         }
@@ -296,7 +298,7 @@ const ClaimRequests = () => {
                                                 className="btn-approve"
                                                 onClick={() => setModalAction('approve')}
                                             >
-                                                <Check size={18} /> Approve & Verify
+                                                <Check size={18} /> Approve Claim
                                             </button>
                                         </div>
                                     ) : (

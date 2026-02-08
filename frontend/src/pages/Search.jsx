@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Star, MapPin, Filter, Loader2 } from 'lucide-react';
 import VerifiedBadge from '../components/VerifiedBadge';
+import StarRating from '../components/StarRating';
 import './Search.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -93,14 +94,7 @@ const Search = () => {
                                         onChange={() => toggleRating(star)}
                                     />
                                     <div className="filter-star-row">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                size={14}
-                                                fill={i < star ? "var(--primary-color)" : "none"}
-                                                color={i < star ? "var(--primary-color)" : "#cbd5e0"}
-                                            />
-                                        ))}
+                                        <StarRating rating={star} size={14} />
                                         <span>{star} stars</span>
                                     </div>
                                 </label>
@@ -139,14 +133,12 @@ const Search = () => {
                                     </div>
                                     <div className="biz-stats">
                                         <div className="stars">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={16} fill={i < Math.floor(biz.rating) ? "var(--star-gold)" : "none"} color="var(--star-gold)" />
-                                            ))}
+                                            <StarRating rating={biz.rating} size={16} />
                                         </div>
                                         <span>{biz.rating} TrustScore | {biz.reviewCount.toLocaleString()} reviews</span>
                                     </div>
                                     <div className="biz-meta">
-                                        <span>{biz.category}</span>
+                                        <span>{biz.categories && biz.categories.length > 0 ? biz.categories.join(', ') : biz.category}</span>
                                         <span><MapPin size={14} /> {biz.location}</span>
                                     </div>
                                 </div>

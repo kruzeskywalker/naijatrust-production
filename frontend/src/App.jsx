@@ -24,6 +24,8 @@ import Contact from './pages/Contact';
 import Jobs from './pages/Jobs';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import Plans from './pages/Plans';
+import HelpCenter from './pages/HelpCenter';
 
 // Business Portal Pages
 import BusinessSignup from './pages/business/BusinessSignup';
@@ -38,6 +40,7 @@ import BusinessSettings from './pages/business/BusinessSettings';
 import BusinessReviews from './pages/business/BusinessReviews';
 import BusinessAllReviews from './pages/business/BusinessAllReviews';
 import BusinessAnalytics from './pages/business/BusinessAnalytics';
+import PaymentCallback from './pages/business/PaymentCallback';
 
 // Admin Portal Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -45,6 +48,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ClaimRequests from './pages/admin/ClaimRequests';
 import ManageBusinesses from './pages/admin/ManageBusinesses';
 import ManageReviews from './pages/admin/ManageReviews';
+import ManageUsers from './pages/admin/ManageUsers';
+import AdminAccountDeletions from './pages/admin/AdminAccountDeletions';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { BusinessAuthProvider } from './context/BusinessAuthContext';
@@ -96,7 +101,7 @@ const AnimatedRoutes = () => {
         <Route path="/business/login" element={<BusinessLogin />} />
         <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
         <Route path="/business/reset-password/:token" element={<BusinessResetPassword />} />
-        <Route path="/business/verify-email" element={<EmailVerification />} />
+        <Route path="/business/verify-email/:token" element={<EmailVerification />} />
         <Route path="/business/dashboard" element={<BusinessDashboard />} />
         <Route path="/business/claim" element={<ClaimBusiness />} />
         <Route path="/business/claim/:id" element={<ClaimBusiness />} />
@@ -106,13 +111,17 @@ const AnimatedRoutes = () => {
         <Route path="/business/reviews/:businessId" element={<BusinessReviews />} />
         <Route path="/business/reviews" element={<BusinessAllReviews />} />
         <Route path="/business/analytics" element={<BusinessAnalytics />} />
+        <Route path="/business/subscription/payment-callback" element={<PaymentCallback />} />
 
         {/* Admin Portal Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/claims" element={<ClaimRequests />} />
         <Route path="/admin/businesses" element={<ManageBusinesses />} />
+        <Route path="/admin/businesses" element={<ManageBusinesses />} />
         <Route path="/admin/reviews" element={<ManageReviews />} />
+        <Route path="/admin/users" element={<ManageUsers />} />
+        <Route path="/admin/deletions" element={<AdminAccountDeletions />} />
 
         {/* Main Site Routes */}
         <Route path="*" element={
@@ -140,6 +149,8 @@ const AnimatedRoutes = () => {
                   <Route path="/jobs" element={<Jobs />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/plans" element={<Plans />} />
+                  <Route path="/help" element={<HelpCenter />} />
                 </Routes>
               </main>
               <Footer />

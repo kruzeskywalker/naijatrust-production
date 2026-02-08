@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react';
 import './BusinessAuth.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
 
 const EmailVerification = () => {
-    const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+    const { token } = useParams();
     const [status, setStatus] = useState('verifying'); // verifying, success, error
     const [message, setMessage] = useState('');
 

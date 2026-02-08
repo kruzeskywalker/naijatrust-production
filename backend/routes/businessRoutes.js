@@ -9,12 +9,18 @@ router.get('/', async (req, res) => {
         let query = {};
 
         if (category) {
-            query.category = category;
+            // Find businesses where 'categories' array contains the category
+            // OR 'category' field matches (backward compatibility)
+            query.$or = [
+                { categories: category },
+                { category: category }
+            ];
         }
 
         if (q) {
             query.$or = [
                 { name: { $regex: q, $options: 'i' } },
+                { categories: { $regex: q, $options: 'i' } },
                 { category: { $regex: q, $options: 'i' } }
             ];
         }
@@ -65,7 +71,56 @@ router.get('/:id', async (req, res) => {
         if (!business) {
             return res.status(404).json({ status: 'fail', message: 'Business not found' });
         }
-        res.status(200).json({ status: 'success', data: { business } });
+
+        // Calculate Rankings for each category
+        const rankings = [];
+        const categories = business.categories && business.categories.length > 0
+            ? business.categories
+            : (business.category ? [business.category] : []);
+
+        for (const cat of categories) {
+            // Count businesses in this category with higher rating
+            // Tie-breaker: reviewCount
+            const higherRankedCount = await Business.countDocuments({
+                $and: [
+                    {
+                        $or: [
+                            { categories: cat },
+                            { category: cat }
+                        ]
+                    },
+                    {
+                        $or: [
+                            { rating: { $gt: business.rating } },
+                            {
+                                rating: business.rating,
+                                reviewCount: { $gt: business.reviewCount }
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            // Count total businesses in this category
+            const totalInCat = await Business.countDocuments({
+                $or: [
+                    { categories: cat },
+                    { category: cat }
+                ]
+            });
+
+            rankings.push({
+                category: cat,
+                rank: higherRankedCount + 1, // 1-based rank
+                total: totalInCat
+            });
+        }
+
+        // Attach rankings to response
+        const businessObj = business.toObject();
+        businessObj.rankings = rankings;
+
+        res.status(200).json({ status: 'success', data: { business: businessObj } });
     } catch (err) {
         res.status(400).json({ status: 'fail', message: err.message });
     }

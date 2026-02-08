@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
-import { Star, MessageCircle, Send, Loader2, ArrowLeft } from 'lucide-react';
-import './BusinessDashboard.css'; // Reusing dashboard styles for consistency
+import { MessageCircle, Loader2, ArrowLeft, AlertTriangle, Clock, X, Send } from 'lucide-react';
+import StarRating from '../../components/StarRating';
+import toast from 'react-hot-toast';
+import './BusinessReviews.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
 
@@ -10,10 +12,16 @@ const BusinessReviews = () => {
     const { businessId } = useParams();
     const { token, loading } = useBusinessAuth();
     const [reviews, setReviews] = useState([]);
+    const [business, setBusiness] = useState(null);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyContent, setReplyContent] = useState('');
     const [submitting, setSubmitting] = useState(false);
+
+    // Dispute State
+    const [showDisputeModal, setShowDisputeModal] = useState(false);
+    const [selectedReview, setSelectedReview] = useState(null);
+    const [disputeReason, setDisputeReason] = useState('');
 
     useEffect(() => {
         if (token && businessId) {
@@ -28,7 +36,10 @@ const BusinessReviews = () => {
             });
             const data = await response.json();
             if (data.status === 'success') {
+                console.log('Business Data:', data.data.business);
+                console.log('Review Data Sample:', data.data.reviews[0]);
                 setReviews(data.data.reviews);
+                setBusiness(data.data.business);
             }
         } catch (error) {
             console.error('Error fetching reviews:', error);
@@ -53,15 +64,53 @@ const BusinessReviews = () => {
 
             const data = await response.json();
             if (data.status === 'success') {
-                await fetchReviews(); // Refresh
+                await fetchReviews();
                 setReplyContent('');
                 setReplyingTo(null);
+                toast.success('Reply posted successfully');
             } else {
-                alert(data.message || 'Failed to post reply');
+                toast.error(data.message || 'Failed to post reply');
             }
         } catch (error) {
             console.error('Error replying:', error);
-            alert('Failed to submit reply');
+            toast.error('Failed to submit reply');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const initiateDispute = (review) => {
+        setSelectedReview(review);
+        setDisputeReason('');
+        setShowDisputeModal(true);
+    };
+
+    const submitDispute = async (e) => {
+        e.preventDefault();
+        if (!disputeReason.trim()) return;
+
+        setSubmitting(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/business-portal/reviews/${selectedReview._id}/dispute`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason: disputeReason })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                toast.success('Dispute submitted for review');
+                fetchReviews();
+                setShowDisputeModal(false);
+            } else {
+                toast.error(data.message || 'Failed to submit dispute');
+            }
+        } catch (error) {
+            console.error('Error submitting dispute:', error);
+            toast.error('Failed to submit dispute');
         } finally {
             setSubmitting(false);
         }
@@ -76,102 +125,194 @@ const BusinessReviews = () => {
     }
 
     return (
-        <div className="business-dashboard container">
+        <div className="business-reviews-container">
             <header className="dashboard-header">
-                <div>
-                    <Link to="/business/dashboard" className="btn btn-outline btn-sm mb-4">
-                        <ArrowLeft size={16} /> Back to Dashboard
-                    </Link>
-                    <h1>Manage Reviews</h1>
-                </div>
+                <Link to="/business/dashboard" className="back-link">
+                    <ArrowLeft size={16} /> Back to Dashboard
+                </Link>
+                <h1>Manage Reviews</h1>
             </header>
 
-            <div className="dashboard-content">
-                <div className="reviews-list">
-                    {reviews.length === 0 ? (
-                        <div className="empty-state-card">
-                            <MessageCircle size={48} color="#cbd5e0" />
-                            <h3>No Reviews Yet</h3>
-                            <p>Customer reviews will appear here.</p>
-                        </div>
-                    ) : (
-                        reviews.map(rev => (
-                            <div key={rev._id} className="review-card-full" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid #e2e8f0' }}>
-                                <div className="reviewer-info" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-                                    <div className="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="reviews-list">
+                {reviews.length === 0 ? (
+                    <div className="empty-state-card">
+                        <MessageCircle size={48} style={{ margin: '0 auto 1rem', display: 'block' }} />
+                        <h3>No Reviews Yet</h3>
+                        <p>Customer reviews will appear here once your business starts getting noticed.</p>
+                    </div>
+                ) : (
+                    reviews.map(rev => (
+                        <div key={rev._id} className="review-card">
+                            <div className="review-header">
+                                <div className="reviewer-profile">
+                                    <div className="reviewer-avatar">
                                         {rev.user?.name?.[0] || 'U'}
                                     </div>
-                                    <div>
-                                        <p className="font-bold">{rev.user?.name || 'Anonymous User'}</p>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={14} fill={i < rev.rating ? "#008751" : "none"} color="#008751" />
-                                            ))}
+                                    <div className="reviewer-details">
+                                        <h3>{rev.user?.name || 'Anonymous User'}</h3>
+                                        <div className="flex items-center gap-1">
+                                            <StarRating rating={rev.rating} size={14} showLabel={true} />
                                         </div>
                                     </div>
-                                    <span className="text-gray-500 text-sm ml-auto">
-                                        {new Date(rev.createdAt).toLocaleDateString()}
-                                    </span>
                                 </div>
-
-                                <h3 className="font-bold mb-2">{rev.title}</h3>
-                                <p className="mb-4">{rev.content}</p>
-
-                                {/* Replies */}
-                                {rev.replies?.length > 0 && (
-                                    <div className="pl-4 border-l-2 border-gray-200 mt-4">
-                                        {rev.replies.map((reply, idx) => (
-                                            <div key={idx} className="bg-gray-50 p-3 rounded mb-2">
-                                                <p className="text-sm font-bold text-green-700">
-                                                    {reply.isBusiness ? 'Business Response' : (reply.user?.name || 'User')}
-                                                </p>
-                                                <p className="text-sm">{reply.content}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Reply Action */}
-                                <div className="mt-4 pt-4 border-t border-gray-100">
-                                    {replyingTo === rev._id ? (
-                                        <div className="reply-form">
-                                            <textarea
-                                                className="w-full p-2 border rounded mb-2"
-                                                rows="3"
-                                                placeholder="Write your response..."
-                                                value={replyContent}
-                                                onChange={e => setReplyContent(e.target.value)}
-                                            />
-                                            <div className="flex gap-2">
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    onClick={() => handleReplySubmit(rev._id)}
-                                                    disabled={submitting}
-                                                >
-                                                    {submitting ? 'Posting...' : 'Post Reply'}
-                                                </button>
-                                                <button
-                                                    className="btn btn-outline btn-sm"
-                                                    onClick={() => setReplyingTo(null)}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            className="btn btn-outline btn-sm"
-                                            onClick={() => setReplyingTo(rev._id)}
-                                        >
-                                            <MessageCircle size={16} /> Reply
-                                        </button>
-                                    )}
-                                </div>
+                                <span className="review-date">
+                                    {new Date(rev.createdAt).toLocaleDateString(undefined, {
+                                        year: 'numeric', month: 'short', day: 'numeric'
+                                    })}
+                                </span>
                             </div>
-                        ))
-                    )}
-                </div>
+
+                            <div className="review-body">
+                                <strong className="review-title">{rev.title}</strong>
+                                <p className="review-text">{rev.content}</p>
+                            </div>
+
+                            {/* Replies */}
+                            {rev.replies?.length > 0 && (
+                                <div className="replies-section">
+                                    {rev.replies.map((reply, idx) => (
+                                        <div key={idx} className={`reply-item ${reply.isBusiness ? 'reply-business' : 'reply-user'}`}>
+                                            <div className="reply-header">
+                                                <span className={`reply-author ${reply.isBusiness ? 'is-business' : 'is-user'}`}>
+                                                    {reply.isBusiness ? 'Your Response' : (reply.user?.name || 'Customer')}
+                                                </span>
+                                                <span className="reply-timestamp">
+                                                    {new Date(reply.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p>{reply.content}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Actions Footer */}
+                            <div className="review-actions">
+                                {business?.subscriptionTier === 'basic' ? (
+                                    <div className="upgrade-prompt">
+                                        <span>Upgrade to verification status to reply.</span>
+                                        <Link to="/business/settings" className="upgrade-link">Verify Now</Link>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {replyingTo === rev._id ? (
+                                            <div className="reply-form">
+                                                <textarea
+                                                    className="reply-textarea"
+                                                    placeholder="Write your professional response..."
+                                                    value={replyContent}
+                                                    onChange={e => setReplyContent(e.target.value)}
+                                                    autoFocus
+                                                />
+                                                <div className="form-actions">
+                                                    <button
+                                                        className="btn-premium btn-cancel"
+                                                        onClick={() => setReplyingTo(null)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        className="btn-premium btn-reply"
+                                                        onClick={() => handleReplySubmit(rev._id)}
+                                                        disabled={submitting}
+                                                    >
+                                                        {submitting ? <Loader2 className="animate-spin" size={16} /> : <><Send size={16} /> Post Reply</>}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {/* Dispute Status / Button */}
+                                                {rev.disputeStatus === 'none' && (
+                                                    <button
+                                                        className="btn-premium btn-dispute"
+                                                        onClick={() => initiateDispute(rev)}
+                                                        title="Report this review"
+                                                    >
+                                                        <AlertTriangle size={16} /> Report
+                                                    </button>
+                                                )}
+
+                                                {rev.disputeStatus === 'pending' && (
+                                                    <span className="status-pill status-pending">
+                                                        <Clock size={14} /> Dispute Pending
+                                                    </span>
+                                                )}
+
+                                                {rev.disputeStatus === 'rejected' && (
+                                                    <span className="status-pill status-rejected">
+                                                        <X size={14} /> Dispute Rejected
+                                                    </span>
+                                                )}
+
+                                                <button
+                                                    className="btn-premium btn-reply"
+                                                    onClick={() => setReplyingTo(rev._id)}
+                                                >
+                                                    <MessageCircle size={16} /> Reply
+                                                </button>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
+
+            {/* Dispute Modal */}
+            {showDisputeModal && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-in fade-in duration-200 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
+                        <div className="bg-red-50 px-6 py-4 border-b border-red-100 flex justify-between items-center">
+                            <h3 className="text-lg font-bold text-red-800 flex items-center gap-2">
+                                <AlertTriangle size={20} /> Report Review
+                            </h3>
+                            <button onClick={() => setShowDisputeModal(false)} className="text-red-400 hover:text-red-600 transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={submitDispute} className="p-6">
+                            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                                Use this form to report reviews that violate our content policy (e.g., spam, hate speech, conflict of interest).
+                                False reporting may lead to account suspension.
+                            </p>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Reason for Dispute
+                                </label>
+                                <textarea
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-sm min-h-[120px]"
+                                    placeholder="Please explain specifically why this review should be removed..."
+                                    value={disputeReason}
+                                    onChange={(e) => setDisputeReason(e.target.value)}
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-2 border-t border-gray-50">
+                                <button
+                                    type="button"
+                                    className="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors"
+                                    onClick={() => setShowDisputeModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-all shadow-sm hover:shadow active:transform active:scale-95 flex items-center gap-2 disabled:opacity-70"
+                                    disabled={submitting}
+                                >
+                                    {submitting ? <Loader2 className="animate-spin" size={18} /> : 'Submit Report'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

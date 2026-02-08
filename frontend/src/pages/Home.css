@@ -221,33 +221,27 @@
     color: var(--primary-color);
 }
 
-.trust-badge {
-    opacity: 0.2;
+.trust-shield-icon {
+    color: var(--primary-color);
 }
 
 @media (max-width: 900px) {
-    .trust-content {
-        flex-direction: column-reverse;
-        text-align: center;
+    .trust-shield-icon {
+        color: white;
+    }
+
+    .hero {
+        padding: 2rem 1rem;
     }
 
     .hero h1 {
-        font-size: 2.5rem;
-        padding: 0 1rem;
+        font-size: 2.25rem;
+        margin-bottom: 0.75rem;
     }
 
     .hero p {
-        padding: 0 1rem;
-    }
-
-    .trust-stats {
-        justify-content: center;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .trust-text h2 {
-        font-size: 2.25rem;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .hero-search {
@@ -262,7 +256,69 @@
         width: 100%;
     }
 
+    .categories-section {
+        padding: 2rem 1.5rem;
+    }
+
     .category-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .category-card {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .activity-wrapper {
+        padding: 2rem 0;
+    }
+
+    .trust-cta {
+        padding: 1.5rem 0;
+    }
+
+    .trust-content {
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .trust-badge svg {
+        width: 60px !important;
+        height: 60px !important;
+        opacity: 0.95;
+        stroke: white !important;
+        /* Force white stroke for visibility */
+    }
+
+    .trust-text h2 {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .trust-text p {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+
+    .trust-stats {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        display: none;
+        /* Hide stats on mobile to save huge space if needed, or just make smaller */
+    }
+
+    /* Alternative: keep stats but much smaller and inline */
+    .trust-stats-mobile-reduced {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .t-stat .count {
+        font-size: 1.5rem;
     }
 }

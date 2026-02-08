@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Briefcase, Mail, Lock, User, Phone, MapPin, Loader2, CheckCircle } from 'lucide-react';
+import { Briefcase, Mail, Lock, User, Phone, MapPin, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import './BusinessAuth.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -20,6 +20,8 @@ const BusinessSignup = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -186,13 +188,21 @@ const BusinessSignup = () => {
                                 <div className="input-wrapper">
                                     <Lock size={18} />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         name="password"
                                         placeholder="••••••••"
                                         value={formData.password}
                                         onChange={handleChange}
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        className="password-toggle-btn"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        tabIndex="-1"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
                             <div className="form-group">
@@ -200,13 +210,21 @@ const BusinessSignup = () => {
                                 <div className="input-wrapper">
                                     <Lock size={18} />
                                     <input
-                                        type="password"
+                                        type={showConfirmPassword ? "text" : "password"}
                                         name="confirmPassword"
                                         placeholder="••••••••"
                                         value={formData.confirmPassword}
                                         onChange={handleChange}
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        className="password-toggle-btn"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        tabIndex="-1"
+                                    >
+                                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
                         </div>

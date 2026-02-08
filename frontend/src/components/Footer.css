@@ -72,26 +72,6 @@
     color: white;
 }
 
-.language-selector {
-    display: flex;
-    background: #2d3748;
-    border-radius: 20px;
-    padding: 4px;
-}
-
-.language-selector button {
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 0.8rem;
-    color: #a0aec0;
-}
-
-.language-selector button.active {
-    background: white;
-    color: black;
-    font-weight: 600;
-}
-
 @media (max-width: 768px) {
     .footer-content {
         flex-direction: column;

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ShieldCheck, MapPin, Globe, Phone, Mail, Loader2, MessageCircle, Send } from 'lucide-react';
+import { ShieldCheck, MapPin, Globe, Phone, Mail, Loader2, MessageCircle, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import VerifiedBadge from '../components/VerifiedBadge';
+import StarRating from '../components/StarRating';
 import './BusinessProfile.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -134,12 +135,19 @@ const BusinessProfile = () => {
                                 <h1>{business.name}</h1>
                                 <VerifiedBadge business={business} size="medium" />
                             </div>
-                            <p>{business.reviewCount} reviews • {business.category}</p>
+                            <div className="categories-tags" style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                                {business.categories && business.categories.length > 0 ? (
+                                    business.categories.map(cat => (
+                                        <span key={cat} className="badge" style={{ background: '#e2e8f0', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>{cat}</span>
+                                    ))
+                                ) : (
+                                    <span className="badge" style={{ background: '#e2e8f0', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>{business.category}</span>
+                                )}
+                                <span style={{ marginLeft: '8px', color: '#718096' }}>• {business.reviewCount} reviews</span>
+                            </div>
                             <div className="trust-score-row">
                                 <div className="huge-stars">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={40} fill={i < Math.floor(business.rating) ? "var(--primary-color)" : "none"} color="var(--primary-color)" />
-                                    ))}
+                                    <StarRating rating={business.rating} size={40} />
                                 </div>
                                 <div className="score-text">
                                     <span className="score">{business.rating}</span>
@@ -190,9 +198,7 @@ const BusinessProfile = () => {
                                     </div>
                                     <div className="review-content">
                                         <div className="review-stars-small">
-                                            {[...Array(5)].map((_, j) => (
-                                                <Star key={j} size={18} fill={j < rev.rating ? "var(--primary-color)" : "none"} color="var(--primary-color)" />
-                                            ))}
+                                            <StarRating rating={rev.rating} size={18} />
                                         </div>
                                         <h3>{rev.title}</h3>
                                         <p>{rev.content}</p>
@@ -305,6 +311,28 @@ const BusinessProfile = () => {
                             <p><MapPin size={18} /> {business.location}</p>
                         </div>
                     </div>
+
+                    {/* Category Rankings Section */}
+                    {business.rankings && business.rankings.length > 0 && (
+                        <div className="sidebar-card">
+                            <h3>Category Rankings</h3>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {business.rankings.map((r, index) => (
+                                    <li key={index} style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '1.2rem' }}>
+                                            {r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '🏅'}
+                                        </span>
+                                        <div>
+                                            <strong>Ranked #{r.rank}</strong> in <br />
+                                            <span style={{ color: '#047857' }}>{r.category}</span>
+                                            <small style={{ color: '#666', display: 'block' }}>out of {r.total} businesses</small>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
                     <div className="sidebar-card company-is">
                         <h3>Company activity</h3>
                         {business.isClaimed ? (
@@ -312,7 +340,9 @@ const BusinessProfile = () => {
                         ) : (
                             <p className="text-muted"><ShieldCheck size={18} /> Unclaimed Profile</p>
                         )}
-                        <p><Mail size={18} /> Responds to reviews</p>
+                        {business.subscriptionTier !== 'basic' && (
+                            <p><Mail size={18} /> Responds to reviews</p>
+                        )}
                     </div>
                 </aside>
             </div>

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Lock, Building2, Save, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Lock, Building2, Save, Loader2, AlertCircle, CheckCircle, CreditCard } from 'lucide-react';
 import './BusinessSettings.css';
+import SubscriptionManagement from './SubscriptionManagement';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
 
 const BusinessSettings = () => {
-    const { businessUser, token, loading, logout } = useBusinessAuth();
+    const { businessUser, token, loading, logout, requestDeletion } = useBusinessAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('profile');
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Profile State
     const [profile, setProfile] = useState({ name: '', phone: '', position: '' });
@@ -127,6 +129,18 @@ const BusinessSettings = () => {
                         onClick={() => setActiveTab('businesses')}
                     >
                         <Building2 size={18} /> My Businesses
+                    </button>
+                    <button
+                        className={`sidebar-item ${activeTab === 'subscription' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('subscription')}
+                    >
+                        <CreditCard size={18} /> Subscription
+                    </button>
+                    <button
+                        className={`sidebar-item danger-tab ${activeTab === 'deletion' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('deletion')}
+                    >
+                        <AlertCircle size={18} /> Delete Account
                     </button>
                 </div>
 
@@ -264,6 +278,67 @@ const BusinessSettings = () => {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {activeTab === 'subscription' && (
+                        <SubscriptionManagement />
+                    )}
+
+                    {activeTab === 'deletion' && (
+                        <div className="settings-card danger-zone-v2-biz">
+                            <div className="danger-header">
+                                <div className="danger-icon-wrapper">
+                                    <AlertCircle size={32} />
+                                </div>
+                                <h2>Delete Business Account</h2>
+                                <div className="danger-divider"></div>
+                            </div>
+
+                            <div className="danger-body">
+                                <p className="description-text">
+                                    Request deletion of your business account. This will unclaim all your businesses, making them available for others to claim.
+                                </p>
+
+                                {businessUser.deletionRequest?.status === 'pending' ? (
+                                    <div className="pending-deletion-notice-refined">
+                                        <CheckCircle size={24} />
+                                        <div>
+                                            <h3>Deletion Request Received</h3>
+                                            <p>Requested on {new Date(businessUser.deletionRequest.requestedAt).toLocaleDateString()}. Our team is reviewing your request.</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        const reason = e.target.reason.value;
+                                        if (!reason) return alert('Please provide a reason');
+
+                                        if (window.confirm("Are you sure you want to request account deletion? This will eventually remove your access and unclaim your businesses.")) {
+                                            setIsDeleting(true);
+                                            const result = await requestDeletion(reason);
+                                            setIsDeleting(false);
+                                            if (!result.success) {
+                                                alert(result.message || 'Failed to request deletion');
+                                            }
+                                        }
+                                    }} className="deletion-form-centered">
+                                        <div className="form-group">
+                                            <label>Reason for Deletion</label>
+                                            <textarea
+                                                name="reason"
+                                                className="form-control-refined"
+                                                placeholder="Please let us know why you'd like to leave..."
+                                                rows="3"
+                                                required
+                                            ></textarea>
+                                        </div>
+                                        <button type="submit" className="btn-danger-refined-biz" disabled={isDeleting}>
+                                            {isDeleting ? <Loader2 className="animate-spin" size={18} /> : 'Request Account Deletion'}
+                                        </button>
+                                    </form>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

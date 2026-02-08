@@ -1,5 +1,23 @@
 /* ManageReviews.css */
 
+.back-link-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #008751;
+    /* Naija Trust Green */
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+}
+
+.back-link-admin:hover {
+    color: #006039;
+    text-decoration: underline;
+}
+
 .reviews-controls {
     display: flex;
     justify-content: space-between;
@@ -60,40 +78,134 @@
     font-weight: 600;
 }
 
-/* Review Table Styles Override */
+/* Table Styles */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #edf2f7;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 1000px;
+    /* Ensure table doesn't get too squashed */
+}
+
+.data-table th {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.data-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Column Widths */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+    width: 15%;
+}
+
+/* Business */
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+    width: 20%;
+}
+
+/* User */
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+    width: 10%;
+}
+
+/* Rating */
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+    width: 35%;
+}
+
+/* Content */
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) {
+    width: 10%;
+}
+
+/* Status */
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+    width: 10%;
+}
+
+/* Actions */
+
+
+/* Review Content Cell */
 .review-content-cell {
-    max-width: 350px;
+    max-width: 400px;
+}
+
+.review-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .review-title {
     font-weight: 600;
     color: #1e293b;
-    margin-bottom: 0.25rem;
-    display: block;
+    font-size: 0.95rem;
 }
 
 .review-body {
     font-size: 0.875rem;
     color: #64748b;
-    line-height: 1.4;
+    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-clamp: 2;
+    /* Cross-browser compatibility */
 }
 
+/* User Info Cell */
 .user-info {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #e2e8f0;
     object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .user-details {

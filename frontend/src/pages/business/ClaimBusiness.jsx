@@ -41,16 +41,22 @@ const ClaimBusiness = () => {
         }
     }, [businessUser]);
 
-    const handleSearch = async (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
+    // Debounce search effect
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchTerm.length >= 2) {
+                performSearch(searchTerm);
+            } else {
+                setResults([]);
+            }
+        }, 300);
 
-        if (value.length < 2) {
-            setResults([]);
-            return;
-        }
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
+    const performSearch = async (value) => {
         setIsSearching(true);
+        setError('');
         try {
             const response = await fetch(`${API_BASE_URL}/business-portal/search?q=${encodeURIComponent(value)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -58,12 +64,23 @@ const ClaimBusiness = () => {
             const data = await response.json();
             if (data.status === 'success') {
                 setResults(data.data.businesses);
+            } else {
+                // If backend returns loose success/fail
+                if (data.status === 'fail') {
+                    console.error('Search API Fail:', data.message);
+                }
             }
         } catch (err) {
             console.error('Search error:', err);
+            setError('Search failed. Please try again.');
         } finally {
             setIsSearching(false);
         }
+    };
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        if (error) setError('');
     };
 
     const handleClaimClick = (business) => {
@@ -128,6 +145,11 @@ const ClaimBusiness = () => {
                     {isSearching ? (
                         <div className="flex justify-center p-8">
                             <Loader2 className="animate-spin text-green-600" size={32} />
+                            <span className="ml-2 text-gray-500">Searching...</span>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center p-8 text-red-500">
+                            <p>{error}</p>
                         </div>
                     ) : results.length > 0 ? (
                         results.map(biz => (
@@ -137,7 +159,9 @@ const ClaimBusiness = () => {
                                     <p className="flex items-center gap-2 mb-1">
                                         <MapPin size={14} /> {biz.location}
                                     </p>
-                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">{biz.category}</span>
+                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                                        {biz.categories && biz.categories.length > 0 ? biz.categories.join(', ') : biz.category}
+                                    </span>
                                     {biz.claimStatus === 'pending' && <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Pending Claim</span>}
                                 </div>
                                 <button
@@ -149,7 +173,7 @@ const ClaimBusiness = () => {
                                 </button>
                             </div>
                         ))
-                    ) : searchTerm.length > 1 ? (
+                    ) : searchTerm.length >= 2 ? (
                         <div className="text-center p-8 text-gray-500">
                             <p>No businesses found matching "{searchTerm}"</p>
                             <div className="mt-4">

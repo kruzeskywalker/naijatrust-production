@@ -11,21 +11,34 @@ const { sendEmail, emailTemplates } = require('../utils/emailService');
 // Middleware: Verify Admin Token
 const verifyAdminToken = async (req, res, next) => {
     try {
-        const token = req.headers.authorization?.split(' ')[1];
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.split(' ')[1];
+
+        console.log('--- Admin Token Verification ---');
+        console.log('Auth Header exists:', !!authHeader);
+        console.log('Token exists:', !!token);
+
         if (!token) {
+            console.log('No token provided');
             return res.status(401).json({ status: 'fail', message: 'No token provided' });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+        console.log('Token decoded successfully for ID:', decoded.id);
+
         const admin = await AdminUser.findById(decoded.id);
 
         if (!admin || !['admin', 'super_admin'].includes(admin.role)) {
+            console.log('Admin not found or invalid role');
             return res.status(401).json({ status: 'fail', message: 'Invalid admin token' });
         }
 
         req.admin = admin;
         next();
     } catch (error) {
+        console.error('Admin token verification FAILED:', error.message);
+        if (token) console.log('Token tail:', token.slice(-10));
+        console.log('process.env.JWT_SECRET defined:', !!process.env.JWT_SECRET || 'fallback_secret' === 'fallback_secret');
         res.status(401).json({ status: 'fail', message: 'Invalid token' });
     }
 };
@@ -55,7 +68,7 @@ router.post('/auth/login', async (req, res) => {
 
         const token = jwt.sign(
             { id: admin._id, role: admin.role },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'fallback_secret',
             { expiresIn: '12h' }
         );
 
@@ -165,7 +178,14 @@ router.put('/claim-requests/:id/approve', verifyAdminToken, async (req, res) => 
         business.isClaimed = true;
         business.owner = claim.user._id;
         business.claimedAt = new Date();
-        business.isVerified = true; // Auto-verify on approved claim
+
+        // Verification status is now strictly tied to the subscription tier
+        // Basic tier (default) is NOT verified. Only higher tiers are.
+        business.isVerified = business.subscriptionTier !== 'basic';
+        if (business.isVerified) {
+            business.verifiedAt = new Date();
+            business.verifiedBy = req.admin._id;
+        }
         await business.save();
 
         // Update Business User
@@ -269,7 +289,7 @@ router.get('/businesses', verifyAdminToken, async (req, res) => {
 
         // Search by name
         if (search) {
-            query.$text = { $search: search };
+            query.name = { $regex: search, $options: 'i' };
         }
 
         const businesses = await Business.find(query)
@@ -290,24 +310,24 @@ router.get('/businesses', verifyAdminToken, async (req, res) => {
 // POST /api/admin/businesses - Create a new business
 router.post('/businesses', verifyAdminToken, async (req, res) => {
     try {
-        const { name, category, location, description, website, phone, email } = req.body;
+        const { name, category, categories, location, description, website, phone, email } = req.body;
 
         // Basic validation
-        if (!name || !category || !location || !phone) {
-            return res.status(400).json({ status: 'fail', message: 'Name, category, location, and phone are required' });
+        if (!name || (!category && (!categories || categories.length === 0)) || !location || !phone) {
+            return res.status(400).json({ status: 'fail', message: 'Name, categories, location, and phone are required' });
         }
 
         const business = await Business.create({
             name,
-            category,
+            category: category || (categories ? categories[0] : 'Other'), // Fallback
+            categories: categories || [category], // Support both
             location,
             description,
             website,
             phone,
             email,
-            isVerified: true, // Auto-verified since admin created it
-            verifiedBy: req.admin._id,
-            verifiedAt: new Date(),
+            // Verification status is now strictly tied to the subscription tier
+            isVerified: false, // Defaults to basic tier, so not verified
             claimStatus: 'unclaimed',
             isClaimed: false
         });
@@ -540,6 +560,203 @@ router.delete('/reviews/:id', verifyAdminToken, async (req, res) => {
         await req.admin.logAction('delete_review', 'review', review._id, 'Deleted review');
 
         res.status(200).json({ status: 'success', message: 'Review deleted' });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// module.exports moved to end
+
+// GET /api/admin/users - List all users
+router.get('/users', verifyAdminToken, async (req, res) => {
+    try {
+        const { search, isBlocked } = req.query;
+        const query = {};
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (isBlocked !== undefined) {
+            query.isBlocked = isBlocked === 'true';
+        }
+
+        const users = await require('../models/User').find(query).sort('-createdAt');
+        res.status(200).json({ status: 'success', data: { users, count: users.length } });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PUT /api/admin/users/:id/block - Block/Unblock user
+router.put('/users/:id/block', verifyAdminToken, async (req, res) => {
+    try {
+        const { isBlocked } = req.body;
+        const user = await require('../models/User').findByIdAndUpdate(
+            req.params.id,
+            { isBlocked },
+            { new: true }
+        );
+
+        if (!user) return res.status(404).json({ status: 'fail', message: 'User not found' });
+
+        await req.admin.logAction(
+            isBlocked ? 'block_user' : 'unblock_user',
+            'user',
+            user._id,
+            `${isBlocked ? 'Blocked' : 'Unblocked'} user ${user.email}`
+        );
+
+        res.status(200).json({ status: 'success', message: `User ${isBlocked ? 'blocked' : 'unblocked'}` });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// GET /api/admin/reviews/disputes - List disputed reviews
+router.get('/reviews/disputes', verifyAdminToken, async (req, res) => {
+    try {
+        const reviews = await Review.find({ disputeStatus: 'pending' })
+            .populate('business', 'name')
+            .populate('user', 'name email')
+            .sort('-createdAt');
+
+        res.status(200).json({ status: 'success', data: { reviews } });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PUT /api/admin/reviews/:id/dispute-decision - Accept or Reject Dispute
+router.put('/reviews/:id/dispute-decision', verifyAdminToken, async (req, res) => {
+    try {
+        const { decision } = req.body; // 'accepted' or 'rejected'
+
+        if (!['accepted', 'rejected'].includes(decision)) {
+            return res.status(400).json({ status: 'fail', message: 'Invalid decision' });
+        }
+
+        const review = await Review.findById(req.params.id);
+        if (!review) return res.status(404).json({ status: 'fail', message: 'Review not found' });
+
+        if (decision === 'accepted') {
+            // Delete the review
+            const businessId = review.business;
+            await Review.findByIdAndDelete(review._id);
+
+            // Update business rating
+            const allReviews = await Review.find({ business: businessId, isHidden: { $ne: true } });
+            const avgRating = allReviews.length > 0
+                ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+                : 0;
+
+            await Business.findByIdAndUpdate(businessId, {
+                rating: avgRating.toFixed(1),
+                reviewCount: allReviews.length
+            });
+
+            await req.admin.logAction('accept_dispute', 'review', review._id, 'Accepted dispute and deleted review');
+        } else {
+            // Reject dispute
+            review.disputeStatus = 'rejected';
+            await review.save();
+            await req.admin.logAction('reject_dispute', 'review', review._id, 'Rejected dispute, review stays');
+        }
+
+        res.status(200).json({ status: 'success', message: `Dispute ${decision}` });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// GET /api/admin/deletion-requests - List pending business account deletion requests
+router.get('/deletion-requests', verifyAdminToken, async (req, res) => {
+    try {
+        const users = await BusinessUser.find({ 'deletionRequest.status': 'pending' })
+            .select('-password')
+            .sort('-deletionRequest.requestedAt');
+
+        res.status(200).json({ status: 'success', data: { requests: users } });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PUT /api/admin/deletion-requests/:id/approve - Approve business account deletion
+router.put('/deletion-requests/:id/approve', verifyAdminToken, async (req, res) => {
+    try {
+        const user = await BusinessUser.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        if (user.deletionRequest.status !== 'pending') {
+            return res.status(400).json({ status: 'fail', message: 'No pending deletion request found' });
+        }
+
+        // 1. Unclaim all associated businesses
+        if (user.claimedBusinesses && user.claimedBusinesses.length > 0) {
+            await Business.updateMany(
+                { _id: { $in: user.claimedBusinesses } },
+                {
+                    $set: {
+                        owner: null,
+                        isClaimed: false,
+                        claimStatus: 'unclaimed',
+                        subscriptionStatus: 'inactive',
+                        subscriptionTier: 'basic'
+                    }
+                }
+            );
+        }
+
+        // 2. Clear user records or hard delete? User said "their details should be deleted".
+        // For business user, approval granted -> deleted.
+        const userName = user.name;
+        const userEmail = user.email;
+
+        await BusinessUser.findByIdAndDelete(user._id);
+
+        // 3. Log action
+        await req.admin.logAction(
+            'approve_deletion',
+            'business_user',
+            user._id,
+            `Approved account deletion for ${userName} (${userEmail})`
+        );
+
+        res.status(200).json({ status: 'success', message: 'Account deleted and businesses unclaimed successfully' });
+    } catch (error) {
+        console.error('Approve deletion error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PUT /api/admin/deletion-requests/:id/reject - Reject business account deletion
+router.put('/deletion-requests/:id/reject', verifyAdminToken, async (req, res) => {
+    try {
+        const user = await BusinessUser.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        user.deletionRequest.status = 'rejected';
+        await user.save();
+
+        // Log action
+        await req.admin.logAction(
+            'reject_deletion',
+            'business_user',
+            user._id,
+            `Rejected account deletion for ${user.name} (${user.email})`
+        );
+
+        res.status(200).json({ status: 'success', message: 'Deletion request rejected' });
     } catch (error) {
         res.status(500).json({ status: 'fail', message: error.message });
     }

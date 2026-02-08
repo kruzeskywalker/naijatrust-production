@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Mail, Lock, Loader2, AlertCircle, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './Auth.css';
@@ -10,6 +10,7 @@ const Login = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [showVerificationWarning, setShowVerificationWarning] = useState(false);
     const [resendingEmail, setResendingEmail] = useState(false);
 
@@ -94,7 +95,23 @@ const Login = () => {
                     </div>
                     <div className="form-group">
                         <label><Lock size={16} /> Password</label>
-                        <input name="password" type="password" placeholder="••••••••" required disabled={isLoading} />
+                        <div className="password-input-wrapper">
+                            <input
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                required
+                                disabled={isLoading}
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle-btn"
+                                onClick={() => setShowPassword(!showPassword)}
+                                tabIndex="-1"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
                     <div className="form-footer">
                         <Link to="/forgot-password">Forgot password?</Link>

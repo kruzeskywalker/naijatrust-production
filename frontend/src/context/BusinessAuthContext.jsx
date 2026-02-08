@@ -56,12 +56,46 @@ export const BusinessAuthProvider = ({ children }) => {
         navigate('/business/login');
     };
 
+    const requestDeletion = async (reason) => {
+        try {
+            const response = await fetch(`${API_URL}/business-auth/request-deletion`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ reason })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // Update local user state to reflect pending deletion
+                setBusinessUser({
+                    ...businessUser,
+                    deletionRequest: {
+                        status: 'pending',
+                        reason: reason || 'No reason provided',
+                        requestedAt: new Date()
+                    }
+                });
+                return { success: true, message: data.message };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error('Request deletion error:', error);
+            return { success: false, message: 'Network error. Please try again.' };
+        }
+    };
+
     const value = {
         businessUser,
         token,
         loading,
         login,
         logout,
+        requestDeletion,
         isAuthenticated: !!businessUser
     };
 

@@ -186,3 +186,71 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Refined Danger Zone UI */
+.danger-zone-v2 {
+    border: 1px solid #fee2e2;
+    background: #fffafa;
+    text-align: center;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.danger-header {
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.danger-icon-wrapper {
+    color: #ef4444;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.danger-header h2 {
+    color: #dc2626;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.danger-divider {
+    height: 1px;
+    background: #fee2e2;
+    width: 60px;
+    margin: 0 auto;
+}
+
+.danger-body p {
+    color: #4b5563;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 320px;
+}
+
+.btn-danger-refined {
+    background: #ef4444;
+    color: white;
+    padding: 0.875rem 2rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06);
+}
+
+.btn-danger-refined:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.2), 0 4px 6px -2px rgba(239, 68, 68, 0.1);
+}
+
+.btn-danger-refined:active {
+    transform: translateY(0);
+}

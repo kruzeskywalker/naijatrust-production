@@ -28,6 +28,7 @@ router.get('/:businessId', async (req, res) => {
             isHidden: { $ne: true } // Exclude hidden reviews
         })
             .populate('user', 'name avatar')
+            .populate('replies.user', 'name avatar')
             .sort('-createdAt');
         res.status(200).json({ status: 'success', data: { reviews } });
     } catch (err) {
@@ -169,7 +170,7 @@ router.delete('/:reviewId', verifyToken, async (req, res) => {
     }
 });
 
-// Add a reply to a review
+// Add a reply to a review (PROTECTED: Requires Verified tier or higher)
 router.post('/:reviewId/reply', verifyToken, async (req, res) => {
     try {
         const { reviewId } = req.params;
@@ -180,13 +181,74 @@ router.post('/:reviewId/reply', verifyToken, async (req, res) => {
             return res.status(404).json({ status: 'fail', message: 'Review not found' });
         }
 
-        // Add reply to the review
-        review.replies.push({
-            user: req.user._id,
-            content,
-            isBusiness: isBusiness || false,
-            createdAt: new Date()
-        });
+        // If this is a business reply, check subscription
+        if (isBusiness) {
+            // Find the business
+            const business = await Business.findById(review.business);
+            if (!business) {
+                return res.status(404).json({ status: 'fail', message: 'Business not found' });
+            }
+
+            // Check if user is the business owner
+            const BusinessUser = require('../models/BusinessUser');
+            const businessUser = await BusinessUser.findOne({
+                email: req.user.email,
+                claimedBusinesses: business._id
+            });
+
+            if (!businessUser) {
+                return res.status(403).json({
+                    status: 'fail',
+                    message: 'You must be the business owner to reply as the business'
+                });
+            }
+
+            // Check subscription feature access using config as source of truth
+            const { getFeatures } = require('../config/subscriptionPlans');
+            const features = getFeatures(business.subscriptionTier);
+
+            if (!features || !features.canRespondToReviews) {
+                return res.status(403).json({
+                    status: 'fail',
+                    message: 'Responding to reviews requires a Verified subscription or higher',
+                    currentTier: business.subscriptionTier,
+                    requiredTier: 'verified',
+                    upgradeUrl: '/pricing',
+                    feature: 'canRespondToReviews'
+                });
+            }
+
+            // Check if subscription is active
+            const isActive = business.subscriptionStatus === 'active' ||
+                business.subscriptionStatus === 'trialing';
+
+            if (!isActive) {
+                return res.status(403).json({
+                    status: 'fail',
+                    message: 'Your subscription is not active. Please renew to respond to reviews.',
+                    subscriptionStatus: business.subscriptionStatus,
+                    upgradeUrl: '/pricing'
+                });
+            }
+
+            // Add reply as business
+            review.replies.push({
+                user: req.user._id,
+                onModel: 'BusinessUser',
+                content,
+                isBusiness: true,
+                createdAt: new Date()
+            });
+        } else {
+            // Add reply as normal user
+            review.replies.push({
+                user: req.user._id,
+                onModel: 'User',
+                content,
+                isBusiness: false,
+                createdAt: new Date()
+            });
+        }
 
         await review.save();
 

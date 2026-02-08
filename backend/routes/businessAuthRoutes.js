@@ -6,27 +6,7 @@ const BusinessUser = require('../models/BusinessUser');
 
 const { sendEmail, sendPasswordResetEmail } = require('../utils/emailService');
 
-// Middleware to verify business user token
-const verifyBusinessToken = async (req, res, next) => {
-    try {
-        const token = req.headers.authorization?.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ status: 'fail', message: 'No token provided' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await BusinessUser.findById(decoded.id);
-
-        if (!user || user.role !== 'business') {
-            return res.status(401).json({ status: 'fail', message: 'Invalid token' });
-        }
-
-        req.user = user;
-        next();
-    } catch (error) {
-        res.status(401).json({ status: 'fail', message: 'Invalid token' });
-    }
-};
+const { verifyBusinessToken } = require('../middleware/businessAuth');
 
 // Helper function to validate business email
 const isBusinessEmail = (email) => {
@@ -156,6 +136,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Check if account is suspended
+        // Check if account is suspended or blocked
         if (user.isSuspended) {
             return res.status(403).json({
                 status: 'fail',
@@ -438,6 +419,37 @@ router.patch('/reset-password/:token', async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ status: 'fail', message: err.message });
+    }
+});
+
+// POST /api/business-auth/request-deletion
+router.post('/request-deletion', verifyBusinessToken, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const user = req.user;
+
+        if (user.deletionRequest && user.deletionRequest.status === 'pending') {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'You already have a pending deletion request'
+            });
+        }
+
+        user.deletionRequest = {
+            status: 'pending',
+            reason: reason || 'No reason provided',
+            requestedAt: new Date()
+        };
+
+        await user.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Deletion request sent successfully. An admin will review it shortly.'
+        });
+    } catch (error) {
+        console.error('Request deletion error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
     }
 });
 

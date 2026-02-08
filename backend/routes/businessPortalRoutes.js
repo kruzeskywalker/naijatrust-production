@@ -3,8 +3,11 @@ const router = express.Router();
 const Business = require('../models/Business');
 const BusinessUser = require('../models/BusinessUser');
 const ClaimRequest = require('../models/ClaimRequest');
-const { verifyBusinessToken } = require('./businessAuthRoutes');
+const Review = require('../models/Review'); // Ensure Review model is loaded
+const User = require('../models/User'); // Helper: Ensure User model is loaded for population
+const { verifyBusinessToken } = require('../middleware/businessAuth');
 const { sendEmail, emailTemplates } = require('../utils/emailService');
+const upload = require('../middleware/uploadMiddleware');
 
 // Middleware: Verify business user is active and email verified
 const verifyVerifiedBusinessUser = (req, res, next) => {
@@ -62,15 +65,19 @@ router.get('/dashboard', verifyBusinessToken, verifyVerifiedBusinessUser, async 
 router.get('/search', verifyBusinessToken, async (req, res) => {
     try {
         const { q } = req.query;
+        console.log(`Search Request: "${q}"`);
 
         if (!q || q.length < 2) {
             return res.status(200).json({ status: 'success', data: { businesses: [] } });
         }
 
         const businesses = await Business.find({
-            $text: { $search: q },
+            $or: [
+                { name: { $regex: q, $options: 'i' } },
+                { description: { $regex: q, $options: 'i' } }
+            ],
             claimStatus: { $ne: 'claimed' } // Only show unclaimed or pending businesses
-        }).select('name category location website logo claimStatus');
+        }).select('name category categories location website logo claimStatus');
 
         res.status(200).json({
             status: 'success',
@@ -150,13 +157,14 @@ router.post('/claim/:businessId', verifyBusinessToken, verifyVerifiedBusinessUse
 // POST /api/business-portal/register
 router.post('/register', verifyBusinessToken, verifyVerifiedBusinessUser, async (req, res) => {
     try {
-        const { name, category, location, description, website, phone, email, documents } = req.body;
+        const { name, category, categories, location, description, website, phone, email, documents } = req.body;
         const user = req.user;
 
         // Create new business (initially verified=false)
         const newBusiness = await Business.create({
             name,
-            category,
+            category: category || (categories ? categories[0] : 'Other'),
+            categories: categories || [category],
             location,
             description,
             website,
@@ -187,6 +195,35 @@ router.post('/register', verifyBusinessToken, verifyVerifiedBusinessUser, async 
         });
     } catch (error) {
         console.error('Business registration error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// POST /api/business-portal/upload-logo/:businessId
+router.post('/upload-logo/:businessId', verifyBusinessToken, verifyVerifiedBusinessUser, upload.single('logo'), async (req, res) => {
+    try {
+        const { businessId } = req.params;
+        const user = req.user;
+
+        if (!req.file) {
+            return res.status(400).json({ status: 'fail', message: 'No file uploaded' });
+        }
+
+        const business = await Business.findOne({ _id: businessId, owner: user._id });
+        if (!business) {
+            return res.status(404).json({ status: 'fail', message: 'Business not found or access denied' });
+        }
+
+        business.logo = `/uploads/${req.file.filename}`;
+        await business.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Logo uploaded successfully',
+            data: { logo: business.logo }
+        });
+    } catch (error) {
+        console.error('Logo upload error:', error);
         res.status(500).json({ status: 'fail', message: error.message });
     }
 });
@@ -239,10 +276,6 @@ router.get('/analytics', verifyBusinessToken, verifyVerifiedBusinessUser, async 
     }
 });
 
-const Review = require('../models/Review');
-
-// ... existing code ...
-
 // GET /api/business-portal/reviews/:businessId
 router.get('/reviews/:businessId', verifyBusinessToken, verifyVerifiedBusinessUser, async (req, res) => {
     try {
@@ -262,7 +295,7 @@ router.get('/reviews/:businessId', verifyBusinessToken, verifyVerifiedBusinessUs
 
         res.status(200).json({
             status: 'success',
-            data: { reviews }
+            data: { reviews, business }
         });
     } catch (error) {
         console.error('Get business reviews error:', error);
@@ -281,7 +314,7 @@ router.get('/reviews', verifyBusinessToken, verifyVerifiedBusinessUser, async (r
 
         const reviews = await Review.find({ business: { $in: businessIds } })
             .populate('user', 'name avatar')
-            .populate('business', 'name')
+            .populate('business', 'name subscriptionTier')
             .populate('replies.user', 'name avatar')
             .sort('-createdAt');
 
@@ -313,13 +346,25 @@ router.post('/reviews/:reviewId/reply', verifyBusinessToken, verifyVerifiedBusin
             return res.status(403).json({ status: 'fail', message: 'Not authorized to reply to this review' });
         }
 
+        // Check subscription feature access using config as source of truth
+        const { getFeatures } = require('../config/subscriptionPlans');
+        const features = getFeatures(business.subscriptionTier);
+
+        if (!features || !features.canRespondToReviews) {
+            return res.status(403).json({
+                status: 'fail',
+                message: 'Responding to reviews requires a Verified subscription or higher',
+                currentTier: business.subscriptionTier,
+                requiredTier: 'verified',
+                upgradeUrl: '/pricing',
+                feature: 'canRespondToReviews'
+            });
+        }
+
         // Add reply
         review.replies.push({
-            user: user._id, // This writes BusinessUser ID. Frontend needs to handle this polymorphic ref if possible?
-            // Actually Review schema 'replies.user' is ref 'User'. 
-            // We might need to handle this carefully.
-            // If Schema allows any ObjectId, it's fine. If it strictly refs 'User', population might fail or return null.
-            // Let's check Review schema. For now, pushing ID.
+            user: user._id,
+            onModel: 'BusinessUser',
             content,
             isBusiness: true,
             createdAt: new Date()
@@ -334,6 +379,34 @@ router.post('/reviews/:reviewId/reply', verifyBusinessToken, verifyVerifiedBusin
         });
     } catch (error) {
         console.error('Reply error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// POST /api/business-portal/reviews/:reviewId/dispute
+router.post('/reviews/:reviewId/dispute', verifyBusinessToken, verifyVerifiedBusinessUser, async (req, res) => {
+    try {
+        const { reviewId } = req.params;
+        const { reason } = req.body;
+        const user = req.user;
+
+        const review = await Review.findById(reviewId);
+        if (!review) return res.status(404).json({ status: 'fail', message: 'Review not found' });
+
+        // Verify ownership
+        const business = await Business.findOne({ _id: review.business, owner: user._id });
+        if (!business) return res.status(403).json({ status: 'fail', message: 'Not authorized' });
+
+        if (review.disputeStatus === 'pending') {
+            return res.status(400).json({ status: 'fail', message: 'Dispute already pending' });
+        }
+
+        review.disputeStatus = 'pending';
+        review.disputeReason = reason;
+        await review.save();
+
+        res.status(200).json({ status: 'success', message: 'Dispute submitted successfully' });
+    } catch (error) {
         res.status(500).json({ status: 'fail', message: error.message });
     }
 });

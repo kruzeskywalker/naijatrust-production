@@ -9,7 +9,10 @@ const createInitialAdmin = async () => {
 
         const existingAdmin = await AdminUser.findOne({ email: 'admin@naijatrust.com' });
         if (existingAdmin) {
-            console.log('Admin user already exists');
+            console.log('Admin user already exists. Updating password...');
+            existingAdmin.password = 'adminPassword123!';
+            await existingAdmin.save();
+            console.log('✅ Admin password updated to: adminPassword123!');
             process.exit(0);
         }
 

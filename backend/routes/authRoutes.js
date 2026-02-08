@@ -5,6 +5,7 @@ const User = require('../models/User');
 
 const crypto = require('crypto');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const upload = require('../middleware/uploadMiddleware');
 const router = express.Router();
 
 const signToken = (id) => {
@@ -100,6 +101,10 @@ router.post('/login', authLimiter, async (req, res) => {
         const user = await User.findOne({ email }).select('+password');
         if (!user || !user.password || !(await user.comparePassword(password))) {
             return res.status(401).json({ message: 'Incorrect email or password' });
+        }
+
+        if (user.isBlocked) {
+            return res.status(403).json({ message: 'Your account has been blocked. Please contact support.' });
         }
 
         const token = signToken(user._id);
@@ -286,7 +291,41 @@ router.patch('/updatePassword', verifyToken, async (req, res) => {
     }
 });
 
-// Update avatar URL (simulated)
+// Upload avatar (Real file upload)
+router.post('/upload-avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ status: 'fail', message: 'No file uploaded' });
+        }
+
+        const user = req.user;
+        // Construct detailed URL or relative path. frontend will handle base URL or we can return full URL.
+        // For simplicity and robustness, returning relative path.
+        // Ensure to remove old file if needed (optional optimization).
+
+        user.avatar = `/uploads/${req.file.filename}`;
+        await user.save({ validateBeforeSave: false });
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                    avatar: user.avatar
+                }
+            },
+            message: 'Avatar uploaded successfully'
+        });
+    } catch (err) {
+        console.error('Avatar upload error:', err);
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Update avatar URL (simulated/legacy)
 router.patch('/updateAvatar', verifyToken, async (req, res) => {
     try {
         const { avatar } = req.body;
@@ -403,6 +442,31 @@ router.patch('/reset-password/:token', authLimiter, async (req, res) => {
             message: 'Password reset successful!'
         });
     } catch (err) {
+        res.status(500).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Delete current user account (Hard delete)
+router.delete('/me', verifyToken, async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        // Perform hard delete
+        const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        // Note: Reviews are preserved as they reference the ID which is now gone from Users collection.
+        // Frontend handles missing user data in reviews gracefully.
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Your account has been permanently deleted. We hope to see you again!'
+        });
+    } catch (err) {
+        console.error('Delete account error:', err);
         res.status(500).json({ status: 'fail', message: err.message });
     }
 });

@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { Users, FileText, CheckCircle, Clock } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Settings, User, LogOut, Loader2, Building2, Star, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import './AdminDashboard.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -91,6 +92,28 @@ const AdminDashboard = () => {
                             <h3>{stats.activeBusinessUsers}</h3>
                             <p>Active Owners</p>
                             <Link to="/admin/claims?status=approved" className="stat-link">View Owners →</Link>
+                        </div>
+                    </div>
+
+                    <div className="stat-card">
+                        <div className="icon-wrapper businesses">
+                            <User size={24} />
+                        </div>
+                        <div className="stat-content">
+                            <h3>Users</h3>
+                            <p>Manage Users</p>
+                            <Link to="/admin/users" className="stat-link">View All →</Link>
+                        </div>
+                    </div>
+
+                    <div className="stat-card">
+                        <div className="icon-wrapper delete-req">
+                            <AlertCircle size={24} />
+                        </div>
+                        <div className="stat-content">
+                            <h3>Deletions</h3>
+                            <p>Account Deletions</p>
+                            <Link to="/admin/deletions" className="stat-link">View Requests →</Link>
                         </div>
                     </div>
                 </div>

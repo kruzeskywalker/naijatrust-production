@@ -91,6 +91,32 @@ const WriteReview = () => {
     if (loading) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}><Loader2 className="animate-spin" /> Loading...</div>;
     if (!business) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>Business not found</div>;
 
+    // Helper to get color based on rating
+    const getStarColor = (val) => {
+        if (val === 0) return "#CBD5E0"; // Default gray
+        if (val >= 4.8) return '#00C851'; // Excellent (Green)
+        if (val >= 4.3) return '#00C851'; // Excellent (Green)
+        if (val >= 3.8) return '#76ff03'; // Great (Light Green)
+        if (val >= 3.3) return '#FFEB3B'; // Average (Yellow)
+        if (val >= 2.8) return '#FFEB3B'; // Average (Yellow)
+        if (val >= 2.3) return '#FF9800'; // Poor (Orange)
+        if (val >= 1.8) return '#FF9800'; // Poor (Orange)
+        if (val >= 1) return '#f44336';   // Bad (Red)
+        return "#CBD5E0";
+    };
+
+    // Helper for labels
+    const getRatingLabel = (val) => {
+        if (val >= 4.8) return 'EXCELLENT';
+        if (val >= 4.3) return 'EXCELLENT';
+        if (val >= 3.8) return 'GREAT';
+        if (val >= 3.3) return 'AVERAGE';
+        if (val >= 2.8) return 'AVERAGE';
+        if (val >= 2.3) return 'POOR';
+        if (val >= 1.8) return 'POOR';
+        if (val >= 1) return 'BAD';
+        return 'SELECT RATING';
+    };
 
     return (
         <div className="write-review-page container">
@@ -105,28 +131,32 @@ const WriteReview = () => {
                     <div className="star-picker">
                         {[...Array(5)].map((_, i) => {
                             const ratingValue = i + 1;
+                            const currentColor = getStarColor(hover || rating);
                             return (
                                 <button
                                     key={i}
+                                    type="button"
                                     onMouseEnter={() => setHover(ratingValue)}
                                     onMouseLeave={() => setHover(0)}
                                     onClick={() => setRating(ratingValue)}
                                 >
                                     <Star
                                         size={48}
-                                        fill={(hover || rating) >= ratingValue ? "var(--primary-color)" : "none"}
-                                        color={(hover || rating) >= ratingValue ? "var(--primary-color)" : "#cbd5e0"}
+                                        fill={ratingValue <= (hover || rating) ? currentColor : "transparent"}
+                                        color={ratingValue <= (hover || rating) ? currentColor : "#cbd5e0"}
+                                        style={{ transition: 'all 0.2s' }}
                                     />
                                 </button>
                             );
                         })}
                     </div>
-                    <p className="rating-label">
-                        {rating === 1 && "Terrible"}
-                        {rating === 2 && "Poor"}
-                        {rating === 3 && "Average"}
-                        {rating === 4 && "Great"}
-                        {rating === 5 && "Excellent"}
+                    <p className="rating-label" style={{
+                        color: getStarColor(rating || hover),
+                        fontWeight: '700',
+                        marginTop: '0.5rem',
+                        transition: 'color 0.2s'
+                    }}>
+                        {getRatingLabel(rating || hover)}
                     </p>
                 </div>
 

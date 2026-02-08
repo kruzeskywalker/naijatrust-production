@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Briefcase, Mail, Lock, Loader2 } from 'lucide-react';
+import { Briefcase, Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
 import './BusinessAuth.css';
 
@@ -12,6 +12,7 @@ const BusinessLogin = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -80,13 +81,21 @@ const BusinessLogin = () => {
                             <div className="input-wrapper">
                                 <Lock size={18} />
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    tabIndex="-1"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
 

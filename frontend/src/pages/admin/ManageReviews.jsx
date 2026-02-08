@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { Loader2, Trash2, Eye, EyeOff, Search, Star, MessageSquare, X } from 'lucide-react';
+import { Loader2, Trash2, Eye, EyeOff, Search, Star, MessageSquare, X, AlertTriangle, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import './ManageReviews.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -12,13 +14,13 @@ const ManageReviews = () => {
     const [filteredReviews, setFilteredReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(null);
-    const [filter, setFilter] = useState('all'); // all, hidden, visible
+    const [filter, setFilter] = useState('all'); // all, hidden, visible, disputed
     const [searchTerm, setSearchTerm] = useState('');
 
     // Password Confirmation State
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [adminPassword, setAdminPassword] = useState('');
-    const [pendingAction, setPendingAction] = useState(null); // { type: 'hide'|'delete', review: object }
+    const [pendingAction, setPendingAction] = useState(null); // { type: 'hide'|'delete'|'accept_dispute'|'reject_dispute', review: object }
     const [confirmError, setConfirmError] = useState('');
 
     useEffect(() => {
@@ -51,6 +53,7 @@ const ManageReviews = () => {
         // Status Filter
         if (filter === 'hidden') result = result.filter(r => r.isHidden);
         if (filter === 'visible') result = result.filter(r => !r.isHidden);
+        if (filter === 'disputed') result = result.filter(r => r.disputeStatus === 'pending');
 
         // Search Filter
         if (searchTerm) {
@@ -65,7 +68,7 @@ const ManageReviews = () => {
         setFilteredReviews(result);
     };
 
-    // Prompt for password
+    // Prompt for action requiring password
     const initiateAction = (type, review) => {
         setPendingAction({ type, review });
         setAdminPassword('');
@@ -82,14 +85,24 @@ const ManageReviews = () => {
         setConfirmError('');
 
         try {
-            const url = type === 'hide'
-                ? `${API_BASE_URL}/admin/reviews/${review._id}/hide`
-                : `${API_BASE_URL}/admin/reviews/${review._id}`;
+            let url, method, body;
 
-            const method = type === 'hide' ? 'PUT' : 'DELETE';
-            const body = type === 'hide'
-                ? JSON.stringify({ isHidden: !review.isHidden, password: adminPassword })
-                : JSON.stringify({ password: adminPassword });
+            if (type === 'accept_dispute' || type === 'reject_dispute') {
+                url = `${API_BASE_URL}/admin/reviews/${review._id}/dispute-decision`;
+                method = 'PUT';
+                body = JSON.stringify({
+                    decision: type === 'accept_dispute' ? 'accepted' : 'rejected',
+                    password: adminPassword
+                });
+            } else {
+                url = type === 'hide'
+                    ? `${API_BASE_URL}/admin/reviews/${review._id}/hide`
+                    : `${API_BASE_URL}/admin/reviews/${review._id}`;
+                method = type === 'hide' ? 'PUT' : 'DELETE';
+                body = type === 'hide'
+                    ? JSON.stringify({ isHidden: !review.isHidden, password: adminPassword })
+                    : JSON.stringify({ password: adminPassword });
+            }
 
             const response = await fetch(url, {
                 method,
@@ -105,16 +118,23 @@ const ManageReviews = () => {
             if (response.ok) {
                 if (type === 'hide') {
                     setReviews(reviews.map(r => r._id === review._id ? { ...r, isHidden: !r.isHidden } : r));
-                } else {
+                    toast.success(`Review ${!review.isHidden ? 'hidden' : 'visible'} successfully`);
+                } else if (type === 'delete' || type === 'accept_dispute') {
                     setReviews(reviews.filter(r => r._id !== review._id));
+                    toast.success('Review deleted permanently');
+                } else if (type === 'reject_dispute') {
+                    setReviews(reviews.map(r => r._id === review._id ? { ...r, disputeStatus: 'rejected' } : r));
+                    toast.success('Dispute rejected');
                 }
                 setShowPasswordModal(false);
             } else {
                 setConfirmError(data.message || 'Action failed');
+                toast.error(data.message || 'Action failed');
             }
         } catch (error) {
             console.error('Action error:', error);
             setConfirmError('Network error occurred');
+            toast.error('Network error occurred');
         } finally {
             setActionLoading(null);
         }
@@ -133,6 +153,9 @@ const ManageReviews = () => {
             <main className="admin-container">
                 <div className="page-header">
                     <div>
+                        <Link to="/admin/dashboard" className="back-link-admin">
+                            <ArrowLeft size={20} /> Back to Dashboard
+                        </Link>
                         <h1>Manage Reviews</h1>
                         <p>Moderate user content from across the platform</p>
                     </div>
@@ -167,6 +190,12 @@ const ManageReviews = () => {
                             onClick={() => setFilter('hidden')}
                         >
                             Hidden
+                        </button>
+                        <button
+                            className={`filter-tab ${filter === 'disputed' ? 'active' : ''}`}
+                            onClick={() => setFilter('disputed')}
+                        >
+                            Disputed Requests
                         </button>
                     </div>
                 </div>
@@ -214,37 +243,73 @@ const ManageReviews = () => {
                                             </span>
                                         </td>
                                         <td className="review-content-cell">
-                                            <span className="review-title">{review.title}</span>
-                                            <p className="review-body">{review.content}</p>
-                                            <small className="text-gray-400 mt-1 block">
-                                                {new Date(review.createdAt).toLocaleDateString()}
-                                            </small>
+                                            <div className="review-content-wrapper">
+                                                <span className="review-title">{review.title}</span>
+                                                <p className="review-body">{review.content}</p>
+                                                {review.disputeStatus === 'pending' && (
+                                                    <div className="bg-orange-50 border border-orange-100 p-2 mt-2 rounded">
+                                                        <strong className="text-orange-800 text-xs uppercase flex items-center gap-1">
+                                                            <AlertTriangle size={12} /> Dispute Reason:
+                                                        </strong>
+                                                        <p className="text-sm text-gray-700 mt-1">{review.disputeReason}</p>
+                                                    </div>
+                                                )}
+                                                <small className="text-gray-400 mt-1 block">
+                                                    {new Date(review.createdAt).toLocaleDateString()}
+                                                </small>
+                                            </div>
                                         </td>
                                         <td>
-                                            {review.isHidden ? (
-                                                <span className="status-badge status-hidden">Hidden</span>
-                                            ) : (
-                                                <span className="status-badge status-visible">Visible</span>
-                                            )}
+                                            <div className="flex flex-col gap-1">
+                                                {review.isHidden ? (
+                                                    <span className="status-badge status-hidden">Hidden</span>
+                                                ) : (
+                                                    <span className="status-badge status-visible">Visible</span>
+                                                )}
+                                                {review.disputeStatus === 'pending' && (
+                                                    <span className="status-badge bg-orange-100 text-orange-800">Disputed</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td>
                                             <div className="actions-cell">
-                                                <button
-                                                    className={`action-btn ${review.isHidden ? 'unhide' : 'hide'}`}
-                                                    onClick={() => initiateAction('hide', review)}
-                                                    disabled={actionLoading === review._id}
-                                                    title={review.isHidden ? 'Unhide Review' : 'Hide Review'}
-                                                >
-                                                    {review.isHidden ? <Eye size={18} /> : <EyeOff size={18} />}
-                                                </button>
-                                                <button
-                                                    className="action-btn delete"
-                                                    onClick={() => initiateAction('delete', review)}
-                                                    disabled={actionLoading === review._id}
-                                                    title="Delete permanently"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                                {review.disputeStatus === 'pending' ? (
+                                                    <>
+                                                        <button
+                                                            className="action-btn text-green-600 bg-green-50 hover:bg-green-100 border border-green-200"
+                                                            onClick={() => initiateAction('accept_dispute', review)}
+                                                            title="Accept Dispute (Delete Review)"
+                                                        >
+                                                            <CheckCircle size={18} />
+                                                        </button>
+                                                        <button
+                                                            className="action-btn text-red-600 bg-red-50 hover:bg-red-100 border border-red-200"
+                                                            onClick={() => initiateAction('reject_dispute', review)}
+                                                            title="Reject Dispute (Keep Review)"
+                                                        >
+                                                            <XCircle size={18} />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            className={`action-btn ${review.isHidden ? 'unhide' : 'hide'}`}
+                                                            onClick={() => initiateAction('hide', review)}
+                                                            disabled={actionLoading === review._id}
+                                                            title={review.isHidden ? 'Unhide Review' : 'Hide Review'}
+                                                        >
+                                                            {review.isHidden ? <Eye size={18} /> : <EyeOff size={18} />}
+                                                        </button>
+                                                        <button
+                                                            className="action-btn delete"
+                                                            onClick={() => initiateAction('delete', review)}
+                                                            disabled={actionLoading === review._id}
+                                                            title="Delete permanently"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -277,7 +342,11 @@ const ManageReviews = () => {
                             <p className="mb-4 text-gray-600">
                                 {pendingAction.type === 'hide'
                                     ? `Are you sure you want to ${pendingAction.review.isHidden ? 'share' : 'hide'} this review from ${pendingAction.review.user?.name || 'User'}?`
-                                    : 'Are you sure you want to permanently delete this review? This action cannot be undone.'
+                                    : pendingAction.type === 'accept_dispute'
+                                        ? 'Are you sure you want to ACCEPT this dispute? The review will be permanently deleted.'
+                                        : pendingAction.type === 'reject_dispute'
+                                            ? 'Are you sure you want to REJECT this dispute? The review will remain visible.'
+                                            : 'Are you sure you want to permanently delete this review? This action cannot be undone.'
                                 }
                             </p>
 
@@ -302,7 +371,7 @@ const ManageReviews = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className={`btn-submit ${pendingAction.type === 'delete' ? 'bg-red-600 hover:bg-red-700 border-red-600' : ''}`}
+                                    className={`btn-submit ${pendingAction.type === 'delete' || pendingAction.type === 'accept_dispute' ? 'bg-red-600 hover:bg-red-700 border-red-600' : ''}`}
                                     disabled={loading || !adminPassword}
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={18} /> : 'Confirm Action'}

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Loader2, PlusCircle, Building2, Settings, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, PlusCircle, Building2, Settings, MessageCircle, Camera, Star, Eye, MousePointer2 } from 'lucide-react';
 import VerifiedBadge from '../../components/VerifiedBadge';
+import SubscriptionCard from '../../components/SubscriptionCard';
+import UpgradeModal from '../../components/UpgradeModal';
+import UpgradeRequestStatus from '../../components/UpgradeRequestStatus';
 import './BusinessDashboard.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -13,6 +16,46 @@ const BusinessDashboard = () => {
     const location = useLocation();
     const [dashboardData, setDashboardData] = useState(null);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [selectedBusinessForUpgrade, setSelectedBusinessForUpgrade] = useState(null);
+    const [uploadingLogoFor, setUploadingLogoFor] = useState(null);
+
+    const handleLogoUpload = async (e, businessId) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploadingLogoFor(businessId);
+        try {
+            const formData = new FormData();
+            formData.append('logo', file);
+
+            const response = await fetch(`${API_BASE_URL}/business-portal/upload-logo/${businessId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                setDashboardData(prev => ({
+                    ...prev,
+                    businesses: prev.businesses.map(biz =>
+                        biz._id === businessId ? { ...biz, logo: data.data.logo } : biz
+                    )
+                }));
+            } else {
+                alert(data.message || 'Logo upload failed');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Failed to upload logo');
+        } finally {
+            setUploadingLogoFor(null);
+        }
+    };
 
     useEffect(() => {
         if (!loading && !businessUser) {
@@ -54,19 +97,40 @@ const BusinessDashboard = () => {
 
     return (
         <div className="business-dashboard">
-            <header className="dashboard-header">
-                <div className="container">
-                    <div className="logo-section">
-                        <h1>Business Portal</h1>
-                    </div>
-                    <div className="user-section">
-                        <span>Welcome, {businessUser.name}</span>
-                        <Link to="/business/settings" className="logout-btn" style={{ textDecoration: 'none', marginRight: '1rem' }}>
-                            <Settings size={18} /> Settings
+            <header className="premium-header">
+                <div className="header-container">
+                    <div className="header-left">
+                        <Link to="/business/dashboard" className="header-logo">
+                            <div className="logo-icon">NT</div>
+                            <h1>Business Portal</h1>
                         </Link>
-                        <button onClick={logout} className="logout-btn">
-                            <LogOut size={18} /> Logout
-                        </button>
+                        <nav className="header-nav">
+                            <Link to="/business/dashboard" className="nav-item active">Overview</Link>
+                            <Link to="/business/reviews" className="nav-item">Reviews</Link>
+                            <Link to="/business/analytics" className="nav-item">Analytics</Link>
+                        </nav>
+                    </div>
+
+                    <div className="header-right">
+                        <div className="user-profile-widget">
+                            <div className="user-info">
+                                <span className="user-name">{businessUser.name}</span>
+                                <span className="user-role">Business Owner</span>
+                            </div>
+                            <div className="user-avatar-placeholder">
+                                {businessUser.name?.charAt(0) || 'B'}
+                            </div>
+                            <div className="user-dropdown-menu">
+                                <Link to="/business/settings" className="dropdown-item">
+                                    <Settings size={16} />
+                                    Settings
+                                </Link>
+                                <button onClick={logout} className="dropdown-item logout">
+                                    <LogOut size={16} />
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -92,96 +156,159 @@ const BusinessDashboard = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="dashboard-overview">
-                        {/* Summary Stats */}
-                        <div className="stats-grid">
-                            <Link to="/business/reviews" className="stat-card hover-card">
-                                <h3>Total Reviews</h3>
-                                <div className="value">{dashboardData.stats.totalReviews}</div>
-                            </Link>
-                            <Link to="/business/reviews" className="stat-card hover-card">
-                                <h3>Avg Rating</h3>
-                                <div className="value">{dashboardData.stats.avgRating}</div>
-                            </Link>
-                            <Link to="/business/analytics" className="stat-card hover-card">
-                                <h3>Profile Views</h3>
-                                <div className="value">{dashboardData.stats.totalViews}</div>
-                            </Link>
-                            <Link to="/business/analytics" className="stat-card hover-card">
-                                <h3>Website Clicks</h3>
-                                <div className="value">{dashboardData.stats.totalClicks}</div>
-                            </Link>
-                            <a href="#my-businesses" className="stat-card hover-card" onClick={(e) => {
-                                e.preventDefault();
-                                document.getElementById('my-businesses').scrollIntoView({ behavior: 'smooth' });
-                            }}>
-                                <h3>Businesses</h3>
-                                <div className="value">{dashboardData.stats.totalBusinesses}</div>
-                            </a>
-                        </div>
+                    <div className="dashboard-grid-layout">
+                        <div className="dashboard-main">
+                            <div className="stats-grid">
+                                <Link to="/business/reviews" className="stat-card hover-card">
+                                    <div className="stat-icon-wrapper rating">
+                                        <Star size={24} />
+                                    </div>
+                                    <div className="stat-info">
+                                        <h3>Avg Rating</h3>
+                                        <div className="value">{dashboardData.stats.avgRating}</div>
+                                    </div>
+                                </Link>
+                                <Link to="/business/reviews" className="stat-card hover-card">
+                                    <div className="stat-icon-wrapper reviews">
+                                        <MessageCircle size={24} />
+                                    </div>
+                                    <div className="stat-info">
+                                        <h3>Total Reviews</h3>
+                                        <div className="value">{dashboardData.stats.totalReviews}</div>
+                                    </div>
+                                </Link>
+                                <Link to="/business/analytics" className="stat-card hover-card">
+                                    <div className="stat-icon-wrapper views">
+                                        <Eye size={24} />
+                                    </div>
+                                    <div className="stat-info">
+                                        <h3>Profile Views</h3>
+                                        <div className="value">{dashboardData.stats.totalViews}</div>
+                                    </div>
+                                </Link>
+                                <Link to="/business/analytics" className="stat-card hover-card">
+                                    <div className="stat-icon-wrapper clicks">
+                                        <MousePointer2 size={24} />
+                                    </div>
+                                    <div className="stat-info">
+                                        <h3>Web Clicks</h3>
+                                        <div className="value">{dashboardData.stats.totalClicks}</div>
+                                    </div>
+                                </Link>
+                            </div>
 
-                        {/* Businesses List */}
-                        <div className="section-header" id="my-businesses">
-                            <h2>My Businesses</h2>
-                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <Link to="/business/claim/search" className="btn btn-sm btn-outline" style={{ display: 'flex', alignItems: 'center', height: 'fit-content' }}>
-                                    Claim Existing Business
-                                </Link>
-                                <Link to="/business/register" className="btn btn-sm btn-primary" style={{ display: 'flex', alignItems: 'center', height: 'fit-content' }}>
-                                    <PlusCircle size={16} style={{ marginRight: '6px' }} /> Add New
-                                </Link>
+                            <div className="section-header" id="my-businesses">
+                                <h2>My Businesses</h2>
+                                <div className="header-actions">
+                                    <Link to="/business/claim/search" className="btn btn-sm btn-outline">
+                                        Claim Business
+                                    </Link>
+                                    <Link to="/business/register" className="btn btn-sm btn-primary">
+                                        <PlusCircle size={16} /> Add New
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="businesses-grid">
+                                {dashboardData.businesses.map(biz => (
+                                    <div key={biz._id} className="business-card-item">
+                                        <div className="biz-card-header">
+                                            <div className="biz-logo-wrapper">
+                                                <img
+                                                    src={biz.logo || `https://ui-avatars.com/api/?name=${biz.name}&background=random`}
+                                                    alt={biz.name}
+                                                />
+                                                <label htmlFor={`logo-upload-${biz._id}`} className="logo-upload-overlay">
+                                                    {uploadingLogoFor === biz._id ? <Loader2 className="animate-spin" size={20} /> : <Camera size={20} />}
+                                                    <input type="file" id={`logo-upload-${biz._id}`} hidden accept="image/*" onChange={(e) => handleLogoUpload(e, biz._id)} disabled={uploadingLogoFor === biz._id} />
+                                                </label>
+                                            </div>
+                                            <div className="biz-title-info">
+                                                <h3>{biz.name}</h3>
+                                                <div className="biz-badges">
+                                                    <VerifiedBadge isVerified={biz.isVerified} size="small" showText={false} />
+                                                    <span className={`tier-badge ${biz.subscriptionTier || 'basic'}`}>
+                                                        {(biz.subscriptionTier || 'basic').toUpperCase()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="biz-loc">{biz.location}</p>
+                                        <div className="biz-stats-row">
+                                            <span><strong>{biz.rating}</strong> ★</span>
+                                            <span className="dot"></span>
+                                            <span><strong>{biz.reviewCount}</strong> Reviews</span>
+                                        </div>
+                                        <div className="biz-actions">
+                                            <Link to={`/business/${biz._id}`} className="action-link secondary">View Profile</Link>
+                                            <Link to={`/business/reviews/${biz._id}`} className="action-link primary">
+                                                <MessageCircle size={16} /> Manage Reviews
+                                            </Link>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
-                        <div className="businesses-grid">
-                            {dashboardData.businesses.map(biz => (
-                                <div key={biz._id} className="business-card-item">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                        <h3>{biz.name}</h3>
-                                        <VerifiedBadge isVerified={biz.isVerified} size="small" showText={false} />
-                                    </div>
-                                    <p>{biz.location}</p>
-                                    <div className="biz-meta">
-                                        <span>{biz.rating} ★</span>
-                                        <span>{biz.reviewCount} Reviews</span>
-                                    </div>
-                                    {biz.isVerified && (
-                                        <div className="verification-info" style={{ fontSize: '12px', color: '#059669', marginTop: '8px' }}>
-                                            ✓ Verified Business
-                                        </div>
-                                    )}
-                                    <div className="flex gap-2">
-                                        <Link to={`/business/${biz._id}`} className="view-link">View Profile</Link>
-                                        <Link to={`/business/reviews/${biz._id}`} className="view-link" style={{ color: '#008751', textDecoration: 'none', marginLeft: '10px' }}>
-                                            <MessageCircle size={16} style={{ display: 'inline', marginRight: '4px' }} />
-                                            Reviews
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <aside className="dashboard-sidebar">
+                            <div className="sidebar-section">
+                                <h3>Subscription</h3>
+                                {dashboardData.businesses.length > 0 && (
+                                    <>
+                                        <SubscriptionCard
+                                            business={dashboardData.businesses[0]}
+                                            onUpgrade={() => {
+                                                setSelectedBusinessForUpgrade(dashboardData.businesses[0]);
+                                                setShowUpgradeModal(true);
+                                            }}
+                                        />
+                                        <UpgradeRequestStatus businessId={dashboardData.businesses[0]._id} />
+                                    </>
+                                )}
+                            </div>
 
-                        {/* Pending Claims */}
-                        {dashboardData.claims.length > 0 && (
-                            <div className="pending-claims-section">
-                                <h2>Claim Requests</h2>
-                                <div className="claims-list">
-                                    {dashboardData.claims.map(claim => (
-                                        <div key={claim._id} className="claim-item">
-                                            <span>Request for: <strong>{claim.business?.name}</strong></span>
-                                            <span className={`status-badge ${claim.status}`}>
-                                                {claim.status === 'pending' && 'Pending Approval'}
-                                                {claim.status === 'approved' && 'Approved'}
-                                                {claim.status === 'rejected' && 'Rejected'}
-                                            </span>
-                                        </div>
-                                    ))}
+                            <div className="sidebar-section metrics-summary">
+                                <h3>Account Statistics</h3>
+                                <div className="mini-stat">
+                                    <Building2 size={16} />
+                                    <span>Total Businesses: <strong>{dashboardData.stats.totalBusinesses}</strong></span>
                                 </div>
                             </div>
-                        )}
+
+                            {dashboardData.claims.length > 0 && (
+                                <div className="sidebar-section pending-claims-section-sidebar">
+                                    <h3>Claim Requests</h3>
+                                    <div className="claims-list">
+                                        {dashboardData.claims.map(claim => (
+                                            <div key={claim._id} className="claim-item">
+                                                <span><strong>{claim.business?.name}</strong></span>
+                                                <span className={`status-badge ${claim.status}`}>
+                                                    {claim.status === 'pending' ? 'Pending' : claim.status}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </aside>
                     </div>
                 )}
             </main>
+
+            {selectedBusinessForUpgrade && (
+                <UpgradeModal
+                    isOpen={showUpgradeModal}
+                    onClose={() => {
+                        setShowUpgradeModal(false);
+                        setSelectedBusinessForUpgrade(null);
+                    }}
+                    currentTier={selectedBusinessForUpgrade.subscriptionTier || 'basic'}
+                    businessId={selectedBusinessForUpgrade._id}
+                    onSuccess={() => {
+                        fetchDashboardData();
+                    }}
+                />
+            )}
         </div>
     );
 };

@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: function () { return !this.googleId; } },
     role: { type: String, enum: ['user', 'business', 'admin'], default: 'user' },
     avatar: { type: String },
+    isBlocked: { type: Boolean, default: false }, // Admin block status
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },

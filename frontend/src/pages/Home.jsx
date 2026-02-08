@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
+import StarRating from '../components/StarRating';
 import { Star, ShieldCheck, Zap, Globe, ShoppingBag, Truck, CreditCard, ArrowRight } from 'lucide-react';
 
 const Home = () => {
@@ -59,9 +60,7 @@ const Home = () => {
                         {recentReviews.map((rev) => (
                             <div key={rev.id} className="mini-review-card">
                                 <div className="review-stars">
-                                    {[...Array(5)].map((_, j) => (
-                                        <Star key={j} size={16} fill={j < rev.stars ? "var(--star-gold)" : "none"} color="var(--star-gold)" />
-                                    ))}
+                                    <StarRating rating={rev.stars} size={16} />
                                 </div>
                                 <h3>{rev.biz}</h3>
                                 <p>"{rev.text}"</p>
@@ -90,7 +89,7 @@ const Home = () => {
                         <Link to="/about" className="btn btn-outline">Learn how it works</Link>
                     </div>
                     <div className="trust-badge">
-                        <ShieldCheck size={160} color="var(--primary-color)" />
+                        <ShieldCheck size={160} className="trust-shield-icon" />
                     </div>
                 </div>
             </section>

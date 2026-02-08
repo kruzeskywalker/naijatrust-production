@@ -33,6 +33,13 @@ const businessUserSchema = new mongoose.Schema({
     isSuspended: { type: Boolean, default: false },
     suspensionReason: { type: String },
 
+    // Deletion Request
+    deletionRequest: {
+        status: { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
+        reason: { type: String },
+        requestedAt: { type: Date }
+    },
+
     // Metadata
     lastLogin: { type: Date },
     createdAt: { type: Date, default: Date.now },

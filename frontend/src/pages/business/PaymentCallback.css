@@ -1,0 +1,117 @@
+.payment-callback-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f0 100%);
+    padding: 2rem;
+}
+
+.payment-callback-card {
+    background: white;
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    max-width: 480px;
+    width: 100%;
+}
+
+.status-icon {
+    margin-bottom: 1.5rem;
+}
+
+.status-icon.verifying {
+    color: #3b82f6;
+    animation: spin 1s linear infinite;
+}
+
+.status-icon.success {
+    color: #22c55e;
+}
+
+.status-icon.failed {
+    color: #ef4444;
+}
+
+.status-icon.error {
+    color: #f59e0b;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.status-title {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.status-title.verifying {
+    color: #3b82f6;
+}
+
+.status-title.success {
+    color: #22c55e;
+}
+
+.status-title.failed {
+    color: #ef4444;
+}
+
+.status-title.error {
+    color: #f59e0b;
+}
+
+.status-message {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.upgrade-details {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.upgrade-details p {
+    margin: 0.5rem 0;
+    color: #334155;
+}
+
+.tier-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #008751, #00a366);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.support-note {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: #94a3b8;
+}
+
+.support-note a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.support-note a:hover {
+    text-decoration: underline;
+}

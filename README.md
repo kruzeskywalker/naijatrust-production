@@ -1,9 +1,5 @@
 # NaijaTrust - Nigerian Consumer Review Platform
 
-> **🚀 PRODUCTION VERSION**  
-> This is the production-ready copy configured for deployment. For development, see the separate dev directory.  
-> **📖 See [README.PRODUCTION.md](./README.PRODUCTION.md) and [DEPLOYMENT.md](./DEPLOYMENT.md) for deployment instructions.**
-
 A trusted review platform empowering Nigerians to make better choices through transparent business reviews.
 
 ## 🚀 Quick Start

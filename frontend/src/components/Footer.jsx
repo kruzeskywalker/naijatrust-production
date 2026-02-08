@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Footer.css';
 
 const Footer = () => {
@@ -16,33 +17,27 @@ const Footer = () => {
                 <div className="footer-links">
                     <div className="link-group">
                         <h3>About</h3>
-                        <a href="/about">About Us</a>
-                        <a href="/jobs">Jobs</a>
-                        <a href="/contact">Contact</a>
+                        <Link to="/about">About Us</Link>
+                        <Link to="/jobs">Jobs</Link>
+                        <Link to="/contact">Contact</Link>
                     </div>
                     <div className="link-group">
                         <h3>Community</h3>
-                        <a href="/trust">Trust in reviews</a>
-                        <a href="/guidelines">Guidelines</a>
-                        <a href="/verify">Verify reviews</a>
+                        <Link to="/help">Help Center</Link>
                     </div>
                     <div className="link-group">
                         <h3>Businesses</h3>
-                        <a href="/business">NaijaTrust for Business</a>
-                        <a href="/plans">Plans & Pricing</a>
+                        <Link to="/business/login">NaijaTrust for Business</Link>
+                        <Link to="/plans">Plans & Pricing</Link>
                     </div>
                 </div>
             </div>
             <div className="footer-bottom">
                 <div className="container footer-bottom-content">
-                    <p>&copy; 2025 NaijaTrust. All rights reserved.</p>
+                    <p>&copy; 2026 NaijaTrust. All rights reserved.</p>
                     <div className="legal-links">
-                        <a href="/legal/privacy">Privacy Policy</a>
-                        <a href="/legal/terms">Terms of Use</a>
-                    </div>
-                    <div className="language-selector">
-                        <button className="active">English</button>
-                        <button>Pidgin</button>
+                        <Link to="/privacy">Privacy Policy</Link>
+                        <Link to="/terms">Terms of Use</Link>
                     </div>
                 </div>
             </div>

@@ -143,6 +143,8 @@ const Header = () => {
                         <Link to="/business/login" className="business-link">For Businesses</Link>
                     )}
                     <Link to="/categories">Categories</Link>
+                    <Link to="/plans">Pricing</Link>
+                    <Link to="/help">Help</Link>
 
                     {user ? (
                         <div className="user-nav">
@@ -190,6 +192,8 @@ const Header = () => {
                             <Link to="/business/login" onClick={() => setIsMenuOpen(false)}>For Businesses</Link>
                         )}
                         <Link to="/categories" onClick={() => setIsMenuOpen(false)}>Categories</Link>
+                        <Link to="/plans" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
+                        <Link to="/help" onClick={() => setIsMenuOpen(false)}>Help</Link>
 
                         {user ? (
                             <>

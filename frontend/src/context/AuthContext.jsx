@@ -230,6 +230,29 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const deleteAccount = async () => {
+        try {
+            const response = await fetch(`${API_URL}/me`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                logout();
+                return { success: true, message: data.message };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error('Delete account error:', error);
+            return { success: false, message: 'Network error. Please try again.' };
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -243,6 +266,7 @@ export const AuthProvider = ({ children }) => {
             updateProfile,
             changePassword,
             updateAvatar,
+            deleteAccount,
             loading
         }}>
             {!loading && children}

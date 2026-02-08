@@ -16,6 +16,11 @@ const compression = require('compression');
 app.use(compression());
 
 app.use(express.json());
+
+// Serve static files from uploads directory
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
@@ -69,6 +74,9 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/business-auth', require('./routes/businessAuthRoutes').router);
 app.use('/api/business-portal', require('./routes/businessPortalRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/admin', require('./routes/adminTierRoutes')); // Admin tier management routes
+app.use('/api/subscriptions', require('./routes/subscriptionRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes')); // Paystack payment routes
 
 // Basic health check
 
@@ -93,6 +101,12 @@ const startServer = async () => {
         if (process.env.MONGODB_URI) {
             await mongoose.connect(process.env.MONGODB_URI);
             console.log('Connected to MongoDB');
+
+            // Start subscription cron jobs in production
+            if (process.env.NODE_ENV === 'production') {
+                const { startCronJobs } = require('./cronJobs');
+                startCronJobs();
+            }
         } else {
             console.log('MONGODB_URI not found, running without database');
         }

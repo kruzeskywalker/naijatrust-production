@@ -84,7 +84,7 @@
     align-items: center;
 }
 
-.input-wrapper svg {
+.input-wrapper>svg {
     position: absolute;
     left: 1rem;
     top: 50%;
@@ -95,7 +95,7 @@
 
 .input-wrapper input {
     width: 100%;
-    padding: 0 1rem 0 3.5rem !important;
+    padding: 0 3rem 0 3.5rem !important;
     /* Force padding */
     height: 48px;
     border: 1px solid var(--border-color);
@@ -109,6 +109,26 @@
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.1);
+}
+
+/* Password Toggle Styles */
+.password-toggle-btn {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    z-index: 10;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-color);
 }
 
 .btn-full {

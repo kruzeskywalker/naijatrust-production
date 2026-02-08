@@ -68,10 +68,16 @@
     color: #48bb78;
 }
 
+.icon-wrapper.delete-req {
+    background-color: #fff5f5;
+    color: #e53e3e;
+}
+
 .stat-content h3 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
+    text-transform: none;
     margin-bottom: 0.25rem;
     color: #2d3748;
 }

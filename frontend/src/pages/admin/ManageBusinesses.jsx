@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useNavigate } from 'react-router-dom';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { Building2, Search, ShieldCheck, ShieldOff, Loader2, Edit, Filter, PlusCircle, X, Trash2, Pencil, Check } from 'lucide-react';
+import { Building2, Search, ShieldCheck, ShieldOff, Loader2, Edit, Filter, PlusCircle, X, Trash2, Pencil, Check, Crown } from 'lucide-react';
 import VerifiedBadge from '../../components/VerifiedBadge';
 import { BUSINESS_CATEGORIES } from '../../utils/constants';
+import CategorySelector from '../../components/CategorySelector';
 import './ManageBusinesses.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -22,8 +24,13 @@ const ManageBusinesses = () => {
     const [businessToDelete, setBusinessToDelete] = useState(null);
     const [adminPassword, setAdminPassword] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [showTierModal, setShowTierModal] = useState(false);
+    const [businessToChangeTier, setBusinessToChangeTier] = useState(null);
+    const [newTier, setNewTier] = useState('');
+    const [tierChangeReason, setTierChangeReason] = useState('');
+    const [tierChangeDuration, setTierChangeDuration] = useState('');
     const [newBusiness, setNewBusiness] = useState({
-        name: '', category: '', location: '', description: '', website: '', phone: '', email: ''
+        name: '', category: '', categories: [], location: '', description: '', website: '', phone: '', email: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,10 +49,12 @@ const ManageBusinesses = () => {
     const fetchBusinesses = async () => {
         setIsLoadingData(true);
         try {
-            let url = `${API_BASE_URL}/admin/businesses?`;
-            if (filter === 'verified') url += 'verified=true';
-            if (filter === 'unverified') url += 'verified=false';
-            if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+            const params = new URLSearchParams();
+            if (filter === 'verified') params.append('verified', 'true');
+            if (filter === 'unverified') params.append('verified', 'false');
+            if (searchTerm) params.append('search', searchTerm);
+
+            const url = `${API_BASE_URL}/admin/businesses?${params.toString()}`;
 
             const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -75,6 +84,7 @@ const ManageBusinesses = () => {
 
             const data = await response.json();
             if (data.status === 'success') {
+                toast.success(`Business ${!currentStatus ? 'verified' : 'unverified'} successfully`);
                 // Update local state
                 setBusinesses(businesses.map(biz =>
                     biz._id === businessId
@@ -82,11 +92,11 @@ const ManageBusinesses = () => {
                         : biz
                 ));
             } else {
-                alert(data.message || 'Failed to update verification status');
+                toast.error(data.message || 'Failed to update verification status');
             }
         } catch (error) {
             console.error('Error toggling verification:', error);
-            alert('Failed to update verification status');
+            toast.error('Failed to update verification status');
         } finally {
             setProcessing(null);
         }
@@ -101,7 +111,8 @@ const ManageBusinesses = () => {
         setNewBusiness({
             id: business._id,
             name: business.name,
-            category: business.category,
+            // Fallback to category for old data, or array for new
+            categories: business.categories && business.categories.length > 0 ? business.categories : (business.category ? [business.category] : []),
             location: business.location,
             description: business.description || '',
             website: business.website || '',
@@ -140,13 +151,59 @@ const ManageBusinesses = () => {
                 setBusinessToDelete(null);
                 setAdminPassword('');
                 fetchBusinesses();
-                alert('Business deleted successfully');
+                toast.success('Business deleted successfully');
             } else {
-                alert(data.message || 'Failed to delete business');
+                toast.error(data.message || 'Failed to delete business');
             }
         } catch (error) {
             console.error('Error deleting business:', error);
-            alert('Error deleting business');
+            toast.error('Error deleting business');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleTierChangeClick = (business) => {
+        setBusinessToChangeTier(business);
+        setNewTier(business.subscriptionTier || 'basic');
+        setTierChangeReason('');
+        setTierChangeDuration('');
+        setShowTierModal(true);
+    };
+
+    const handleTierChange = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/businesses/${businessToChangeTier._id}/change-tier`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    newTier,
+                    reason: tierChangeReason,
+                    duration: tierChangeDuration ? parseInt(tierChangeDuration) : undefined
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setShowTierModal(false);
+                setBusinessToChangeTier(null);
+                setNewTier('');
+                setTierChangeReason('');
+                setTierChangeDuration('');
+                fetchBusinesses();
+                toast.success('Business tier changed successfully');
+            } else {
+                toast.error(data.message || 'Failed to change tier');
+            }
+        } catch (error) {
+            console.error('Error changing tier:', error);
+            toast.error('Error changing tier');
         } finally {
             setIsSubmitting(false);
         }
@@ -173,16 +230,16 @@ const ManageBusinesses = () => {
             const data = await response.json();
             if (data.status === 'success') {
                 setShowAddModal(false);
-                setNewBusiness({ name: '', category: '', location: '', description: '', website: '', phone: '', email: '' });
+                setNewBusiness({ name: '', categories: [], location: '', description: '', website: '', phone: '', email: '' });
                 setIsEditing(false);
                 fetchBusinesses(); // Refresh list
-                alert(isEditing ? 'Business updated successfully' : 'Business added successfully');
+                toast.success(isEditing ? 'Business updated successfully' : 'Business added successfully');
             } else {
-                alert(data.message || 'Failed to save business');
+                toast.error(data.message || 'Failed to save business');
             }
         } catch (error) {
             console.error('Error saving business:', error);
-            alert('Error saving business');
+            toast.error('Error saving business');
         } finally {
             setIsSubmitting(false);
         }
@@ -198,7 +255,7 @@ const ManageBusinesses = () => {
                         <h1>Manage Businesses</h1>
                         <p>View and manage all businesses on the platform</p>
                     </div>
-                    <button className="btn-add-business" onClick={() => { setIsEditing(false); setNewBusiness({ name: '', category: '', location: '', description: '', website: '', phone: '', email: '' }); setShowAddModal(true); }}>
+                    <button className="btn-add-business" onClick={() => { setIsEditing(false); setNewBusiness({ name: '', categories: [], location: '', description: '', website: '', phone: '', email: '' }); setShowAddModal(true); }}>
                         <PlusCircle size={20} /> Add Business
                     </button>
                 </div>
@@ -252,6 +309,7 @@ const ManageBusinesses = () => {
                                     <th>Location</th>
                                     <th>Owner</th>
                                     <th>Status</th>
+                                    <th>Tier</th>
                                     <th>Verification</th>
                                     <th>Actions</th>
                                 </tr>
@@ -265,7 +323,7 @@ const ManageBusinesses = () => {
                                                 {biz.isVerified && <VerifiedBadge isVerified={true} size="small" showText={false} />}
                                             </div>
                                         </td>
-                                        <td>{biz.category}</td>
+                                        <td>{biz.categories && biz.categories.length > 0 ? biz.categories.join(', ') : biz.category}</td>
                                         <td>{biz.location}</td>
                                         <td>
                                             {biz.owner ? (
@@ -280,6 +338,11 @@ const ManageBusinesses = () => {
                                         <td>
                                             <span className={`status-pill ${biz.claimStatus}`}>
                                                 {biz.claimStatus}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`tier-badge ${biz.subscriptionTier || 'basic'}`}>
+                                                {(biz.subscriptionTier || 'basic').charAt(0).toUpperCase() + (biz.subscriptionTier || 'basic').slice(1)}
                                             </span>
                                         </td>
                                         <td>
@@ -305,18 +368,11 @@ const ManageBusinesses = () => {
                                                     <Pencil size={16} />
                                                 </button>
                                                 <button
-                                                    className={`btn-toggle ${biz.isVerified ? 'verified' : 'unverified'}`}
-                                                    onClick={() => handleVerificationToggle(biz._id, biz.isVerified)}
-                                                    disabled={processing === biz._id}
-                                                    title={biz.isVerified ? 'Unverify' : 'Verify'}
+                                                    className="btn-icon tier"
+                                                    onClick={() => handleTierChangeClick(biz)}
+                                                    title="Change Tier"
                                                 >
-                                                    {processing === biz._id ? (
-                                                        <Loader2 className="animate-spin" size={14} />
-                                                    ) : biz.isVerified ? (
-                                                        <><ShieldOff size={14} /> Unverify</>
-                                                    ) : (
-                                                        <><ShieldCheck size={14} /> Verify</>
-                                                    )}
+                                                    <Crown size={16} />
                                                 </button>
                                                 <button
                                                     className="btn-icon delete"
@@ -363,17 +419,10 @@ const ManageBusinesses = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Category *</label>
-                                    <select
-                                        required
-                                        value={newBusiness.category}
-                                        onChange={(e) => setNewBusiness({ ...newBusiness, category: e.target.value })}
-                                    >
-                                        <option value="">Select Category</option>
-                                        {BUSINESS_CATEGORIES.map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </select>
+                                    <CategorySelector
+                                        selectedCategories={newBusiness.categories}
+                                        onChange={(updated) => setNewBusiness({ ...newBusiness, categories: updated })}
+                                    />
                                 </div>
                                 <div className="form-group">
                                     <label>Location *</label>
@@ -451,6 +500,79 @@ const ManageBusinesses = () => {
                                 <button type="button" className="btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancel</button>
                                 <button type="submit" className="btn-primary" style={{ background: '#e53e3e', borderColor: '#e53e3e' }} disabled={isSubmitting}>
                                     {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : 'Delete Business'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Tier Change Modal */}
+            {showTierModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '500px' }}>
+                        <div className="modal-header">
+                            <h2>Change Business Tier</h2>
+                            <button className="close-btn" onClick={() => setShowTierModal(false)}>
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleTierChange} className="add-business-form">
+                            <p>Change subscription tier for <strong>{businessToChangeTier?.name}</strong></p>
+
+                            <div className="form-group">
+                                <label>Current Tier</label>
+                                <input
+                                    type="text"
+                                    value={(businessToChangeTier?.subscriptionTier || 'basic').toUpperCase()}
+                                    disabled
+                                    style={{ background: '#f3f4f6', cursor: 'not-allowed' }}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>New Tier *</label>
+                                <select
+                                    required
+                                    value={newTier}
+                                    onChange={(e) => setNewTier(e.target.value)}
+                                >
+                                    <option value="basic">Basic (Free)</option>
+                                    <option value="verified">Verified Business</option>
+                                    <option value="premium">Premium Business</option>
+                                    <option value="enterprise">Enterprise</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Reason for Change *</label>
+                                <textarea
+                                    required
+                                    value={tierChangeReason}
+                                    onChange={(e) => setTierChangeReason(e.target.value)}
+                                    placeholder="e.g., Promotional upgrade, Partnership agreement, etc."
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Duration (days) - Optional</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={tierChangeDuration}
+                                    onChange={(e) => setTierChangeDuration(e.target.value)}
+                                    placeholder="Leave empty for permanent change"
+                                />
+                                <small style={{ color: '#6b7280', fontSize: '13px', marginTop: '4px', display: 'block' }}>
+                                    If specified, tier will revert after this many days
+                                </small>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" className="btn-secondary" onClick={() => setShowTierModal(false)}>Cancel</button>
+                                <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                                    {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : 'Change Tier'}
                                 </button>
                             </div>
                         </form>

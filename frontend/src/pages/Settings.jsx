@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import './Settings.css';
 
 const Settings = () => {
-    const { user, updateProfile, changePassword, updateAvatar } = useAuth();
+    const { user, updateProfile, changePassword, updateAvatar, deleteAccount } = useAuth();
 
     // Profile State
     const [profileName, setProfileName] = useState(user?.name || '');
@@ -19,6 +19,10 @@ const Settings = () => {
 
     // Photo State
     const [isPhotoLoading, setIsPhotoLoading] = useState(false);
+
+    // Custom Deletion Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     if (!user) return <div className="container" style={{ padding: '4rem' }}>Please log in to access settings.</div>;
 
@@ -61,18 +65,48 @@ const Settings = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Simulated upload: in a real app, you'd upload to a server/S3
         setIsPhotoLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file);
 
-        // Mocking a delay and then using a local URL or placeholder
-        setTimeout(async () => {
-            const mockUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`;
-            const result = await updateAvatar(mockUrl);
-            setIsPhotoLoading(false);
-            if (result.success) {
-                alert('Profile photo updated!');
+            const token = localStorage.getItem('naijaTrustToken');
+            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
+            const response = await fetch(`${API_BASE}/auth/upload-avatar`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                await updateAvatar(data.data.user.avatar);
+                window.location.reload();
+            } else {
+                alert(data.message || 'Upload failed');
             }
-        }, 1500);
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('An error occurred during upload.');
+        } finally {
+            setIsPhotoLoading(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        const result = await deleteAccount();
+        if (result.success) {
+            window.location.href = '/';
+        } else {
+            alert(result.message || 'Failed to delete account.');
+            setIsDeleting(false);
+            setShowDeleteModal(false);
+        }
     };
 
     return (
@@ -194,7 +228,73 @@ const Settings = () => {
                         </button>
                     </form>
                 </section>
+
+                {/* Account Deletion Section */}
+                <section className="settings-card danger-zone-v2">
+                    <div className="danger-header">
+                        <div className="danger-icon-wrapper">
+                            <AlertCircle size={32} />
+                        </div>
+                        <h2>Danger Zone</h2>
+                        <div className="danger-divider"></div>
+                    </div>
+                    <div className="danger-body">
+                        <p>Once you delete your account, there is no going back. Please be certain.</p>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="btn-danger-refined"
+                        >
+                            Delete Account
+                        </button>
+                    </div>
+                </section>
             </div>
+
+            {/* Account Deletion Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="modal-overlay" onClick={() => !isDeleting && setShowDeleteModal(false)}>
+                    <div className="modal-content confirm-dialog" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3 style={{ color: '#dc2626' }}>Delete Account?</h3>
+                        </div>
+                        <div className="modal-body" style={{ textAlign: 'left' }}>
+                            <p style={{ marginBottom: '1rem', lineHeight: '1.6', color: '#4b5563' }}>
+                                Are you absolutely sure you want to delete your account?
+                            </p>
+                            <ul style={{ paddingLeft: '1.5rem', marginBottom: '1.5rem', color: '#4b5563', fontSize: '0.95rem' }}>
+                                <li style={{ marginBottom: '0.5rem' }}>This action cannot be undone.</li>
+                                <li style={{ marginBottom: '0.5rem' }}>You will lose all your profile data and saved settings.</li>
+                                <li style={{ marginBottom: '0.5rem' }}>Your review history will remain recorded for administrative purposes.</li>
+                            </ul>
+                            <p style={{ fontWeight: '600', color: '#1a1a1a' }}>
+                                This will also unclaim all your businesses.
+                            </p>
+                        </div>
+                        <div className="modal-footer" style={{ borderTop: 'none', paddingTop: '0' }}>
+                            <button
+                                className="btn btn-outline"
+                                onClick={() => setShowDeleteModal(false)}
+                                disabled={isDeleting}
+                                style={{ border: '1px solid #e2e8f0', color: '#4b5563' }}
+                            >
+                                No, Keep Account
+                            </button>
+                            <button
+                                className="btn btn-danger"
+                                onClick={handleDeleteAccount}
+                                disabled={isDeleting}
+                                style={{ backgroundColor: '#ef4444', color: 'white' }}
+                            >
+                                {isDeleting ? (
+                                    <><Loader2 className="animate-spin" size={16} /> Deleting...</>
+                                ) : (
+                                    'Yes, Delete My Account'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

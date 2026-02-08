@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Building2, ArrowRight, Loader2 } from 'lucide-react';
 import './RegisterBusiness.css';
 
-import { BUSINESS_CATEGORIES } from '../../utils/constants';
+import CategorySelector from '../../components/CategorySelector';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
 
@@ -16,7 +16,7 @@ const RegisterBusiness = () => {
 
     const [formData, setFormData] = useState({
         name: '',
-        category: '',
+        categories: [], // Changed from category string
         location: '',
         description: '',
         website: '',
@@ -44,6 +44,17 @@ const RegisterBusiness = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCategoryToggle = (category) => {
+        setFormData(prev => {
+            const current = prev.categories || [];
+            if (current.includes(category)) {
+                return { ...prev, categories: current.filter(c => c !== category) };
+            } else {
+                return { ...prev, categories: [...current, category] };
+            }
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -106,20 +117,12 @@ const RegisterBusiness = () => {
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label htmlFor="category">Category *</label>
-                            <select
-                                id="category"
-                                name="category"
-                                required
-                                className="form-control"
-                                value={formData.category}
-                                onChange={handleChange}
-                            >
-                                <option value="">Select a category</option>
-                                {BUSINESS_CATEGORIES.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
+                            <CategorySelector
+                                selectedCategories={formData.categories}
+                                onChange={(updatedCategories) => {
+                                    setFormData({ ...formData, categories: updatedCategories });
+                                }}
+                            />
                         </div>
                         <div className="form-group">
                             <label htmlFor="location">Headquarters Location *</label>
