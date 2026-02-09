@@ -15,7 +15,7 @@ const BusinessForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+            const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
             const response = await fetch(`${API_URL}/business-auth/forgot-password`, {
                 method: 'POST',
                 headers: {

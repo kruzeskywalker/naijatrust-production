@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../utils/urlUtils';
 
 const BusinessAuthContext = createContext();
 
@@ -11,7 +12,7 @@ export const BusinessAuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const API_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
+    const API_URL = getApiBaseUrl(import.meta.env.VITE_API_URL);
 
     useEffect(() => {
         if (token) {

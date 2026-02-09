@@ -11,7 +11,7 @@ const AdminAccountDeletions = () => {
     const [actionLoading, setActionLoading] = useState(null); // ID of user being processed
     const [successMsg, setSuccessMsg] = useState('');
 
-    const API_BASE = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
+    const API_BASE = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
     const { token } = useAdminAuth();
 
     useEffect(() => {

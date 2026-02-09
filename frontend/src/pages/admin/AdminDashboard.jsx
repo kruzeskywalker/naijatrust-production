@@ -6,7 +6,7 @@ import AdminHeader from '../../components/admin/AdminHeader';
 import { LayoutDashboard, Users, FileText, Settings, User, LogOut, Loader2, Building2, Star, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import './AdminDashboard.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
 
 const AdminDashboard = () => {
     const { token, loading } = useAdminAuth();

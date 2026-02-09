@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Briefcase, Mail, Lock, User, Phone, MapPin, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import './BusinessAuth.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
 
 const BusinessSignup = () => {
     const navigate = useNavigate();

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getApiBaseUrl } from '../utils/urlUtils';
 
 const AdminAuthContext = createContext();
-const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
+const API_BASE_URL = getApiBaseUrl(import.meta.env.VITE_API_URL);
 
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
