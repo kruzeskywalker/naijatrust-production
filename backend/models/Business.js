@@ -34,6 +34,7 @@ const businessSchema = new mongoose.Schema({
     // Analytics (Aggregated)
     viewCount: { type: Number, default: 0 },
     websiteClickCount: { type: Number, default: 0 },
+    likes: { type: Number, default: 0 },
 
     // Subscription Management
     subscriptionTier: {

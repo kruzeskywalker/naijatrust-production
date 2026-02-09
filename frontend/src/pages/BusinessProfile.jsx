@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShieldCheck, MapPin, Globe, Phone, Mail, Loader2, MessageCircle, Send } from 'lucide-react';
+import { ShieldCheck, MapPin, Globe, Phone, Mail, Loader2, MessageCircle, Send, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
@@ -18,6 +18,9 @@ const BusinessProfile = () => {
     const [replyContent, setReplyContent] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [expandedThreads, setExpandedThreads] = useState({});
+    const [likes, setLikes] = useState(0);
+    const [hasLiked, setHasLiked] = useState(false);
+    const [likeLoading, setLikeLoading] = useState(false);
 
     const trackEvent = async (type) => {
         try {
@@ -59,6 +62,67 @@ const BusinessProfile = () => {
             console.error('Error fetching business data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Fetch like status
+    useEffect(() => {
+        const fetchLikeStatus = async () => {
+            try {
+                const token = localStorage.getItem('naijaTrustToken');
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+                const response = await fetch(`${API_BASE_URL}/businesses/${id}/like-status`, { headers });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    setLikes(data.data.likes);
+                    setHasLiked(data.data.hasLiked);
+                }
+            } catch (error) {
+                console.error('Error fetching like status:', error);
+            }
+        };
+        fetchLikeStatus();
+    }, [id]);
+
+    const handleLikeToggle = async () => {
+        if (!user) {
+            alert('Please log in to like this business');
+            return;
+        }
+
+        setLikeLoading(true);
+        const token = localStorage.getItem('naijaTrustToken');
+        const method = hasLiked ? 'DELETE' : 'POST';
+
+        // Optimistic update
+        setHasLiked(!hasLiked);
+        setLikes(prev => hasLiked ? prev - 1 : prev + 1);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/businesses/${id}/like`, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                setLikes(data.data.likes);
+                setHasLiked(data.data.hasLiked);
+            } else {
+                // Revert on error
+                setHasLiked(hasLiked);
+                setLikes(prev => hasLiked ? prev + 1 : prev - 1);
+            }
+        } catch (error) {
+            console.error('Like toggle error:', error);
+            // Revert on error
+            setHasLiked(hasLiked);
+            setLikes(prev => hasLiked ? prev + 1 : prev - 1);
+        } finally {
+            setLikeLoading(false);
         }
     };
 
@@ -174,6 +238,15 @@ const BusinessProfile = () => {
                                 Is this your business?
                             </Link>
                         )}
+                        <button
+                            className={`btn like-btn ${hasLiked ? 'liked' : ''}`}
+                            onClick={handleLikeToggle}
+                            disabled={likeLoading}
+                            title={hasLiked ? 'Unlike this business' : 'Like this business'}
+                        >
+                            <Heart size={20} fill={hasLiked ? '#ef4444' : 'none'} color={hasLiked ? '#ef4444' : 'currentColor'} />
+                            <span>{likes}</span>
+                        </button>
                     </div>
                 </div>
             </div>

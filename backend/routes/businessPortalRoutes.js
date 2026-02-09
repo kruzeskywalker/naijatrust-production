@@ -36,6 +36,7 @@ router.get('/dashboard', verifyBusinessToken, verifyVerifiedBusinessUser, async 
         const totalReviews = businesses.reduce((sum, biz) => sum + (biz.reviewCount || 0), 0);
         const totalViews = businesses.reduce((sum, biz) => sum + (biz.viewCount || 0), 0);
         const totalClicks = businesses.reduce((sum, biz) => sum + (biz.websiteClickCount || 0), 0);
+        const totalLikes = businesses.reduce((sum, biz) => sum + (biz.likes || 0), 0);
 
         const avgRating = businesses.length > 0
             ? (businesses.reduce((sum, biz) => sum + (biz.rating || 0), 0) / businesses.length).toFixed(1)
@@ -51,6 +52,7 @@ router.get('/dashboard', verifyBusinessToken, verifyVerifiedBusinessUser, async 
                     totalReviews,
                     totalViews,
                     totalClicks,
+                    totalLikes,
                     avgRating
                 }
             }

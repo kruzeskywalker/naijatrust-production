@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Camera, Mail, Lock, User, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Camera, Mail, Lock, User, Save, Loader2, CheckCircle, AlertCircle, Heart, MapPin, Star, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Settings.css';
 
@@ -23,6 +24,37 @@ const Settings = () => {
     // Custom Deletion Modal State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // New states for liked businesses and tab management
+    const [likedBusinesses, setLikedBusinesses] = useState([]);
+    const [likesLoading, setLikesLoading] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile'); // profile, password, liked, delete
+
+    useEffect(() => {
+        if (activeTab === 'liked') {
+            fetchLikedBusinesses();
+        }
+    }, [activeTab]);
+
+    const fetchLikedBusinesses = async () => {
+        setLikesLoading(true);
+        try {
+            const token = localStorage.getItem('naijaTrustToken');
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/businesses/user/liked`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                setLikedBusinesses(data.data.businesses);
+            }
+        } catch (error) {
+            console.error('Error fetching liked businesses:', error);
+        } finally {
+            setLikesLoading(false);
+        }
+    };
 
     if (!user) return <div className="container" style={{ padding: '4rem' }}>Please log in to access settings.</div>;
 
@@ -117,137 +149,216 @@ const Settings = () => {
             </header>
 
             <div className="settings-grid">
-                {/* Profile Section */}
-                <section className="settings-card">
-                    <div className="card-header">
-                        <User size={20} />
-                        <h2>Profile Information</h2>
-                    </div>
+                <nav className="settings-nav">
+                    <button
+                        className={`settings-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('profile')}
+                    >
+                        <User size={18} /> Profile
+                    </button>
+                    <button
+                        className={`settings-nav-item ${activeTab === 'password' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('password')}
+                    >
+                        <Lock size={18} /> Password
+                    </button>
+                    <button
+                        className={`settings-nav-item ${activeTab === 'liked' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('liked')}
+                    >
+                        <Heart size={18} /> Liked Businesses
+                    </button>
+                    <button
+                        className={`settings-nav-item danger ${activeTab === 'delete' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('delete')}
+                    >
+                        <AlertCircle size={18} /> Delete Account
+                    </button>
+                </nav>
 
-                    <div className="profile-photo-upload">
-                        <div className="avatar-wrapper">
-                            {user.avatar ? (
-                                <img src={user.avatar} alt={user.name} />
-                            ) : (
-                                <div className="avatar-placeholder">{user.name[0]}</div>
-                            )}
-                            {isPhotoLoading && <div className="upload-overlay"><Loader2 className="animate-spin" /></div>}
-                        </div>
-                        <div className="upload-btn-wrapper">
-                            <button className="btn btn-outline btn-sm">
-                                <Camera size={16} /> Change Photo
-                                <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={isPhotoLoading} />
-                            </button>
-                            <p className="hint">JPG or PNG. Max size 2MB.</p>
-                        </div>
-                    </div>
-
-                    <form onSubmit={handleProfileUpdate} className="settings-form">
-                        <div className="form-group">
-                            <label>Full Name</label>
-                            <input
-                                type="text"
-                                value={profileName}
-                                onChange={(e) => setProfileName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Email Address</label>
-                            <input
-                                type="email"
-                                value={profileEmail}
-                                onChange={(e) => setProfileEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        {profileStatus.message && (
-                            <div className={`status-alert ${profileStatus.type}`}>
-                                {profileStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-                                {profileStatus.message}
+                <div className="settings-content">
+                    {/* Profile Section */}
+                    {activeTab === 'profile' && (
+                        <section className="settings-card">
+                            <div className="card-header">
+                                <User size={20} />
+                                <h2>Profile Information</h2>
                             </div>
-                        )}
 
-                        <button type="submit" className="btn btn-primary" disabled={isProfileLoading}>
-                            {isProfileLoading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
-                            Save Changes
-                        </button>
-                    </form>
-                </section>
-
-                {/* Password Section */}
-                <section className="settings-card">
-                    <div className="card-header">
-                        <Lock size={20} />
-                        <h2>Change Password</h2>
-                    </div>
-
-                    <form onSubmit={handlePasswordUpdate} className="settings-form">
-                        <div className="form-group">
-                            <label>Current Password</label>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={passwordData.current}
-                                onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>New Password</label>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={passwordData.next}
-                                onChange={(e) => setPasswordData({ ...passwordData, next: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Confirm New Password</label>
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                value={passwordData.confirm}
-                                onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
-                                required
-                            />
-                        </div>
-
-                        {passwordStatus.message && (
-                            <div className={`status-alert ${passwordStatus.type}`}>
-                                {passwordStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-                                {passwordStatus.message}
+                            <div className="profile-photo-upload">
+                                <div className="avatar-wrapper">
+                                    {user.avatar ? (
+                                        <img src={user.avatar} alt={user.name} />
+                                    ) : (
+                                        <div className="avatar-placeholder">{user.name[0]}</div>
+                                    )}
+                                    {isPhotoLoading && <div className="upload-overlay"><Loader2 className="animate-spin" /></div>}
+                                </div>
+                                <div className="upload-btn-wrapper">
+                                    <button className="btn btn-outline btn-sm">
+                                        <Camera size={16} /> Change Photo
+                                        <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={isPhotoLoading} />
+                                    </button>
+                                    <p className="hint">JPG or PNG. Max size 2MB.</p>
+                                </div>
                             </div>
-                        )}
 
-                        <button type="submit" className="btn btn-primary" disabled={isPasswordLoading}>
-                            {isPasswordLoading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
-                            Update Password
-                        </button>
-                    </form>
-                </section>
+                            <form onSubmit={handleProfileUpdate} className="settings-form">
+                                <div className="form-group">
+                                    <label>Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={profileName}
+                                        onChange={(e) => setProfileName(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={profileEmail}
+                                        onChange={(e) => setProfileEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
 
-                {/* Account Deletion Section */}
-                <section className="settings-card danger-zone-v2">
-                    <div className="danger-header">
-                        <div className="danger-icon-wrapper">
-                            <AlertCircle size={32} />
-                        </div>
-                        <h2>Danger Zone</h2>
-                        <div className="danger-divider"></div>
-                    </div>
-                    <div className="danger-body">
-                        <p>Once you delete your account, there is no going back. Please be certain.</p>
-                        <button
-                            onClick={() => setShowDeleteModal(true)}
-                            className="btn-danger-refined"
-                        >
-                            Delete Account
-                        </button>
-                    </div>
-                </section>
+                                {profileStatus.message && (
+                                    <div className={`status-alert ${profileStatus.type}`}>
+                                        {profileStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                                        {profileStatus.message}
+                                    </div>
+                                )}
+
+                                <button type="submit" className="btn btn-primary" disabled={isProfileLoading}>
+                                    {isProfileLoading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
+                                    Save Changes
+                                </button>
+                            </form>
+                        </section>
+                    )}
+
+                    {/* Password Section */}
+                    {activeTab === 'password' && (
+                        <section className="settings-card">
+                            <div className="card-header">
+                                <Lock size={20} />
+                                <h2>Change Password</h2>
+                            </div>
+
+                            <form onSubmit={handlePasswordUpdate} className="settings-form">
+                                <div className="form-group">
+                                    <label>Current Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={passwordData.current}
+                                        onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>New Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={passwordData.next}
+                                        onChange={(e) => setPasswordData({ ...passwordData, next: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={passwordData.confirm}
+                                        onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })}
+                                        required
+                                    />
+                                </div>
+
+                                {passwordStatus.message && (
+                                    <div className={`status-alert ${passwordStatus.type}`}>
+                                        {passwordStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                                        {passwordStatus.message}
+                                    </div>
+                                )}
+
+                                <button type="submit" className="btn btn-primary" disabled={isPasswordLoading}>
+                                    {isPasswordLoading ? <Loader2 className="animate-spin" /> : <Save size={18} />}
+                                    Update Password
+                                </button>
+                            </form>
+                        </section>
+                    )}
+
+                    {/* Liked Businesses Section */}
+                    {activeTab === 'liked' && (
+                        <section className="settings-card">
+                            <div className="card-header">
+                                <Heart size={20} />
+                                <h2>Liked Businesses</h2>
+                                <p>Businesses you have saved to your favorites</p>
+                            </div>
+                            <div className="card-body">
+                                {likesLoading ? (
+                                    <div className="text-center py-5">
+                                        <Loader2 className="animate-spin mx-auto text-primary" size={32} />
+                                        <p className="mt-2 text-gray-500">Loading favorites...</p>
+                                    </div>
+                                ) : likedBusinesses.length > 0 ? (
+                                    <div className="liked-businesses-list">
+                                        {likedBusinesses.map(biz => (
+                                            <Link to={`/business/${biz._id}`} key={biz._id} className="liked-business-item">
+                                                <div className="liked-biz-logo">
+                                                    {biz.logo ? <img src={biz.logo} alt={biz.name} /> : biz.name[0]}
+                                                </div>
+                                                <div className="liked-biz-info">
+                                                    <h3>{biz.name}</h3>
+                                                    <div className="liked-biz-meta">
+                                                        <span><MapPin size={14} /> {biz.location}</span>
+                                                        <span><Star size={14} fill="orange" color="orange" /> {biz.rating} ({biz.reviewCount})</span>
+                                                    </div>
+                                                </div>
+                                                <ChevronRight size={20} className="text-gray-400" />
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="empty-state text-center py-5">
+                                        <Heart size={48} className="mx-auto text-gray-300 mb-3" />
+                                        <h3>No liked businesses yet</h3>
+                                        <p className="text-gray-500 mb-4">Start exploring and save your favorite businesses!</p>
+                                        <Link to="/search" className="btn btn-primary">Explore Businesses</Link>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Account Deletion Section */}
+                    {activeTab === 'delete' && (
+                        <section className="settings-card danger-zone-v2">
+                            <div className="danger-header">
+                                <div className="danger-icon-wrapper">
+                                    <AlertCircle size={32} />
+                                </div>
+                                <h2>Danger Zone</h2>
+                                <div className="danger-divider"></div>
+                            </div>
+                            <div className="danger-body">
+                                <p>Once you delete your account, there is no going back. Please be certain.</p>
+                                <button
+                                    onClick={() => setShowDeleteModal(true)}
+                                    className="btn-danger-refined"
+                                >
+                                    Delete Account
+                                </button>
+                            </div>
+                        </section>
+                    )}
+                </div>
             </div>
 
             {/* Account Deletion Confirmation Modal */}

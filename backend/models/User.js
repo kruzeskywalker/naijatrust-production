@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     googleId: { type: String, unique: true, sparse: true },
     passwordResetToken: String,
     passwordResetExpires: Date,
+    likedBusinesses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Business' }],
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Loader2, PlusCircle, Building2, Settings, MessageCircle, Camera, Star, Eye, MousePointer2 } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, PlusCircle, Building2, Settings, MessageCircle, Camera, Star, Eye, MousePointer2, Heart } from 'lucide-react';
 import VerifiedBadge from '../../components/VerifiedBadge';
 import SubscriptionCard from '../../components/SubscriptionCard';
 import UpgradeModal from '../../components/UpgradeModal';
@@ -195,6 +195,15 @@ const BusinessDashboard = () => {
                                         <div className="value">{dashboardData.stats.totalClicks}</div>
                                     </div>
                                 </Link>
+                                <div className="stat-card hover-card">
+                                    <div className="stat-icon-wrapper likes" style={{ background: '#fee2e2', color: '#ef4444' }}>
+                                        <Heart size={24} />
+                                    </div>
+                                    <div className="stat-info">
+                                        <h3>Total Likes</h3>
+                                        <div className="value">{dashboardData.stats.totalLikes || 0}</div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="section-header" id="my-businesses">

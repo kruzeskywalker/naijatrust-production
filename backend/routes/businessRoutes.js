@@ -2,6 +2,39 @@ const express = require('express');
 const Business = require('../models/Business');
 const router = express.Router();
 
+// JWT verification middleware
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+const verifyToken = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'No token provided' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+        req.user = await User.findById(decoded.id);
+        if (!req.user) return res.status(401).json({ message: 'User not found' });
+        next();
+    } catch (err) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
+// Optional auth - sets req.user if token present, but doesn't require it
+const optionalAuth = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+            req.user = await User.findById(decoded.id);
+        }
+        next();
+    } catch (err) {
+        // Token invalid, continue without user
+        next();
+    }
+};
+
 // Get all businesses (with search, category filters, and pagination)
 router.get('/', async (req, res) => {
     try {
@@ -60,6 +93,34 @@ router.get('/', async (req, res) => {
             }
         });
     } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// GET /api/businesses/user/liked - Get businesses liked by current user
+router.get('/user/liked', verifyToken, async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        // Find user and populate liked businesses
+        const user = await User.findById(userId).populate({
+            path: 'likedBusinesses',
+            select: 'name category location rating reviewCount logo isVerified description'
+        });
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            results: user.likedBusinesses.length,
+            data: {
+                businesses: user.likedBusinesses
+            }
+        });
+    } catch (err) {
+        console.error('Get liked businesses error:', err);
         res.status(400).json({ status: 'fail', message: err.message });
     }
 });
@@ -167,4 +228,113 @@ router.post('/:id/analytics', async (req, res) => {
     }
 });
 
+
+
+// POST /api/businesses/:id/like - Like a business
+router.post('/:id/like', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        const business = await Business.findById(id);
+        if (!business) {
+            return res.status(404).json({ status: 'fail', message: 'Business not found' });
+        }
+
+        // Check if user already liked
+        const alreadyLiked = req.user.likedBusinesses?.includes(id);
+        if (alreadyLiked) {
+            return res.status(400).json({ status: 'fail', message: 'You have already liked this business' });
+        }
+
+        // Add to user's likedBusinesses
+        await User.findByIdAndUpdate(userId, {
+            $addToSet: { likedBusinesses: id }
+        });
+
+        // Increment business likes count
+        business.likes = (business.likes || 0) + 1;
+        await business.save();
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                likes: business.likes,
+                hasLiked: true
+            }
+        });
+    } catch (err) {
+        console.error('Like error:', err);
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// DELETE /api/businesses/:id/like - Unlike a business
+router.delete('/:id/like', verifyToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        const business = await Business.findById(id);
+        if (!business) {
+            return res.status(404).json({ status: 'fail', message: 'Business not found' });
+        }
+
+        // Check if user has liked
+        const hasLiked = req.user.likedBusinesses?.includes(id);
+        if (!hasLiked) {
+            return res.status(400).json({ status: 'fail', message: 'You have not liked this business' });
+        }
+
+        // Remove from user's likedBusinesses
+        await User.findByIdAndUpdate(userId, {
+            $pull: { likedBusinesses: id }
+        });
+
+        // Decrement business likes count (ensure it doesn't go below 0)
+        business.likes = Math.max((business.likes || 0) - 1, 0);
+        await business.save();
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                likes: business.likes,
+                hasLiked: false
+            }
+        });
+    } catch (err) {
+        console.error('Unlike error:', err);
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// GET /api/businesses/:id/like-status - Check if user has liked a business
+router.get('/:id/like-status', optionalAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const business = await Business.findById(id);
+        if (!business) {
+            return res.status(404).json({ status: 'fail', message: 'Business not found' });
+        }
+
+        const hasLiked = req.user?.likedBusinesses?.some(
+            likedId => likedId.toString() === id
+        ) || false;
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                likes: business.likes || 0,
+                hasLiked
+            }
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+
+
 module.exports = router;
+
