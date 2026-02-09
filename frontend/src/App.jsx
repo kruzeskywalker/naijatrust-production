@@ -126,10 +126,10 @@ const AnimatedRoutes = () => {
 
         {/* Main Site Routes */}
         <Route path="*" element={
-          <PageTransition>
-            <>
-              <Header />
-              <main style={{ minHeight: '80vh' }}>
+          <>
+            <Header />
+            <main style={{ minHeight: '80vh' }}>
+              <PageTransition>
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/search" element={<Search />} />
@@ -153,10 +153,10 @@ const AnimatedRoutes = () => {
                   <Route path="/plans" element={<Plans />} />
                   <Route path="/help" element={<HelpCenter />} />
                 </Routes>
-              </main>
-              <Footer />
-            </>
-          </PageTransition>
+              </PageTransition>
+            </main>
+            <Footer />
+          </>
         } />
       </Routes>
     </AnimatePresence>

@@ -113,8 +113,17 @@
 }
 
 @media (max-width: 768px) {
+    .admin-header {
+        padding: 0.75rem 0;
+    }
+
+    .admin-brand {
+        font-size: 1.1rem;
+    }
+
     .admin-mobile-menu-btn {
         display: block;
+        padding: 0.25rem;
     }
 
     .admin-nav {
@@ -125,13 +134,20 @@
         right: 0;
         background-color: #1a202c;
         flex-direction: column;
-        padding: 1rem;
+        padding: 1.5rem;
         border-top: 1px solid #2d3748;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
     }
 
     .admin-nav.mobile-open {
         display: flex;
-        align-items: flex-start;
+        align-items: stretch;
+    }
+
+    .nav-link {
+        padding: 0.75rem 1rem;
+        width: 100%;
+        font-size: 1rem;
     }
 
     .nav-divider {
@@ -140,15 +156,18 @@
 
     .admin-user-info {
         align-items: flex-start;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #2d3748;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
         width: 100%;
     }
 
     .logout-link {
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         width: 100%;
         justify-content: center;
+        padding: 0.75rem;
+        font-size: 1rem;
     }
 }
