@@ -21,7 +21,11 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || 'your-google-client-id',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'your-google-client-secret',
-    callbackURL: 'http://localhost:5001/api/auth/google/callback'
+    callbackURL: process.env.BACKEND_URL
+        ? `${process.env.BACKEND_URL}/api/auth/google/callback`
+        : (process.env.NODE_ENV === 'production'
+            ? 'https://naijatrust-production-api.onrender.com/api/auth/google/callback'
+            : 'http://localhost:5001/api/auth/google/callback')
 },
     async (accessToken, refreshToken, profile, done) => {
         try {
