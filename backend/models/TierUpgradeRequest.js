@@ -114,10 +114,8 @@ const tierUpgradeRequestSchema = new mongoose.Schema({
 });
 
 // Indexes for efficient querying
-tierUpgradeRequestSchema.index({ business: 1, status: 1 });
 tierUpgradeRequestSchema.index({ status: 1, createdAt: -1 });
 tierUpgradeRequestSchema.index({ requestedTier: 1, status: 1 });
-tierUpgradeRequestSchema.index({ paymentReference: 1 }, { sparse: true });
 
 // Helper Methods
 tierUpgradeRequestSchema.methods.isPending = function () {

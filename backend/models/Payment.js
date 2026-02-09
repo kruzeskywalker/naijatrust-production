@@ -70,7 +70,6 @@ const paymentSchema = new mongoose.Schema({
 });
 
 // Indexes for efficient queries
-paymentSchema.index({ reference: 1 });
 paymentSchema.index({ providerReference: 1 });
 paymentSchema.index({ subscription: 1, createdAt: -1 });
 paymentSchema.index({ business: 1, status: 1 });
