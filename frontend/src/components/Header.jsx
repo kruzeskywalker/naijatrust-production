@@ -85,7 +85,7 @@ const Header = () => {
             <div className="container header-content">
                 <Link to="/" className="logo-section">
                     <img src="/logo.png" alt="NaijaTrust" className="logo" />
-                    <span className="logo-text">NaijaTrust</span>
+                    <span className="logo-text mobile-hide-text">NaijaTrust</span>
                 </Link>
 
                 <div className="header-search" ref={searchRef}>

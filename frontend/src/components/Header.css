@@ -257,6 +257,24 @@
     color: var(--primary-color) !important;
 }
 
+@media (max-width: 480px) {
+    .mobile-hide-text {
+        display: none;
+    }
+
+    .header-content {
+        gap: 0.5rem;
+    }
+
+    .logo-section {
+        gap: 0.25rem;
+    }
+
+    .logo {
+        height: 32px;
+    }
+}
+
 /* Search Dropdown */
 .header-search {
     position: relative;

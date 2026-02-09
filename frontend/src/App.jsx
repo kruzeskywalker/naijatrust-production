@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import PageTransition from './components/PageTransition';
@@ -94,72 +94,84 @@ const BusinessLayout = ({ children }) => {
 const AnimatedRoutes = () => {
   const location = useLocation();
 
+  // Paths where we don't want the GLOBAL Header/Footer (e.g. Admin, Login, Signup)
+  const isAdminPath = location.pathname.startsWith('/admin');
+  const isBusinessPath = location.pathname.startsWith('/business') &&
+    !location.pathname.includes('login') &&
+    !location.pathname.includes('signup');
+  const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password', '/business/login', '/business/signup'].some(p => location.pathname.startsWith(p));
+  const isOAuthCallback = location.pathname.startsWith('/auth/callback');
+
+  // Show global header/footer for main site (Home, Search, Categories, etc.)
+  // But hide them for Admin portal and Auth pages (which have their own layouts or simplified views)
+  const showGlobalHeader = !isAdminPath && !isAuthPage && !isOAuthCallback;
+  const showGlobalFooter = showGlobalHeader;
+
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        {/* Business Portal Routes */}
-        <Route path="/business/signup" element={<BusinessSignup />} />
-        <Route path="/business/login" element={<BusinessLogin />} />
-        <Route path="/business/forgot-password" element={<BusinessForgotPassword />} />
-        <Route path="/business/reset-password/:token" element={<BusinessResetPassword />} />
-        <Route path="/business/verify-email/:token" element={<EmailVerification />} />
-        <Route path="/business/dashboard" element={<BusinessDashboard />} />
-        <Route path="/business/claim" element={<ClaimBusiness />} />
-        <Route path="/business/claim/:id" element={<ClaimBusiness />} />
-        <Route path="/business/claim/search" element={<ClaimBusiness />} />
-        <Route path="/business/register" element={<RegisterBusiness />} />
-        <Route path="/business/settings" element={<BusinessSettings />} />
-        <Route path="/business/reviews/:businessId" element={<BusinessReviews />} />
-        <Route path="/business/reviews" element={<BusinessAllReviews />} />
-        <Route path="/business/analytics" element={<BusinessAnalytics />} />
-        <Route path="/business/subscription/payment-callback" element={<PaymentCallback />} />
+    <>
+      {showGlobalHeader && <Header />}
 
-        {/* Admin Portal Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/claims" element={<ClaimRequests />} />
-        <Route path="/admin/businesses" element={<ManageBusinesses />} />
-        <Route path="/admin/business-owners" element={<ManageBusinessOwners />} />
-        <Route path="/admin/reviews" element={<ManageReviews />} />
-        <Route path="/admin/users" element={<ManageUsers />} />
-        <Route path="/admin/deletions" element={<AdminAccountDeletions />} />
+      <main style={{ minHeight: showGlobalHeader ? '80vh' : 'auto' }}>
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            {/* Business Portal Routes */}
+            <Route path="/business/signup" element={<PageTransition><BusinessSignup /></PageTransition>} />
+            <Route path="/business/login" element={<PageTransition><BusinessLogin /></PageTransition>} />
+            <Route path="/business/forgot-password" element={<PageTransition><BusinessForgotPassword /></PageTransition>} />
+            <Route path="/business/reset-password/:token" element={<PageTransition><BusinessResetPassword /></PageTransition>} />
+            <Route path="/business/verify-email/:token" element={<PageTransition><EmailVerification /></PageTransition>} />
+            <Route path="/business/dashboard" element={<PageTransition><BusinessDashboard /></PageTransition>} />
+            <Route path="/business/claim" element={<PageTransition><ClaimBusiness /></PageTransition>} />
+            <Route path="/business/claim/:id" element={<PageTransition><ClaimBusiness /></PageTransition>} />
+            <Route path="/business/claim/search" element={<PageTransition><ClaimBusiness /></PageTransition>} />
+            <Route path="/business/register" element={<PageTransition><RegisterBusiness /></PageTransition>} />
+            <Route path="/business/settings" element={<PageTransition><BusinessSettings /></PageTransition>} />
+            <Route path="/business/reviews/:businessId" element={<PageTransition><BusinessReviews /></PageTransition>} />
+            <Route path="/business/reviews" element={<PageTransition><BusinessAllReviews /></PageTransition>} />
+            <Route path="/business/analytics" element={<PageTransition><BusinessAnalytics /></PageTransition>} />
+            <Route path="/business/subscription/payment-callback" element={<PageTransition><PaymentCallback /></PageTransition>} />
 
-        {/* Main Site Routes */}
-        <Route path="*" element={
-          <>
-            <Header />
-            <main style={{ minHeight: '80vh' }}>
-              <PageTransition>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/business/:id" element={<BusinessProfile />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/review/:id" element={<WriteReview />} />
-                  <Route path="/verify-email" element={<VerifyEmail />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password/:token" element={<ResetPassword />} />
-                  <Route path="/auth/callback" element={<OAuthCallback />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/dashboard/reviews" element={<Dashboard key="reviews" />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/plans" element={<Plans />} />
-                  <Route path="/help" element={<HelpCenter />} />
-                </Routes>
-              </PageTransition>
-            </main>
-            <Footer />
-          </>
-        } />
-      </Routes>
-    </AnimatePresence>
+            {/* Admin Portal Routes */}
+            <Route path="/admin/login" element={<PageTransition><AdminLogin /></PageTransition>} />
+            <Route path="/admin/dashboard" element={<PageTransition><AdminDashboard /></PageTransition>} />
+            <Route path="/admin/claims" element={<PageTransition><ClaimRequests /></PageTransition>} />
+            <Route path="/admin/businesses" element={<PageTransition><ManageBusinesses /></PageTransition>} />
+            <Route path="/admin/business-owners" element={<PageTransition><ManageBusinessOwners /></PageTransition>} />
+            <Route path="/admin/reviews" element={<PageTransition><ManageReviews /></PageTransition>} />
+            <Route path="/admin/users" element={<PageTransition><ManageUsers /></PageTransition>} />
+            <Route path="/admin/deletions" element={<PageTransition><AdminAccountDeletions /></PageTransition>} />
+
+            {/* Main Site Routes */}
+            <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+            <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
+            <Route path="/business/:id" element={<PageTransition><BusinessProfile /></PageTransition>} />
+            <Route path="/categories" element={<PageTransition><Categories /></PageTransition>} />
+            <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+            <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
+            <Route path="/review/:id" element={<PageTransition><WriteReview /></PageTransition>} />
+            <Route path="/verify-email" element={<PageTransition><VerifyEmail /></PageTransition>} />
+            <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
+            <Route path="/reset-password/:token" element={<PageTransition><ResetPassword /></PageTransition>} />
+            <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+            <Route path="/dashboard/reviews" element={<PageTransition><Dashboard key="reviews" /></PageTransition>} />
+            <Route path="/settings" element={<PageTransition><Settings /></PageTransition>} />
+            <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+            <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+            <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
+            <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
+            <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+            <Route path="/plans" element={<PageTransition><Plans /></PageTransition>} />
+            <Route path="/help" element={<PageTransition><HelpCenter /></PageTransition>} />
+
+            {/* Catch-all to Home */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
+
+      {showGlobalFooter && <Footer />}
+    </>
   );
 };
 
