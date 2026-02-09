@@ -248,17 +248,17 @@ router.put('/claim-requests/:id/approve', verifyAdminToken, async (req, res) => 
         // Log Admin Action
         await req.admin.logAction('approve_claim', 'claim', claim._id, `Approved claim for ${business.name}`);
 
-        // Send Email
+        // Send Email (Non-blocking)
         const emailContent = emailTemplates.claimApproved(
             user.name,
             business.name,
             `${process.env.FRONTEND_URL}/business/dashboard`
         );
-        await sendEmail({
+        sendEmail({
             to: user.email,
             subject: emailContent.subject,
             html: emailContent.html
-        });
+        }).catch(err => console.error('Failed to send approval email:', err.message));
 
         res.status(200).json({ status: 'success', message: 'Claim approved successfully' });
     } catch (error) {
@@ -302,17 +302,17 @@ router.put('/claim-requests/:id/reject', verifyAdminToken, async (req, res) => {
         // Log action
         await req.admin.logAction('reject_claim', 'claim', claim._id, `Rejected: ${rejectionReason}`);
 
-        // Send Email
+        // Send Email (Non-blocking)
         const emailContent = emailTemplates.claimRejected(
             claim.user.name,
             business.name,
             rejectionReason
         );
-        await sendEmail({
+        sendEmail({
             to: claim.user.email,
             subject: emailContent.subject,
             html: emailContent.html
-        });
+        }).catch(err => console.error('Failed to send rejection email:', err.message));
 
         res.status(200).json({ status: 'success', message: 'Claim rejected successfully' });
     } catch (error) {
