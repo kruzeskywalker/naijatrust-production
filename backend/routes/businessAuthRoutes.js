@@ -76,10 +76,24 @@ router.post('/signup', async (req, res) => {
         await businessUser.save();
         console.log('User saved!');
 
-        // Send verification email
+        // Send success response immediately (don't wait for email)
+        res.status(201).json({
+            status: 'success',
+            message: 'Account created successfully. Please check your email to verify your account.',
+            data: {
+                user: {
+                    id: businessUser._id,
+                    name: businessUser.name,
+                    email: businessUser.email,
+                    isEmailVerified: businessUser.isEmailVerified
+                }
+            }
+        });
+
+        // Send verification email in background (non-blocking)
         const verificationUrl = `${process.env.FRONTEND_URL}/business/verify-email/${verificationToken}`;
-        console.log('Sending email...');
-        await sendEmail({
+        console.log('Sending verification email in background...');
+        sendEmail({
             to: email,
             subject: 'Verify your NaijaTrust Business Account',
             html: `
@@ -93,21 +107,9 @@ router.post('/signup', async (req, res) => {
                 <p>Once verified, you can claim your business or register a new one.</p>
                 <p>Best regards,<br>NaijaTrust Team</p>
             `
-        });
-        console.log('Email sent!');
-
-        res.status(201).json({
-            status: 'success',
-            message: 'Account created successfully. Please check your email to verify your account.',
-            data: {
-                user: {
-                    id: businessUser._id,
-                    name: businessUser.name,
-                    email: businessUser.email,
-                    isEmailVerified: businessUser.isEmailVerified
-                }
-            }
-        });
+        })
+            .then(() => console.log('✅ Verification email sent to:', email))
+            .catch(err => console.error('⚠️ Failed to send verification email (user still registered):', err.message));
     } catch (error) {
         console.error('Business signup error STACK:', error.stack);
         res.status(500).json({ status: 'fail', message: error.message });

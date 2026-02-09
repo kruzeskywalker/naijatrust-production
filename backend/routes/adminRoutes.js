@@ -616,6 +616,85 @@ router.put('/users/:id/block', verifyAdminToken, async (req, res) => {
     }
 });
 
+// GET /api/admin/business-owners - List all business owners with their claimed businesses
+router.get('/business-owners', verifyAdminToken, async (req, res) => {
+    try {
+        const { search, status } = req.query;
+        const query = {};
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { businessEmail: { $regex: search, $options: 'i' } },
+                { companyName: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Filter by status
+        if (status === 'active') {
+            query.isSuspended = { $ne: true };
+        } else if (status === 'suspended') {
+            query.isSuspended = true;
+        } else if (status === 'verified') {
+            query.isEmailVerified = true;
+            query.isAdminVerified = true;
+        } else if (status === 'pending') {
+            query.$or = [
+                { isEmailVerified: false },
+                { isAdminVerified: false }
+            ];
+        }
+
+        const businessOwners = await BusinessUser.find(query)
+            .populate('claimedBusinesses', 'name category location isVerified subscriptionTier')
+            .select('-password -emailVerificationToken -passwordResetToken')
+            .sort('-createdAt');
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                businessOwners,
+                count: businessOwners.length
+            }
+        });
+    } catch (error) {
+        console.error('Get business owners error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PUT /api/admin/business-owners/:id/suspend - Suspend/Unsuspend business owner
+router.put('/business-owners/:id/suspend', verifyAdminToken, async (req, res) => {
+    try {
+        const { isSuspended, reason } = req.body;
+        const user = await BusinessUser.findByIdAndUpdate(
+            req.params.id,
+            {
+                isSuspended,
+                suspensionReason: isSuspended ? (reason || 'Suspended by admin') : null
+            },
+            { new: true }
+        );
+
+        if (!user) return res.status(404).json({ status: 'fail', message: 'Business owner not found' });
+
+        await req.admin.logAction(
+            isSuspended ? 'suspend_business_owner' : 'unsuspend_business_owner',
+            'business_user',
+            user._id,
+            `${isSuspended ? 'Suspended' : 'Unsuspended'} business owner ${user.email}`
+        );
+
+        res.status(200).json({
+            status: 'success',
+            message: `Business owner ${isSuspended ? 'suspended' : 'unsuspended'} successfully`
+        });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
 // GET /api/admin/reviews/disputes - List disputed reviews
 router.get('/reviews/disputes', verifyAdminToken, async (req, res) => {
     try {

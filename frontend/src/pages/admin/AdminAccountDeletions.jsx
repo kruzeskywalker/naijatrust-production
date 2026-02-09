@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
-import { Loader2, AlertCircle, CheckCircle, XCircle, User, Calendar, MessageSquare } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle, XCircle, User, Calendar, MessageSquare, ArrowLeft } from 'lucide-react';
 import './AdminAccountDeletions.css';
 
 const AdminAccountDeletions = () => {
@@ -71,6 +72,9 @@ const AdminAccountDeletions = () => {
         <div className="admin-account-deletions">
             <header className="admin-page-header">
                 <div>
+                    <Link to="/admin/dashboard" className="back-link-admin">
+                        <ArrowLeft size={20} /> Back to Dashboard
+                    </Link>
                     <h1>Account Deletion Requests</h1>
                     <p>Manage and approve business account deletion requests.</p>
                 </div>

@@ -49,6 +49,7 @@ import ClaimRequests from './pages/admin/ClaimRequests';
 import ManageBusinesses from './pages/admin/ManageBusinesses';
 import ManageReviews from './pages/admin/ManageReviews';
 import ManageUsers from './pages/admin/ManageUsers';
+import ManageBusinessOwners from './pages/admin/ManageBusinessOwners';
 import AdminAccountDeletions from './pages/admin/AdminAccountDeletions';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -118,7 +119,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/claims" element={<ClaimRequests />} />
         <Route path="/admin/businesses" element={<ManageBusinesses />} />
-        <Route path="/admin/businesses" element={<ManageBusinesses />} />
+        <Route path="/admin/business-owners" element={<ManageBusinessOwners />} />
         <Route path="/admin/reviews" element={<ManageReviews />} />
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/deletions" element={<AdminAccountDeletions />} />

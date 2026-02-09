@@ -91,7 +91,7 @@ const AdminDashboard = () => {
                         <div className="stat-content">
                             <h3>{stats.activeBusinessUsers}</h3>
                             <p>Active Owners</p>
-                            <Link to="/admin/businesses" className="stat-link">View Owners →</Link>
+                            <Link to="/admin/business-owners" className="stat-link">View Owners →</Link>
                         </div>
                     </div>
 
