@@ -25,6 +25,7 @@ const ClaimRequests = () => {
     const [showDiagnostics, setShowDiagnostics] = useState(false);
     const [diagnosticsData, setDiagnosticsData] = useState(null);
     const [loadingDiagnostics, setLoadingDiagnostics] = useState(false);
+    const [customApiUrl, setCustomApiUrl] = useState(API_BASE_URL);
 
     useEffect(() => {
         if (!loading && !token) {
@@ -65,8 +66,18 @@ const ClaimRequests = () => {
     const handleRunDiagnostics = async () => {
         setLoadingDiagnostics(true);
         setShowDiagnostics(true);
+        // Use custom URL if provided, ensuring no trailing slash
+        const baseUrl = (customApiUrl || API_BASE_URL).replace(/\/$/, '');
+        // Ideally should check for /api suffix or add it if missing, but let's assume user inputs base including /api or we strip and add
+        // Current logic: API_BASE_URL includes /api. 
+        // If user inputs 'https://app.com', we might need /api. 
+        // Let's assume user inputs the FULL base path up to /api (e.g. .../api)
+        // Or we can try to be smart.
+
+        const endpoint = `${baseUrl}/admin/diagnostics/claims`;
+
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/diagnostics/claims`, {
+            const response = await fetch(endpoint, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -74,11 +85,11 @@ const ClaimRequests = () => {
                 setDiagnosticsData(data.data);
             } else {
                 toast.error('Diagnostics failed');
-                setDiagnosticsData({ error: data.message });
+                setDiagnosticsData({ error: data.message, status: response.status });
             }
         } catch (error) {
             console.error('Diagnostics error:', error);
-            setDiagnosticsData({ error: error.message });
+            setDiagnosticsData({ error: error.message, status: 'Client Error' });
         } finally {
             setLoadingDiagnostics(false);
         }
@@ -409,9 +420,31 @@ const ClaimRequests = () => {
                                         <p>{diagnosticsData.error.toString()}</p>
                                         <div style={{ marginTop: '15px', padding: '10px', background: '#fee2e2', borderRadius: '4px', fontSize: '12px', textAlign: 'left', overflowWrap: 'break-word' }}>
                                             <p><strong>Debug Info:</strong></p>
-                                            <p>URL: {`${API_BASE_URL}/admin/diagnostics/claims`}</p>
+                                            <p>URL: {`${customApiUrl}/admin/diagnostics/claims`}</p>
                                             <p>Token Length: {token ? token.length : 'None'}</p>
                                             <p>Status: {diagnosticsData.status || 'Client Error'}</p>
+
+                                            <div style={{ marginTop: '10px' }}>
+                                                <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px' }}>Override Backend URL:</label>
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    <input
+                                                        type="text"
+                                                        value={customApiUrl}
+                                                        onChange={(e) => setCustomApiUrl(e.target.value)}
+                                                        placeholder="https://your-backend.onrender.com/api"
+                                                        style={{ flex: 1, padding: '4px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                    />
+                                                    <button
+                                                        onClick={handleRunDiagnostics}
+                                                        style={{ padding: '4px 8px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                                    >
+                                                        Retry
+                                                    </button>
+                                                </div>
+                                                <p style={{ marginTop: '4px', fontSize: '11px', color: '#666' }}>
+                                                    Hint: Try <code>https://naijatrust-production-api.onrender.com/api</code>
+                                                </p>
+                                            </div>
                                         </div>
                                         {diagnosticsData.error.includes('Unexpected token') && <p style={{ fontSize: '12px', marginTop: '8px' }}>The backend endpoint might not be ready yet (404). Please wait a moment and try again.</p>}
                                     </div>
