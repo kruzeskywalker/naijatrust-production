@@ -403,40 +403,47 @@ const ClaimRequests = () => {
                                     <p>Running diagnostics...</p>
                                 </div>
                             ) : diagnosticsData ? (
-                                <div className="diagnostics-content">
-                                    <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
-                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
-                                            <h4>Total Claims</h4>
-                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.totalClaims}</p>
-                                        </div>
-                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
-                                            <h4>Pending Claims</h4>
-                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.pendingClaims}</p>
-                                        </div>
-                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
-                                            <h4>Pending Biz</h4>
-                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.pendingBusinesses}</p>
-                                        </div>
-                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
-                                            <h4>Total Biz</h4>
-                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.totalBusinesses}</p>
-                                        </div>
+                                diagnosticsData.error ? (
+                                    <div className="error-state" style={{ padding: '20px', color: '#ef4444', textAlign: 'center' }}>
+                                        <p><strong>Diagnostics Failed</strong></p>
+                                        <p>{diagnosticsData.error.toString()}</p>
+                                        {diagnosticsData.error.includes('Unexpected token') && <p style={{ fontSize: '12px', marginTop: '8px' }}>The backend endpoint might not be ready yet (404). Please wait a moment and try again.</p>}
                                     </div>
+                                ) : (
+                                    <div className="diagnostics-content">
+                                        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                                            <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                                <h4>Total Claims</h4>
+                                                <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.totalClaims}</p>
+                                            </div>
+                                            <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                                <h4>Pending Claims</h4>
+                                                <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.pendingClaims}</p>
+                                            </div>
+                                            <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                                <h4>Pending Biz</h4>
+                                                <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.pendingBusinesses}</p>
+                                            </div>
+                                            <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                                <h4>Total Biz</h4>
+                                                <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.totalBusinesses}</p>
+                                            </div>
+                                        </div>
 
-                                    <h3>Raw Data (Last 20 Claims)</h3>
-                                    <pre style={{
-                                        background: '#1f2937',
-                                        color: '#10b981',
-                                        padding: '15px',
-                                        borderRadius: '8px',
-                                        overflowX: 'auto',
-                                        maxHeight: '400px',
-                                        fontSize: '12px'
-                                    }}>
-                                        {JSON.stringify(diagnosticsData.recentClaims, null, 2)}
-                                    </pre>
-                                </div>
-                            ) : (
+                                        <h3>Raw Data (Last 20 Claims)</h3>
+                                        <pre style={{
+                                            background: '#1f2937',
+                                            color: '#10b981',
+                                            padding: '15px',
+                                            borderRadius: '8px',
+                                            overflowX: 'auto',
+                                            maxHeight: '400px',
+                                            fontSize: '12px'
+                                        }}>
+                                            {JSON.stringify(diagnosticsData.recentClaims, null, 2)}
+                                        </pre>
+                                    </div>
+                                )) : (
                                 <p>No data</p>
                             )}
                         </div>
