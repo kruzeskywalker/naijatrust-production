@@ -105,7 +105,7 @@ router.get('/user/liked', verifyToken, async (req, res) => {
         // Find user and populate liked businesses
         const user = await User.findById(userId).populate({
             path: 'likedBusinesses',
-            select: 'name category location rating reviewCount logo isVerified description'
+            select: 'name category location rating reviewCount logo isVerified description likes'
         });
 
         if (!user) {

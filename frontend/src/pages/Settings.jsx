@@ -319,6 +319,7 @@ const Settings = () => {
                                                     <div className="liked-biz-meta">
                                                         <span><MapPin size={14} /> {biz.location}</span>
                                                         <span><Star size={14} fill="orange" color="orange" /> {biz.rating} ({biz.reviewCount})</span>
+                                                        <span><Heart size={14} fill="red" color="red" /> {biz.likes || 0}</span>
                                                     </div>
                                                 </div>
                                                 <ChevronRight size={20} className="text-gray-400" />
