@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import AdminHeader from '../../components/admin/AdminHeader';
-import { FileText, Check, X, Shield, Search, ExternalLink, Loader2 } from 'lucide-react';
+import { FileText, Check, X, Shield, Search, ExternalLink, Loader2, Activity } from 'lucide-react';
 import './ClaimRequests.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || 'http://localhost:5001/api';
@@ -22,6 +22,9 @@ const ClaimRequests = () => {
     const [modalAction, setModalAction] = useState(null); // 'approve' | 'reject' | null
     const [notes, setNotes] = useState('');
     const [processing, setProcessing] = useState(false);
+    const [showDiagnostics, setShowDiagnostics] = useState(false);
+    const [diagnosticsData, setDiagnosticsData] = useState(null);
+    const [loadingDiagnostics, setLoadingDiagnostics] = useState(false);
 
     useEffect(() => {
         if (!loading && !token) {
@@ -56,6 +59,28 @@ const ClaimRequests = () => {
             console.error('Error fetching claims:', error);
         } finally {
             setIsLoadingData(false);
+        }
+    };
+
+    const handleRunDiagnostics = async () => {
+        setLoadingDiagnostics(true);
+        setShowDiagnostics(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/diagnostics/claims`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                setDiagnosticsData(data.data);
+            } else {
+                toast.error('Diagnostics failed');
+                setDiagnosticsData({ error: data.message });
+            }
+        } catch (error) {
+            console.error('Diagnostics error:', error);
+            setDiagnosticsData({ error: error.message });
+        } finally {
+            setLoadingDiagnostics(false);
         }
     };
 
@@ -113,6 +138,20 @@ const ClaimRequests = () => {
             <main className="admin-container">
                 <div className="claims-header">
                     <h1>Claim Requests</h1>
+                    <button className="btn-diagnostics" onClick={handleRunDiagnostics} style={{
+                        marginLeft: 'auto',
+                        padding: '8px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        background: '#4b5563',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer'
+                    }}>
+                        <Activity size={16} /> Run Diagnostics
+                    </button>
                     <div className="filter-tabs">
                         <button
                             className={`tab ${filter === 'pending' ? 'active' : ''}`}
@@ -343,6 +382,62 @@ const ClaimRequests = () => {
                                     {selectedClaim.adminNotes && <p className="admin-note">Note: {selectedClaim.adminNotes}</p>}
                                     {selectedClaim.rejectionReason && <p className="rejection-note">Reason: {selectedClaim.rejectionReason}</p>}
                                 </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showDiagnostics && (
+                <div className="modal-overlay" onClick={() => setShowDiagnostics(false)}>
+                    <div className="request-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', width: '90%' }}>
+                        <div className="modal-header">
+                            <h2>System Diagnostics</h2>
+                            <button className="close-btn" onClick={() => setShowDiagnostics(false)}>
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingDiagnostics ? (
+                                <div className="loading-state">
+                                    <Loader2 className="animate-spin" size={32} />
+                                    <p>Running diagnostics...</p>
+                                </div>
+                            ) : diagnosticsData ? (
+                                <div className="diagnostics-content">
+                                    <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                            <h4>Total Claims</h4>
+                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.totalClaims}</p>
+                                        </div>
+                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                            <h4>Pending Claims</h4>
+                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.pendingClaims}</p>
+                                        </div>
+                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                            <h4>Pending Biz</h4>
+                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.pendingBusinesses}</p>
+                                        </div>
+                                        <div className="stat-card" style={{ background: '#f3f4f6', padding: '10px', borderRadius: '8px' }}>
+                                            <h4>Total Biz</h4>
+                                            <p style={{ fontSize: '24px', fontWeight: 'bold' }}>{diagnosticsData.counts?.totalBusinesses}</p>
+                                        </div>
+                                    </div>
+
+                                    <h3>Raw Data (Last 20 Claims)</h3>
+                                    <pre style={{
+                                        background: '#1f2937',
+                                        color: '#10b981',
+                                        padding: '15px',
+                                        borderRadius: '8px',
+                                        overflowX: 'auto',
+                                        maxHeight: '400px',
+                                        fontSize: '12px'
+                                    }}>
+                                        {JSON.stringify(diagnosticsData.recentClaims, null, 2)}
+                                    </pre>
+                                </div>
+                            ) : (
+                                <p>No data</p>
                             )}
                         </div>
                     </div>

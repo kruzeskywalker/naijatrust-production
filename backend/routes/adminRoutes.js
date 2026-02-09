@@ -133,6 +133,56 @@ router.get('/dashboard', verifyAdminToken, async (req, res) => {
     }
 });
 
+// GET /api/admin/diagnostics/claims - Debug endpoint to list raw claims
+router.get('/diagnostics/claims', verifyAdminToken, async (req, res) => {
+    try {
+        console.log('--- Running Claim Diagnostics ---');
+        // 1. Fetch last 20 claims (any status)
+        const recentClaims = await ClaimRequest.find()
+            .sort({ _id: -1 })
+            .limit(20)
+            .lean(); // lean for raw data
+
+        // 2. Fetch pending businesses
+        const pendingBusinesses = await Business.find({ claimStatus: 'pending' })
+            .sort({ _id: -1 })
+            .limit(20)
+            .lean();
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                message: 'Diagnostics Report',
+                timestamp: new Date(),
+                counts: {
+                    totalClaims: await ClaimRequest.countDocuments(),
+                    pendingClaims: await ClaimRequest.countDocuments({ status: 'pending' }),
+                    pendingBusinesses: await Business.countDocuments({ claimStatus: 'pending' }),
+                    totalBusinesses: await Business.countDocuments()
+                },
+                recentClaims: recentClaims.map(c => ({
+                    id: c._id,
+                    status: c.status,
+                    user: c.user,
+                    business: c.business,
+                    submittedAt: c.submittedAt,
+                    info: c.additionalInfo
+                })),
+                pendingBusinesses: pendingBusinesses.map(b => ({
+                    id: b._id,
+                    name: b.name,
+                    claimStatus: b.claimStatus,
+                    owner: b.owner,
+                    isVerified: b.isVerified
+                }))
+            }
+        });
+    } catch (error) {
+        console.error('Diagnostics error:', error);
+        res.status(500).json({ status: 'fail', message: error.message, stack: error.stack });
+    }
+});
+
 // GET /api/admin/claim-requests
 router.get('/claim-requests', verifyAdminToken, async (req, res) => {
     try {
