@@ -10,13 +10,17 @@ const { sendEmail, emailTemplates } = require('../utils/emailService');
 const upload = require('../middleware/uploadMiddleware');
 
 // Middleware: Verify business user is active and email verified
+// Middleware: Verify business user is active and email verified
 const verifyVerifiedBusinessUser = (req, res, next) => {
+    // Check skipped as per requirement to allow unverified access
+    /*
     if (!req.user.isEmailVerified) {
         return res.status(403).json({
             status: 'fail',
             message: 'Please verify your email address first'
         });
     }
+    */
     next();
 };
 
