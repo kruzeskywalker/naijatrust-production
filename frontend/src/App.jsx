@@ -103,9 +103,9 @@ const AnimatedRoutes = () => {
   const isOAuthCallback = location.pathname.startsWith('/auth/callback');
 
   // Show global header/footer for main site (Home, Search, Categories, etc.)
-  // But hide them for Admin portal and Auth pages (which have their own layouts or simplified views)
-  const showGlobalHeader = !isAdminPath && !isAuthPage && !isOAuthCallback;
-  const showGlobalFooter = showGlobalHeader;
+  // But hide them for Admin portal, Business portal, and Auth pages
+  const showGlobalHeader = !isAdminPath && !isBusinessPath && !isAuthPage && !isOAuthCallback;
+  const showGlobalFooter = !isAdminPath && !isAuthPage && !isOAuthCallback; // Keep footer on business path for now or hide if desired
 
   return (
     <>

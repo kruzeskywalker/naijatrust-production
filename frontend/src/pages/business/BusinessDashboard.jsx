@@ -97,14 +97,14 @@ const BusinessDashboard = () => {
 
     return (
         <div className="business-dashboard">
-            <header className="premium-header">
-                <div className="header-container">
+            <header className="portal-header">
+                <div className="portal-header-container">
                     <div className="header-left">
-                        <Link to="/business/dashboard" className="header-logo">
+                        <Link to="/business/dashboard" className="portal-logo">
                             <div className="logo-icon">NT</div>
                             <h1>Business Portal</h1>
                         </Link>
-                        <nav className="header-nav">
+                        <nav className="portal-nav">
                             <Link to="/business/dashboard" className="nav-item active">Overview</Link>
                             <Link to="/business/reviews" className="nav-item">Reviews</Link>
                             <Link to="/business/analytics" className="nav-item">Analytics</Link>
