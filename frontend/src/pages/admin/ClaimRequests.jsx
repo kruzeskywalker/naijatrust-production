@@ -407,6 +407,12 @@ const ClaimRequests = () => {
                                     <div className="error-state" style={{ padding: '20px', color: '#ef4444', textAlign: 'center' }}>
                                         <p><strong>Diagnostics Failed</strong></p>
                                         <p>{diagnosticsData.error.toString()}</p>
+                                        <div style={{ marginTop: '15px', padding: '10px', background: '#fee2e2', borderRadius: '4px', fontSize: '12px', textAlign: 'left', overflowWrap: 'break-word' }}>
+                                            <p><strong>Debug Info:</strong></p>
+                                            <p>URL: {`${API_BASE_URL}/admin/diagnostics/claims`}</p>
+                                            <p>Token Length: {token ? token.length : 'None'}</p>
+                                            <p>Status: {diagnosticsData.status || 'Client Error'}</p>
+                                        </div>
                                         {diagnosticsData.error.includes('Unexpected token') && <p style={{ fontSize: '12px', marginTop: '8px' }}>The backend endpoint might not be ready yet (404). Please wait a moment and try again.</p>}
                                     </div>
                                 ) : (
