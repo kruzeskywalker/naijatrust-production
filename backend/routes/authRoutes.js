@@ -8,6 +8,13 @@ const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/emai
 const upload = require('../middleware/uploadMiddleware');
 const router = express.Router();
 
+const getClientUrl = () => {
+    if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+    return process.env.NODE_ENV === 'production'
+        ? 'https://naijatrust-production.vercel.app'
+        : 'http://localhost:5173';
+};
+
 const signToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
         expiresIn: '30d'
@@ -207,7 +214,7 @@ if (process.env.GOOGLE_CLIENT_ID &&
             const token = signToken(req.user._id);
 
             // Redirect to frontend with token
-            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${token}`);
+            res.redirect(`${getClientUrl()}/auth/callback?token=${token}`);
         }
     );
 } else {
@@ -381,7 +388,7 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
         const resetToken = user.createPasswordResetToken();
         await user.save({ validateBeforeSave: false });
 
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+        const resetUrl = `${getClientUrl()}/reset-password/${resetToken}`;
 
 
         try {
