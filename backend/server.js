@@ -55,7 +55,7 @@ const xss = require('xss-clean');
 app.use(cookieParser());
 
 // Session configuration
-const MongoStore = require('connect-mongo');
+const { MongoStore } = require('connect-mongo');
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'naijatrust-session-secret',
