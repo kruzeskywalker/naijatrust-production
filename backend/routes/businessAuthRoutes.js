@@ -22,13 +22,11 @@ const isBusinessEmail = (email) => {
 // POST /api/business-auth/signup
 router.post('/signup', async (req, res) => {
     console.log('--- SIGNUP REQUEST RECEIVED ---');
-    // console.log('Body:', req.body);
     try {
         const { name, email, password, businessEmail, phone, position, companyName } = req.body;
 
         // Validate required fields
         if (!name || !email || !password || !businessEmail || !phone || !position) {
-            console.log('Missing fields');
             return res.status(400).json({
                 status: 'fail',
                 message: 'Please provide all required fields'
@@ -37,7 +35,6 @@ router.post('/signup', async (req, res) => {
 
         // Validate business email
         if (!isBusinessEmail(businessEmail)) {
-            console.log('Invalid business email');
             return res.status(400).json({
                 status: 'fail',
                 message: 'Please use a business email address (not Gmail, Yahoo, etc.)'
@@ -47,19 +44,13 @@ router.post('/signup', async (req, res) => {
         // Check if user already exists
         const existingUser = await BusinessUser.findOne({ email: email.toLowerCase() });
         if (existingUser) {
-            console.log('User exists');
             return res.status(400).json({
                 status: 'fail',
                 message: 'Email already registered'
             });
         }
 
-        // Generate email verification token
-        const verificationToken = crypto.randomBytes(32).toString('hex');
-        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-        console.log('Creating user object...');
-        // Create new business user
+        // Create new business user (Verified by default)
         const businessUser = new BusinessUser({
             name,
             email: email.toLowerCase(),
@@ -68,50 +59,49 @@ router.post('/signup', async (req, res) => {
             phone,
             position,
             companyName,
-            emailVerificationToken: verificationToken,
-            emailVerificationExpires: verificationExpires
+            isEmailVerified: true // Auto-verified
         });
 
-        console.log('Saving user to DB...');
         await businessUser.save();
-        console.log('User saved!');
 
-        // Send success response immediately (don't wait for email)
+        // Generate JWT token immediately
+        const token = jwt.sign(
+            { id: businessUser._id, role: businessUser.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        // Send success response with token
         res.status(201).json({
             status: 'success',
-            message: 'Account created successfully. Please check your email to verify your account.',
+            message: 'Account created successfully!',
             data: {
+                token,
                 user: {
                     id: businessUser._id,
                     name: businessUser.name,
                     email: businessUser.email,
-                    isEmailVerified: businessUser.isEmailVerified
+                    isEmailVerified: businessUser.isEmailVerified,
+                    isAdminVerified: businessUser.isAdminVerified
                 }
             }
         });
 
-        // Send verification email in background (non-blocking)
-        const verificationUrl = `${process.env.FRONTEND_URL}/business/verify-email/${verificationToken}`;
-        console.log('Sending verification email in background...');
+        // Send Welcome email in background
         sendEmail({
             to: email,
-            subject: 'Verify your NaijaTrust Business Account',
+            subject: 'Welcome to NaijaTrust Business!',
             html: `
                 <h2>Welcome to NaijaTrust for Businesses!</h2>
                 <p>Hi ${name},</p>
-                <p>Thank you for signing up. Please verify your email address by clicking the link below:</p>
-                <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px; margin: 16px 0;">Verify Email</a>
-                <p>Or copy and paste this link into your browser:</p>
-                <p>${verificationUrl}</p>
-                <p>This link will expire in 24 hours.</p>
-                <p>Once verified, you can claim your business or register a new one.</p>
+                <p>Thank you for signing up. Your account has been created and verified.</p>
+                <p>You can now log in to your dashboard to claim or register your business.</p>
                 <p>Best regards,<br>NaijaTrust Team</p>
             `
-        })
-            .then(() => console.log('✅ Verification email sent to:', email))
-            .catch(err => console.error('⚠️ Failed to send verification email (user still registered):', err.message));
+        }).catch(err => console.error('⚠️ Failed to send welcome email:', err.message));
+
     } catch (error) {
-        console.error('Business signup error STACK:', error.stack);
+        console.error('Business signup error:', error);
         res.status(500).json({ status: 'fail', message: error.message });
     }
 });
