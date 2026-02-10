@@ -200,6 +200,7 @@ The platform uses email verification to ensure authentic users:
 ## 📚 Documentation
 
 - [SETUP_GUIDE.md](./SETUP_GUIDE.md) - Complete setup instructions
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture and customer journeys
 - [walkthrough.md](./brain/walkthrough.md) - Implementation walkthrough
 
 ## 🚀 Deployment
