@@ -173,7 +173,7 @@ node server.js
 You should see:
 ```
 Connected to MongoDB
-Server running on port 5000
+Server running on port 5001
 ```
 
 ### 5.2 Start Frontend Server
@@ -224,7 +224,7 @@ npm run dev
 ### Google OAuth Issues
 
 **Error: "redirect_uri_mismatch"**
-- Verify redirect URI in Google Console matches exactly: `http://localhost:5000/api/auth/google/callback`
+- Verify redirect URI in Google Console matches exactly: `http://localhost:5001/api/auth/google/callback`
 - Check for trailing slashes
 
 **Error: "Access blocked"**
