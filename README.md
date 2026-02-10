@@ -58,7 +58,7 @@ A trusted review platform empowering Nigerians to make better choices through tr
 
 4. **Access the Application**
    - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000
+   - Backend API: http://localhost:5001
 
 ### User Features
 - ✅ **Google & Email Auth**: Seamless signup with Google OAuth or email.
