@@ -2,8 +2,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Business = require('./models/Business');
 
-// Use production database connection
-const PRODUCTION_MONGODB_URI = 'mongodb+srv://naijatrust_admin:ahT3iqd5irHzc74x@cluster0.ujohwdp.mongodb.net/naijatrust_production?retryWrites=true&w=majority&appName=Cluster0';
+// Use production database connection from environment variable
+const PRODUCTION_MONGODB_URI = process.env.MONGODB_URI;
 
 const businesses = [
     // Banks

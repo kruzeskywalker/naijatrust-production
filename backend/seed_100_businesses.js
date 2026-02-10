@@ -1,7 +1,8 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Business = require('./models/Business');
 
-const PROD_URI = 'mongodb+srv://naijatrust_admin:ahT3iqd5irHzc74x@cluster0.ujohwdp.mongodb.net/naijatrust_production?retryWrites=true&w=majority&appName=Cluster0';
+const PROD_URI = process.env.MONGODB_URI;
 
 const businesses = [
     // BANKS (25)
