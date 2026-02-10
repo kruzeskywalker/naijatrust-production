@@ -113,7 +113,7 @@ This guide will walk you through setting up MongoDB Atlas, Gmail for email verif
 4. Name: **"NaijaTrust Web Client"**
 5. Authorized redirect URIs:
    - Click **"Add URI"**
-   - Add: `http://localhost:5000/api/auth/google/callback`
+   - Add: `http://localhost:5001/api/auth/google/callback`
    - For production, also add: `https://yourdomain.com/api/auth/google/callback`
 6. Click **"Create"**
 7. **SAVE** the Client ID and Client Secret
@@ -149,7 +149,7 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 
 # URLs
 FRONTEND_URL=http://localhost:5173
-PORT=5000
+PORT=5001
 ```
 
 **Replace:**

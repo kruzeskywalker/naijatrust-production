@@ -60,19 +60,25 @@ A trusted review platform empowering Nigerians to make better choices through tr
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:5000
 
-## ✨ Features
+### User Features
+- ✅ **Google & Email Auth**: Seamless signup with Google OAuth or email.
+- ✅ **Business Search**: Find local businesses by category, location, or name.
+- ✅ **Authentic Reviews**: Write verified reviews with ratings and categories.
+- ✅ **Like System**: "Heart" businesses to save them to your profile and boost their visibility.
+- ✅ **Responsive UI**: Optimized for mobile, tablet, and desktop with a unified brand experience.
 
-### Implemented
-- ✅ User registration with email verification
-- ✅ Google OAuth authentication
-- ✅ JWT-based authentication
-- ✅ Email verification with 24-hour token expiration
-- ✅ User dashboard with verification status
-- ✅ Resend verification email functionality
-- ✅ Business search and discovery
-- ✅ Review writing and rating system
-- ✅ Category browsing
-- ✅ Responsive design
+### Business Portal (NaijaTrust for Business)
+- ✅ **Claim Business**: Owners can verify identity and take control of their business profile.
+- ✅ **Simplified Onboarding**: Removed email verification barrier for business registration.
+- ✅ **Dashboard Analytics**: View profile visits, website clicks, and total likes.
+- ✅ **Subscription Management**: Upgrade to Verified or Premium tiers via Paystack.
+- ✅ **Review Management**: Respond to customer feedback (Verified+ tiers).
+
+### Admin Dashboard
+- ✅ **User Management**: Monitor and manage platform users.
+- ✅ **Claim Approval**: Verify business ownership requests with one click.
+- ✅ **Live Diagnostics**: Built-in tool to verify database connectivity and pending request visibility.
+- ✅ **Background Tasks**: High-performance background processing for email notifications.
 
 ### Authentication Flow
 1. **Email Registration**: Users sign up with email and receive verification link
@@ -108,10 +114,10 @@ naija-trust-2/
 │   │   │   └── AuthContext.jsx  # Authentication state management
 │   │   ├── pages/
 │   │   │   ├── Home.jsx
-│   │   │   ├── Signup.jsx       # Registration with Google OAuth
-│   │   │   ├── Login.jsx        # Login with Google OAuth
-│   │   │   ├── VerifyEmail.jsx  # Email verification handler
-│   │   │   ├── Dashboard.jsx    # User dashboard
+│   │   │   ├── admin/           # Admin Dashboard pages
+│   │   │   ├── business/        # Business Portal pages
+│   │   │   ├── VerifyEmail.jsx
+│   │   │   ├── Dashboard.jsx
 │   │   │   ├── Search.jsx
 │   │   │   ├── BusinessProfile.jsx
 │   │   │   └── WriteReview.jsx
