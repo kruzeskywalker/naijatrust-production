@@ -244,7 +244,11 @@
 
 @media (max-width: 480px) {
     .mobile-hide-text {
-        display: none;
+        display: block;
+    }
+
+    .logo-text {
+        font-size: 1.25rem;
     }
 
     .header-content {
@@ -256,7 +260,7 @@
     }
 
     .logo {
-        height: 64px;
+        height: 40px;
     }
 }
 
