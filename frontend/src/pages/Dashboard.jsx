@@ -197,7 +197,7 @@ const Dashboard = () => {
                                 <div className="stat-card">
                                     <Calendar size={24} />
                                     <div className="stat-info">
-                                        <span className="stat-value">Jan 2026</span>
+                                        <span className="stat-value">{new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
                                         <span className="stat-label">Joined</span>
                                     </div>
                                 </div>

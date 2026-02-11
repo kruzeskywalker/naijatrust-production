@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useBusinessAuth } from '../../context/BusinessAuthContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Loader2, PlusCircle, Building2, Settings, MessageCircle, Camera, Star, Eye, MousePointer2, Heart } from 'lucide-react';
+import { LayoutDashboard, LogOut, Loader2, PlusCircle, Building2, Settings, MessageCircle, Camera, Star, Eye, MousePointer2, Heart, Calendar } from 'lucide-react';
 import VerifiedBadge from '../../components/VerifiedBadge';
 import SubscriptionCard from '../../components/SubscriptionCard';
 import UpgradeModal from '../../components/UpgradeModal';
@@ -281,6 +281,10 @@ const BusinessDashboard = () => {
                                 <div className="mini-stat">
                                     <Building2 size={16} />
                                     <span>Total Businesses: <strong>{dashboardData.stats.totalBusinesses}</strong></span>
+                                </div>
+                                <div className="mini-stat">
+                                    <Calendar size={16} />
+                                    <span>Joined: <strong>{new Date(businessUser.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</strong></span>
                                 </div>
                             </div>
 
