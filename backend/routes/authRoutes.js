@@ -9,10 +9,9 @@ const upload = require('../middleware/uploadMiddleware');
 const router = express.Router();
 
 const getClientUrl = () => {
-    if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
     return process.env.NODE_ENV === 'production'
         ? 'https://www.naijatrust.ng'
-        : 'http://localhost:5173';
+        : (process.env.FRONTEND_URL || 'http://localhost:5173');
 };
 
 const signToken = (id) => {
