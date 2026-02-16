@@ -63,7 +63,7 @@ const Contact = () => {
                         <MapPin size={24} color="var(--primary-color)" />
                         <div>
                             <h4 style={{ marginBottom: '0.25rem' }}>Location</h4>
-                            <p style={{ color: 'var(--text-light)' }}>Lagos, Nigeria</p>
+                            <p style={{ color: 'var(--text-light)' }}>Abuja, Nigeria</p>
                         </div>
                     </div>
                 </div>
