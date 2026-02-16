@@ -136,10 +136,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const handleGoogleOAuthCallback = (authToken) => {
+    const handleGoogleOAuthCallback = async (authToken) => {
         setToken(authToken);
         localStorage.setItem('naijaTrustToken', authToken);
-        fetchCurrentUser(authToken);
+        await fetchCurrentUser(authToken);
     };
 
     const logout = () => {

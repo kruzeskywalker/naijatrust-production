@@ -68,8 +68,11 @@ const OAuthCallback = () => {
     const token = params.get('token');
 
     if (token) {
-      handleGoogleOAuthCallback(token);
-      navigate('/dashboard');
+      const processLogin = async () => {
+        await handleGoogleOAuthCallback(token);
+        navigate('/dashboard');
+      };
+      processLogin();
     } else {
       navigate('/login');
     }
