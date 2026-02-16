@@ -23,7 +23,7 @@ const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://naijatrust-production.vercel.app' : 'http://localhost:5173'),
+    origin: process.env.NODE_ENV === 'production' ? 'https://www.naijatrust.ng' : (process.env.FRONTEND_URL || 'http://localhost:5173'),
     credentials: true
 }));
 

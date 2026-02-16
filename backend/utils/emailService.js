@@ -54,7 +54,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
 };
 
 const sendVerificationEmail = async (email, name, verificationToken) => {
-    const baseUrl = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://naijatrust-production.vercel.app' : 'http://localhost:5173');
+    const baseUrl = process.env.NODE_ENV === 'production' ? 'https://www.naijatrust.ng' : (process.env.FRONTEND_URL || 'http://localhost:5173');
     const verificationUrl = `${baseUrl}/verify-email?token=${verificationToken}`;
 
     return sendEmail({

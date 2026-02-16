@@ -345,7 +345,7 @@ router.post('/forgot-password', async (req, res) => {
         const resetToken = user.createPasswordResetToken();
         await user.save({ validateBeforeSave: false });
 
-        const RESET_BASE = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://naijatrust-production.vercel.app' : 'http://localhost:5173');
+        const RESET_BASE = process.env.NODE_ENV === 'production' ? 'https://www.naijatrust.ng' : (process.env.FRONTEND_URL || 'http://localhost:5173');
         const resetUrl = `${RESET_BASE}/business/reset-password/${resetToken}`;
 
         try {
