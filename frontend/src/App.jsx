@@ -99,9 +99,8 @@ const AnimatedRoutes = () => {
 
   // Paths where we don't want the GLOBAL Header/Footer (e.g. Admin, Login, Signup)
   const isAdminPath = location.pathname.startsWith('/admin');
-  const isBusinessPath = location.pathname.startsWith('/business') &&
-    !location.pathname.includes('login') &&
-    !location.pathname.includes('signup');
+  const isBusinessPortalRoute = ['dashboard', 'settings', 'reviews', 'analytics', 'claim', 'register', 'subscription', 'payment-callback'].some(route => location.pathname.startsWith(`/business/${route}`));
+  const isBusinessPath = isBusinessPortalRoute;
   const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password', '/business/login', '/business/signup'].some(p => location.pathname.startsWith(p));
   const isOAuthCallback = location.pathname.startsWith('/auth/callback');
 
