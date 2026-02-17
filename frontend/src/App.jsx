@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
+import ReactGA from 'react-ga4';
 import PageTransition from './components/PageTransition';
 
 import Home from './pages/Home';
@@ -94,6 +95,21 @@ const BusinessLayout = ({ children }) => {
   );
 };
 
+const AnalyticsTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-N79WYC1LFD';
+    ReactGA.initialize(measurementId);
+  }, []);
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+  }, [location]);
+
+  return null;
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
 
@@ -108,9 +124,9 @@ const AnimatedRoutes = () => {
   // But hide them for Admin portal, Business portal, and Auth pages
   const showGlobalHeader = !isAdminPath && !isBusinessPath && !isAuthPage && !isOAuthCallback;
   const showGlobalFooter = !isAdminPath && !isAuthPage && !isOAuthCallback; // Keep footer on business path for now or hide if desired
-
   return (
     <>
+      <AnalyticsTracker />
       {showGlobalHeader && <Header />}
 
       <main style={{ minHeight: showGlobalHeader ? '80vh' : 'auto' }}>
