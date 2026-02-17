@@ -19,3 +19,14 @@ export const getAuthApiUrl = (currentUrl) => {
         ? 'https://naijatrust-production-api.onrender.com/api/auth'
         : 'http://localhost:5001/api/auth';
 };
+
+export const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+
+    // Remove leading slash if it exists to avoid double slashes
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+    const base = getApiBaseUrl().replace('/api', '');
+    return `${base}/${cleanPath}`;
+};

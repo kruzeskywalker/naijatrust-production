@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { Star, MapPin, Filter, Loader2 } from 'lucide-react';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
+import { getImageUrl } from '../utils/urlUtils';
 import './Search.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
@@ -128,12 +129,12 @@ const Search = () => {
                                 <div className="biz-logo-placeholder">
                                     {biz.logo ? (
                                         <img
-                                            src={biz.logo.startsWith('http') ? biz.logo : `${API_BASE_URL.replace('/api', '')}${biz.logo}`}
+                                            src={getImageUrl(biz.logo)}
                                             alt={biz.name}
                                             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
                                         />
                                     ) : (
-                                        <div className="biz-initial" style={{ background: biz.isVerified ? 'var(--primary-color)' : '#cbd5e0', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.5rem', borderRadius: '8px' }}>
+                                        <div className="biz-initial" style={{ background: biz.isVerified ? 'var(--primary-color)' : '#cbd5e0', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.5rem', borderRadius: '8px' }}>
                                             {biz.name[0]}
                                         </div>
                                     )}

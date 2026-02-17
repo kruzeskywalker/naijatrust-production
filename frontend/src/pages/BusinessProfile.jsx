@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShieldCheck, MapPin, Globe, Phone, Mail, Loader2, MessageCircle, Send, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getImageUrl } from '../utils/urlUtils';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
 import './BusinessProfile.css';
@@ -196,7 +197,7 @@ const BusinessProfile = () => {
                         <div className="biz-logo-large">
                             {business.logo ? (
                                 <img
-                                    src={business.logo.startsWith('http') ? business.logo : `${API_BASE_URL.replace('/api', '')}${business.logo}`}
+                                    src={getImageUrl(business.logo)}
                                     alt={business.name}
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
@@ -270,7 +271,7 @@ const BusinessProfile = () => {
                                 <div key={rev._id} className="review-card-full">
                                     <div className="reviewer-info">
                                         <div className="avatar">
-                                            {rev.user?.avatar ? <img src={rev.user.avatar} alt={rev.user.name} /> : rev.user?.name?.[0] || 'U'}
+                                            {rev.user?.avatar ? <img src={getImageUrl(rev.user.avatar)} alt={rev.user.name} /> : rev.user?.name?.[0] || 'U'}
                                         </div>
                                         <div>
                                             <p className="name">{rev.user?.name || 'Anonymous User'}</p>
@@ -302,7 +303,7 @@ const BusinessProfile = () => {
                                                             <div key={idx} className={`thread-reply ${reply.isBusiness ? 'business-reply' : 'user-reply'}`}>
                                                                 <div className="reply-header">
                                                                     <div className="reply-avatar">
-                                                                        {reply.isBusiness ? business.name[0] : (reply.user?.name?.[0] || 'U')}
+                                                                        {reply.isBusiness ? (business.logo ? <img src={getImageUrl(business.logo)} alt={business.name} /> : business.name[0]) : (reply.user?.avatar ? <img src={getImageUrl(reply.user.avatar)} alt={reply.user.name} /> : (reply.user?.name?.[0] || 'U'))}
                                                                     </div>
                                                                     <div>
                                                                         <p className="reply-author">

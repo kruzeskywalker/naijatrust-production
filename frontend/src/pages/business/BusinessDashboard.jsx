@@ -6,6 +6,7 @@ import VerifiedBadge from '../../components/VerifiedBadge';
 import SubscriptionCard from '../../components/SubscriptionCard';
 import UpgradeModal from '../../components/UpgradeModal';
 import UpgradeRequestStatus from '../../components/UpgradeRequestStatus';
+import { getImageUrl } from '../../utils/urlUtils';
 import './BusinessDashboard.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
@@ -224,7 +225,7 @@ const BusinessDashboard = () => {
                                         <div className="biz-card-header">
                                             <div className="biz-logo-wrapper">
                                                 <img
-                                                    src={biz.logo ? (biz.logo.startsWith('http') ? biz.logo : `${API_BASE_URL.replace('/api', '')}${biz.logo}`) : `https://ui-avatars.com/api/?name=${biz.name}&background=random`}
+                                                    src={biz.logo ? getImageUrl(biz.logo) : `https://ui-avatars.com/api/?name=${biz.name}&background=random`}
                                                     alt={biz.name}
                                                 />
                                                 <label htmlFor={`logo-upload-${biz._id}`} className="logo-upload-overlay">

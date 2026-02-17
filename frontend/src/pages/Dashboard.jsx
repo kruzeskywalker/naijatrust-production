@@ -4,6 +4,7 @@ import { MessageSquare, Settings, User, AlertCircle, Mail, MapPin, Calendar, Edi
 import StarRating from '../components/StarRating';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
+import { getImageUrl } from '../utils/urlUtils';
 import './Dashboard.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
@@ -156,7 +157,7 @@ const Dashboard = () => {
                     <div className="sidebar-profile">
                         <div className="dashboard-avatar">
                             {user.avatar ? (
-                                <img src={user.avatar} alt={user.name} />
+                                <img src={getImageUrl(user.avatar)} alt={user.name} />
                             ) : (
                                 user.name[0]
                             )}

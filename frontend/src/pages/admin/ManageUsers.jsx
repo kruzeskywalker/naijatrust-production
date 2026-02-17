@@ -3,6 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { Link } from 'react-router-dom';
 import { Search, Loader2, Ban, CheckCircle, AlertTriangle, UserX, Calendar, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../../utils/urlUtils';
 import './ManageUsers.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
@@ -150,7 +151,7 @@ const ManageUsers = () => {
                                         <div className="user-cell">
                                             <div className="user-avatar">
                                                 {user.avatar ? (
-                                                    <img src={user.avatar} alt={user.name} />
+                                                    <img src={getImageUrl(user.avatar)} alt={user.name} />
                                                 ) : (
                                                     user.name.charAt(0).toUpperCase()
                                                 )}

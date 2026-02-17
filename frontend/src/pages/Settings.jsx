@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Mail, Lock, User, Save, Loader2, CheckCircle, AlertCircle, Heart, MapPin, Star, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getImageUrl } from '../utils/urlUtils';
 import './Settings.css';
 
 const Settings = () => {
@@ -188,7 +189,7 @@ const Settings = () => {
                             <div className="profile-photo-upload">
                                 <div className="avatar-wrapper">
                                     {user.avatar ? (
-                                        <img src={user.avatar} alt={user.name} />
+                                        <img src={getImageUrl(user.avatar)} alt={user.name} />
                                     ) : (
                                         <div className="avatar-placeholder">{user.name[0]}</div>
                                     )}
@@ -312,7 +313,7 @@ const Settings = () => {
                                         {likedBusinesses.map(biz => (
                                             <Link to={`/business/${biz._id}`} key={biz._id} className="liked-business-item">
                                                 <div className="liked-biz-logo">
-                                                    {biz.logo ? <img src={biz.logo} alt={biz.name} /> : biz.name[0]}
+                                                    {biz.logo ? <img src={getImageUrl(biz.logo)} alt={biz.name} /> : biz.name[0]}
                                                 </div>
                                                 <div className="liked-biz-info">
                                                     <h3>{biz.name}</h3>

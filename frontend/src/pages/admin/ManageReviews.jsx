@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import AdminHeader from '../../components/admin/AdminHeader';
 import { Loader2, Trash2, Eye, EyeOff, Search, Star, MessageSquare, X, AlertTriangle, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { getImageUrl } from '../../utils/urlUtils';
 import './ManageReviews.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
@@ -227,7 +228,7 @@ const ManageReviews = () => {
                                         <td>
                                             <div className="user-info">
                                                 <img
-                                                    src={review.user?.avatar || `https://ui-avatars.com/api/?name=${review.user?.name || 'U'}`}
+                                                    src={review.user?.avatar ? getImageUrl(review.user.avatar) : `https://ui-avatars.com/api/?name=${review.user?.name || 'U'}`}
                                                     alt="Avatar"
                                                     className="user-avatar"
                                                 />

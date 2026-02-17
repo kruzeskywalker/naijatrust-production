@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Search, User, Menu, LogOut, Loader2, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBusinessAuth } from '../context/BusinessAuthContext';
+import { getImageUrl } from '../utils/urlUtils';
 import './Header.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
@@ -149,7 +150,11 @@ const Header = () => {
                     {user ? (
                         <div className="user-nav">
                             <Link to="/dashboard" className="user-profile-summary">
-                                <div className="user-avatar-mini">{user.name[0]}</div>
+                                <div className="user-avatar-mini">
+                                    {user.avatar ? (
+                                        <img src={getImageUrl(user.avatar)} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                    ) : user.name[0]}
+                                </div>
                                 <span className="user-name-small">{user.name.split(' ')[0]}</span>
                             </Link>
                             <button onClick={logout} className="logout-btn" title="Log out">
