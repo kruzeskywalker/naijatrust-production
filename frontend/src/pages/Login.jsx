@@ -6,18 +6,15 @@ import toast from 'react-hot-toast';
 import './Auth.css';
 
 const Login = () => {
-    const { login, initiateGoogleLogin, resendVerification } = useAuth();
+    const { login, initiateGoogleLogin } = useAuth();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [showVerificationWarning, setShowVerificationWarning] = useState(false);
-    const [resendingEmail, setResendingEmail] = useState(false);
 
     const handleEmailLogin = async (e) => {
         e.preventDefault();
         setError('');
-        setShowVerificationWarning(false);
         setIsLoading(true);
 
         const email = e.target.email.value;
@@ -31,18 +28,6 @@ const Login = () => {
             navigate('/dashboard');
         } else {
             setError(result.message);
-        }
-    };
-
-    const handleResendVerification = async () => {
-        setResendingEmail(true);
-        const result = await resendVerification();
-        setResendingEmail(false);
-
-        if (result.success) {
-            toast.success(result.message);
-        } else {
-            toast.error(result.message || 'Failed to resend verification email');
         }
     };
 

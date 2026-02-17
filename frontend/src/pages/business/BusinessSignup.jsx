@@ -66,8 +66,8 @@ const BusinessSignup = () => {
                 <div className="auth-card success-card">
                     <CheckCircle size={64} color="var(--primary-color)" />
                     <h2>Registration Successful!</h2>
-                    <p>We've sent a verification email to <strong>{formData.email}</strong>.</p>
-                    <p>Please check your inbox and click the link to verify your account.</p>
+                    <p>Welcome to NaijaTrust for Business! We've sent a welcome email to <strong>{formData.email}</strong>.</p>
+                    <p>You can now log in to your dashboard to claim or register your business.</p>
                     <Link to="/business/login" className="btn btn-primary btn-full">Proceed to Login</Link>
                 </div>
             </div>

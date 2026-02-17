@@ -10,8 +10,7 @@ import './Dashboard.css';
 const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/auth', '') || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5001/api' : 'https://naijatrust-production-api.onrender.com/api');
 
 const Dashboard = () => {
-    const { user, resendVerification } = useAuth();
-    const [resending, setResending] = useState(false);
+    const { user } = useAuth();
     const location = useLocation();
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -136,22 +135,6 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-page container">
-            {!user.isVerified && (
-                <div className="verification-alert">
-                    <AlertCircle size={20} />
-                    <span>
-                        Your account is not verified. Please check your email for the verification link.
-                    </span>
-                    <button
-                        onClick={handleResendVerification}
-                        disabled={resending}
-                        className="resend-btn"
-                    >
-                        {resending ? 'Sending...' : 'Resend Email'}
-                    </button>
-                </div>
-            )}
-
             <div className="dashboard-layout">
                 <aside className="dashboard-sidebar">
                     <div className="sidebar-profile">

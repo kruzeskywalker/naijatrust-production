@@ -92,11 +92,20 @@ router.post('/signup', async (req, res) => {
             to: email,
             subject: 'Welcome to NaijaTrust Business!',
             html: `
-                <h2>Welcome to NaijaTrust for Businesses!</h2>
-                <p>Hi ${name},</p>
-                <p>Thank you for signing up. Your account has been created and verified.</p>
-                <p>You can now log in to your dashboard to claim or register your business.</p>
-                <p>Best regards,<br>NaijaTrust Team</p>
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #00A86B 0%, #008854 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1>Welcome to NaijaTrust Business!</h1>
+                    </div>
+                    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
+                        <p>Hi ${name},</p>
+                        <p>Thank you for signing up for NaijaTrust Business. Your account has been successfully created and verified.</p>
+                        <p>You can now log in to your dashboard to claim your existing business profile or register a new one to start building trust with your customers.</p>
+                        <div style="text-align: center; margin: 20px 0;">
+                            <a href="https://www.naijatrust.ng/business/login" style="display: inline-block; padding: 15px 30px; background: #00A86B; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
+                        </div>
+                        <p>Best regards,<br>The NaijaTrust Team</p>
+                    </div>
+                </div>
             `
         }).catch(err => console.error('⚠️ Failed to send welcome email:', err.message));
 

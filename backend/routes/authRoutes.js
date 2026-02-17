@@ -4,7 +4,7 @@ const passport = require('passport');
 const User = require('../models/User');
 
 const crypto = require('crypto');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/emailService');
 const upload = require('../middleware/uploadMiddleware');
 const router = express.Router();
 
@@ -58,19 +58,14 @@ router.post('/signup', authLimiter, async (req, res) => {
             name,
             email,
             password,
-            isVerified: false
+            isVerified: true // Auto-verified
         });
 
-        // Generate verification token
-        const verificationToken = newUser.generateVerificationToken();
-        await newUser.save();
-
-        // Send verification email
+        // Send welcome email
         try {
-            await sendVerificationEmail(email, name, verificationToken);
+            await sendWelcomeEmail(email, name);
         } catch (emailError) {
             console.error('Email sending failed:', emailError);
-            // Continue even if email fails - user can resend
         }
 
         const token = signToken(newUser._id);
@@ -87,7 +82,7 @@ router.post('/signup', authLimiter, async (req, res) => {
                     avatar: newUser.avatar
                 }
             },
-            message: 'Registration successful! Please check your email to verify your account.'
+            message: 'Registration successful! Welcome to NaijaTrust.'
         });
     } catch (err) {
         console.error('Signup error:', err);
