@@ -67,8 +67,8 @@ const Jobs = () => {
                 </p>
                 <p style={{ color: 'var(--text-light)', lineHeight: '1.6' }}>
                     Check back soon or send us your resume at{' '}
-                    <a href="mailto:careers@naijatrust.com" style={{ color: 'var(--primary-color)', fontWeight: '600' }}>
-                        careers@naijatrust.com
+                    <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)', fontWeight: '600' }}>
+                        support@naijatrust.ng
                     </a>
                     {' '}if you'd like to be considered for future opportunities.
                 </p>
@@ -85,7 +85,7 @@ const Jobs = () => {
                 <p style={{ marginBottom: '1.5rem', color: 'var(--text-light)' }}>
                     Send your resume and a brief introduction to our careers team.
                 </p>
-                <a href="mailto:careers@naijatrust.com" className="btn btn-primary">
+                <a href="mailto:support@naijatrust.ng" className="btn btn-primary">
                     Get in Touch
                 </a>
             </div>

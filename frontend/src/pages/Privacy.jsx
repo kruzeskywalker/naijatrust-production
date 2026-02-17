@@ -109,8 +109,8 @@ const Privacy = () => {
                     <h2 style={{ marginBottom: '1rem' }}>9. Contact Us</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
                         If you have questions about this Privacy Policy, please contact us at{' '}
-                        <a href="mailto:privacy@naijatrust.com" style={{ color: 'var(--primary-color)' }}>
-                            privacy@naijatrust.com
+                        <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)' }}>
+                            support@naijatrust.ng
                         </a>
                     </p>
                 </section>

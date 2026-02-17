@@ -89,8 +89,8 @@ const Terms = () => {
                     <h2 style={{ marginBottom: '1rem' }}>8. Contact</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
                         If you have questions about these Terms of Service, please contact us at{' '}
-                        <a href="mailto:legal@naijatrust.com" style={{ color: 'var(--primary-color)' }}>
-                            legal@naijatrust.com
+                        <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)' }}>
+                            support@naijatrust.ng
                         </a>
                     </p>
                 </section>

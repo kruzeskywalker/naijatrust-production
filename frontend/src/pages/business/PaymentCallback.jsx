@@ -109,7 +109,7 @@ const PaymentCallback = () => {
                 {(status === 'failed' || status === 'error') && (
                     <p className="support-note">
                         If you believe this is an error, please contact support at{' '}
-                        <a href="mailto:support@naijatrust.com">support@naijatrust.com</a>
+                        <a href="mailto:support@naijatrust.ng">support@naijatrust.ng</a>
                     </p>
                 )}
             </div>

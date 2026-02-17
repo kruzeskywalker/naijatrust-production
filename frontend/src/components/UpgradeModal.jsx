@@ -409,7 +409,7 @@ const UpgradeModal = ({ isOpen, onClose, currentTier, businessId, onSuccess }) =
                                                 <div>
                                                     <strong>Enterprise Plan</strong>
                                                     <p>Please contact our sales team for custom pricing and features tailored to your needs.</p>
-                                                    <a href="mailto:sales@naijatrust.com" className="contact-sales-btn">
+                                                    <a href="mailto:support@naijatrust.ng" className="contact-sales-btn">
                                                         Contact Sales
                                                     </a>
                                                 </div>

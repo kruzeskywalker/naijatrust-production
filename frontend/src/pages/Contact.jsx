@@ -45,8 +45,8 @@ const Contact = () => {
                         <Mail size={24} color="var(--primary-color)" />
                         <div>
                             <h4 style={{ marginBottom: '0.25rem' }}>Email</h4>
-                            <a href="mailto:support@naijatrust.com" style={{ color: 'var(--primary-color)' }}>
-                                support@naijatrust.com
+                            <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)' }}>
+                                support@naijatrust.ng
                             </a>
                         </div>
                     </div>
@@ -55,7 +55,7 @@ const Contact = () => {
                         <Phone size={24} color="var(--primary-color)" />
                         <div>
                             <h4 style={{ marginBottom: '0.25rem' }}>Phone</h4>
-                            <p style={{ color: 'var(--text-light)' }}>+234 (0) 800 123 4567</p>
+                            <p style={{ color: 'var(--text-light)' }}>+234(0)8066213887</p>
                         </div>
                     </div>
 

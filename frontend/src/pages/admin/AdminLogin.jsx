@@ -51,7 +51,7 @@ const AdminLogin = () => {
                             value={formData.email}
                             onChange={handleChange}
                             className="form-control"
-                            placeholder="admin@naijatrust.com"
+                            placeholder="admin@naijatrust.ng"
                         />
                     </div>
 
