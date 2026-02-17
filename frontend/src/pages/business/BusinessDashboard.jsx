@@ -224,7 +224,7 @@ const BusinessDashboard = () => {
                                         <div className="biz-card-header">
                                             <div className="biz-logo-wrapper">
                                                 <img
-                                                    src={biz.logo || `https://ui-avatars.com/api/?name=${biz.name}&background=random`}
+                                                    src={biz.logo ? (biz.logo.startsWith('http') ? biz.logo : `${API_BASE_URL.replace('/api', '')}${biz.logo}`) : `https://ui-avatars.com/api/?name=${biz.name}&background=random`}
                                                     alt={biz.name}
                                                 />
                                                 <label htmlFor={`logo-upload-${biz._id}`} className="logo-upload-overlay">

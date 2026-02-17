@@ -125,7 +125,19 @@ const Search = () => {
                     ) : businesses.length > 0 ? (
                         businesses.map(biz => (
                             <Link to={`/business/${biz._id}`} key={biz._id} className="business-card-wide">
-                                <div className="biz-logo-placeholder" style={{ background: biz.isVerified ? 'var(--primary-color)' : '#cbd5e0' }}>{biz.name[0]}</div>
+                                <div className="biz-logo-placeholder">
+                                    {biz.logo ? (
+                                        <img
+                                            src={biz.logo.startsWith('http') ? biz.logo : `${API_BASE_URL.replace('/api', '')}${biz.logo}`}
+                                            alt={biz.name}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                                        />
+                                    ) : (
+                                        <div className="biz-initial" style={{ background: biz.isVerified ? 'var(--primary-color)' : '#cbd5e0', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.5rem', borderRadius: '8px' }}>
+                                            {biz.name[0]}
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="biz-info">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <h3>{biz.name}</h3>

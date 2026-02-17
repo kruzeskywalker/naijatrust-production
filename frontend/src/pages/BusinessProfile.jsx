@@ -193,7 +193,15 @@ const BusinessProfile = () => {
             <div className="profile-header">
                 <div className="container profile-header-content">
                     <div className="biz-main-info">
-                        <div className="biz-logo-large">{business.name[0]}</div>
+                        <div className="biz-logo-large">
+                            {business.logo ? (
+                                <img
+                                    src={business.logo.startsWith('http') ? business.logo : `${API_BASE_URL.replace('/api', '')}${business.logo}`}
+                                    alt={business.name}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            ) : business.name[0]}
+                        </div>
                         <div className="biz-details">
                             <div className="title-row">
                                 <h1>{business.name}</h1>
