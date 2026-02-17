@@ -113,58 +113,6 @@ router.post('/auth/create-initial', async (req, res) => {
     }
 });
 
-// Temporary One-Time Cleanup and Setup Route for Super Admin
-router.post('/auth/cleanup-and-setup-admin', async (req, res) => {
-    try {
-        const { secret } = req.body;
-        // Simple security check for this temporary route
-        if (secret !== 'naijatrust-setup-2026') {
-            return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
-        }
-
-        const email = 'admin@naijatrust.ng';
-        const name = 'Super Admin';
-        const password = 'Jumcent17!';
-
-        // 1. Create or Update the requested Super Admin
-        let admin = await AdminUser.findOne({ email });
-
-        if (admin) {
-            admin.password = password;
-            admin.role = 'super_admin';
-            admin.permissions = [
-                'review_claims', 'approve_claims', 'reject_claims',
-                'manage_businesses', 'manage_users', 'view_analytics', 'manage_admins'
-            ];
-            await admin.save();
-        } else {
-            admin = await AdminUser.create({
-                name,
-                email,
-                password,
-                role: 'super_admin',
-                permissions: [
-                    'review_claims', 'approve_claims', 'reject_claims',
-                    'manage_businesses', 'manage_users', 'view_analytics', 'manage_admins'
-                ]
-            });
-        }
-
-        // 2. Remove every other admin
-        const deleteResult = await AdminUser.deleteMany({ _id: { $ne: admin._id } });
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Super admin setup complete and other admins removed',
-            email,
-            deletedCount: deleteResult.deletedCount
-        });
-    } catch (error) {
-        console.error('Setup/Cleanup error:', error);
-        res.status(500).json({ status: 'fail', message: error.message });
-    }
-});
-
 // GET /api/admin/dashboard
 router.get('/dashboard', verifyAdminToken, async (req, res) => {
     try {
