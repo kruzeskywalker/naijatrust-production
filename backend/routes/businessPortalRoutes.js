@@ -102,6 +102,26 @@ router.post('/claim/:businessId', verifyBusinessToken, verifyVerifiedBusinessUse
         const { businessEmail, phone, position, documents } = req.body;
         const user = req.user;
 
+        // Check location limits
+        const ownedCount = await Business.countDocuments({ owner: user._id });
+        const pendingCount = await ClaimRequest.countDocuments({ user: user._id, status: 'pending' });
+
+        // Find max allowed locations from current businesses
+        const businesses = await Business.find({ owner: user._id });
+        const maxAllowed = businesses.length > 0
+            ? Math.max(...businesses.map(b => b.features?.maxLocations || 1))
+            : 1;
+
+        if (ownedCount + pendingCount >= maxAllowed) {
+            return res.status(403).json({
+                status: 'fail',
+                message: `You have reached the maximum number of locations allowed for your current plan (${maxAllowed}). Please upgrade your existing business plan to add more locations.`,
+                limit: maxAllowed,
+                current: ownedCount,
+                pending: pendingCount
+            });
+        }
+
         // Check if business exists
         const business = await Business.findById(businessId);
         if (!business) {
@@ -165,6 +185,25 @@ router.post('/register', verifyBusinessToken, verifyVerifiedBusinessUser, async 
     try {
         const { name, category, categories, location, description, website, phone, email, documents } = req.body;
         const user = req.user;
+
+        // Check location limits
+        const ownedCount = await Business.countDocuments({ owner: user._id });
+        const pendingCount = await ClaimRequest.countDocuments({ user: user._id, status: 'pending' });
+
+        const businesses = await Business.find({ owner: user._id });
+        const maxAllowed = businesses.length > 0
+            ? Math.max(...businesses.map(b => b.features?.maxLocations || 1))
+            : 1;
+
+        if (ownedCount + pendingCount >= maxAllowed) {
+            return res.status(403).json({
+                status: 'fail',
+                message: `You have reached the maximum number of locations allowed for your current plan (${maxAllowed}). Please upgrade your existing business plan to add more locations.`,
+                limit: maxAllowed,
+                current: ownedCount,
+                pending: pendingCount
+            });
+        }
 
         // Create new business (initially verified=false)
         const newBusiness = await Business.create({
@@ -413,6 +452,77 @@ router.post('/reviews/:reviewId/dispute', verifyBusinessToken, verifyVerifiedBus
 
         res.status(200).json({ status: 'success', message: 'Dispute submitted successfully' });
     } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PATCH /api/business-portal/businesses/:businessId
+router.patch('/businesses/:businessId', verifyBusinessToken, verifyVerifiedBusinessUser, async (req, res) => {
+    try {
+        const { businessId } = req.params;
+        const { name, description, website, phone, email, categories, location } = req.body;
+        const user = req.user;
+
+        const business = await Business.findOne({ _id: businessId, owner: user._id });
+        if (!business) {
+            return res.status(404).json({ status: 'fail', message: 'Business not found or access denied' });
+        }
+
+        // Update fields if provided
+        if (name) business.name = name;
+        if (description) business.description = description;
+        if (website) business.website = website;
+        if (phone) business.phone = phone;
+        if (email) business.email = email;
+        if (categories) {
+            business.categories = categories;
+            if (categories.length > 0) business.category = categories[0];
+        }
+        if (location) business.location = location;
+
+        business.updatedAt = new Date();
+        await business.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Business profile updated successfully',
+            data: { business }
+        });
+    } catch (error) {
+        console.error('Update business error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// POST /api/business-portal/account/request-deletion
+router.post('/account/request-deletion', verifyBusinessToken, async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const user = req.user;
+
+        if (!reason) {
+            return res.status(400).json({ status: 'fail', message: 'Please provide a reason for deletion' });
+        }
+
+        const businessUser = await BusinessUser.findById(user._id);
+        if (!businessUser) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        businessUser.deletionRequest = {
+            status: 'pending',
+            reason,
+            requestedAt: new Date()
+        };
+
+        await businessUser.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Account deletion request submitted. Our team will review it shortly.'
+        });
+    } catch (error) {
+        console.error('Account deletion request error:', error);
         res.status(500).json({ status: 'fail', message: error.message });
     }
 });
