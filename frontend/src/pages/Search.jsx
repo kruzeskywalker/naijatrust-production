@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { SEO } from '../App';
 import { Star, MapPin, Filter, Loader2 } from 'lucide-react';
 import VerifiedBadge from '../components/VerifiedBadge';
 import StarRating from '../components/StarRating';
@@ -64,6 +65,10 @@ const Search = () => {
 
     return (
         <div className="search-page container">
+            <SEO
+                title={categoryQuery ? `${categoryQuery} Businesses` : searchQuery ? `Search: ${searchQuery}` : "Search Businesses"}
+                description={`Find the best ${categoryQuery || searchQuery || 'businesses'} in Nigeria. Read verified reviews and make informed decisions.`}
+            />
             <div className="search-layout">
                 <aside className="filters-sidebar">
                     <div className="filters-header">

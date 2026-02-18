@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShieldCheck, MapPin, Globe, Phone, Mail, Loader2, MessageCircle, Send, Heart } from 'lucide-react';
+import { SEO } from '../App';
 import { useAuth } from '../context/AuthContext';
 import { getImageUrl } from '../utils/urlUtils';
 import VerifiedBadge from '../components/VerifiedBadge';
@@ -191,6 +192,11 @@ const BusinessProfile = () => {
 
     return (
         <div className="profile-page">
+            <SEO
+                title={`${business.name} Reviews`}
+                description={`Read verified reviews for ${business.name} in ${business.location}. TrustScore: ${business.rating}/5. Check authentic feedback from real customers.`}
+                keywords={`${business.name} reviews, ${business.category} Nigeria, ${business.name} scam check, verified ${business.category}`}
+            />
             <div className="profile-header">
                 <div className="container profile-header-content">
                     <div className="biz-main-info">

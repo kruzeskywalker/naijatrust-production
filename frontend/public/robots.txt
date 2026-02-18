@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /business/dashboard/
+Disallow: /business/settings/
+Disallow: /auth/
+
+Sitemap: https://www.naijatrust.ng/sitemap.xml

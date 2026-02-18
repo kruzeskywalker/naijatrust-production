@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../App';
 import {
     Globe, Zap, ShieldCheck, ShoppingBag, Truck, CreditCard,
     Smartphone, Car, Coffee, Utensils, Home, Briefcase,
@@ -47,6 +48,10 @@ const Categories = () => {
 
     return (
         <div className="categories-page container">
+            <SEO
+                title="Business Categories"
+                description="Browse trusted Nigerian businesses by category. From artisans to banks, find verified service providers on NaijaTrust."
+            />
             <header className="categories-header">
                 <h1>What are you looking for?</h1>
                 <p>Browse through thousands of Nigerian businesses across {categories.length} categories.</p>

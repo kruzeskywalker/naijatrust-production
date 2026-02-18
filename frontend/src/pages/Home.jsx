@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { SEO } from '../App';
 import './Home.css';
 import StarRating from '../components/StarRating';
 import { Star, ShieldCheck, Zap, Globe, ShoppingBag, Truck, CreditCard, ArrowRight } from 'lucide-react';
@@ -23,6 +24,11 @@ const Home = () => {
 
     return (
         <div className="home-page">
+            <SEO
+                title="Home"
+                description="Naija's #1 community for authentic feedback on Nigerian businesses. Read reviews, write reviews, and find businesses you can trust."
+                keywords="Nigerian business directory, verified businesses, customer reviews Nigeria"
+            />
             <section className="hero">
                 <div className="container hero-content">
                     <h1>Read reviews. Write reviews.<br /><span className="highlight">Find businesses you can trust.</span></h1>

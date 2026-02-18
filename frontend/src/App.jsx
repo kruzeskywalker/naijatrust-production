@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navig
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import ReactGA from 'react-ga4';
+import { Helmet } from 'react-helmet-async';
 import PageTransition from './components/PageTransition';
 
 import Home from './pages/Home';
@@ -92,6 +93,20 @@ const BusinessLayout = ({ children }) => {
     <div className="business-layout">
       {children}
     </div>
+  );
+};
+
+const SEO = ({ title, description, keywords }) => {
+  return (
+    <Helmet>
+      <title>{title ? `${title} | NaijaTrust` : 'NaijaTrust - Find Trusted Businesses & Reviews in Nigeria'}</title>
+      <meta name="description" content={description || "Discover verified businesses, read authentic customer reviews, and avoid scams in Nigeria."} />
+      {keywords && <meta name="keywords" content={keywords} />}
+      <meta property="og:title" content={title ? `${title} | NaijaTrust` : 'NaijaTrust - Find Trusted Businesses & Reviews in Nigeria'} />
+      <meta property="og:description" content={description || "Discover verified businesses, read authentic customer reviews, and avoid scams in Nigeria."} />
+      <meta property="twitter:title" content={title ? `${title} | NaijaTrust` : 'NaijaTrust - Find Trusted Businesses & Reviews in Nigeria'} />
+      <meta property="twitter:description" content={description || "Discover verified businesses, read authentic customer reviews, and avoid scams in Nigeria."} />
+    </Helmet>
   );
 };
 
@@ -210,4 +225,5 @@ function App() {
   );
 }
 
+export { SEO };
 export default App;
