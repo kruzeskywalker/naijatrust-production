@@ -38,7 +38,6 @@ const optionalAuth = async (req, res, next) => {
 // Get all businesses (with search, category filters, and pagination)
 router.get('/', async (req, res) => {
     try {
-        const { category, q, rating, verified, page = 1, limit = 20 } = req.query;
         const { category, q, rating, verified, page = 1, limit = 20, status } = req.query;
         let query = {
             status: 'approved' // Default to only showing approved businesses
