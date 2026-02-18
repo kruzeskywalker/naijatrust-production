@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: naijatrust-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      # Note: MONGODB_URI, JWT_SECRET, etc. must be added in the dashboard
