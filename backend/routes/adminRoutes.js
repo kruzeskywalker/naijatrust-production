@@ -331,8 +331,11 @@ router.get('/businesses', verifyAdminToken, async (req, res) => {
         if (verified === 'true') query.isVerified = true;
         if (verified === 'false') query.isVerified = false;
 
+        // Filter by approval status
+        if (status) query.status = status;
+
         // Filter by claim status
-        if (status) query.claimStatus = status;
+        if (req.query.claimStatus) query.claimStatus = req.query.claimStatus;
 
         // Filter by category
         if (category) query.category = category;
