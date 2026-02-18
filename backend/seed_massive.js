@@ -305,8 +305,8 @@ async function seedMassive() {
                     website: biz.website || `https://www.${slug}.com.ng`,
                     phone: biz.phone || generatePhone(),
                     email: `info@${slug}.com.ng`,
-                    rating: (Math.random() * 1.5 + 3.5).toFixed(1), // Real ones get slightly better ratings
-                    reviewCount: Math.floor(Math.random() * 100 + 50),
+                    rating: 5.0, // Initial trust score of 5
+                    reviewCount: 0, // Initial review count of 0
                     isVerified: Math.random() > 0.5, // 50% chance for real ones
                     status: 'approved',
                     subscriptionTier: 'basic',
