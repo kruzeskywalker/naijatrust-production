@@ -52,6 +52,8 @@ const ManageBusinesses = () => {
             const params = new URLSearchParams();
             if (filter === 'verified') params.append('verified', 'true');
             if (filter === 'unverified') params.append('verified', 'false');
+            if (filter === 'claimed') params.append('claimStatus', 'claimed');
+            if (filter === 'unclaimed') params.append('claimStatus', 'unclaimed');
             if (searchTerm) params.append('search', searchTerm);
 
             const url = `${API_BASE_URL}/admin/businesses?${params.toString()}`;
@@ -290,6 +292,19 @@ const ManageBusinesses = () => {
                             onClick={() => setFilter('unverified')}
                         >
                             Unverified
+                        </button>
+                        <div className="divider-vertical"></div>
+                        <button
+                            className={`tab ${filter === 'claimed' ? 'active' : ''}`}
+                            onClick={() => setFilter('claimed')}
+                        >
+                            Claimed
+                        </button>
+                        <button
+                            className={`tab ${filter === 'unclaimed' ? 'active' : ''}`}
+                            onClick={() => setFilter('unclaimed')}
+                        >
+                            Unclaimed
                         </button>
                     </div>
                 </div>
