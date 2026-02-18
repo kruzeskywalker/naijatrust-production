@@ -112,11 +112,18 @@ const startServer = async () => {
     try {
         // Enforce critical environment variables in production
         if (process.env.NODE_ENV === 'production') {
-            if (!process.env.MONGODB_URI) {
-                throw new Error('FATAL: MONGODB_URI is not defined in production environment');
-            }
-            if (!process.env.JWT_SECRET) {
-                throw new Error('FATAL: JWT_SECRET is not defined in production environment');
+            const missingVars = [];
+            if (!process.env.MONGODB_URI) missingVars.push('MONGODB_URI');
+            if (!process.env.JWT_SECRET) missingVars.push('JWT_SECRET');
+
+            console.log('--- Production Startup Verification ---');
+            console.log('NODE_ENV:', process.env.NODE_ENV);
+            console.log('MONGODB_URI present:', !!process.env.MONGODB_URI);
+            console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+            console.log('---------------------------------------');
+
+            if (missingVars.length > 0) {
+                throw new Error(`FATAL: Missing environment variables: ${missingVars.join(', ')}`);
             }
         }
 
