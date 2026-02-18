@@ -2,8 +2,214 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Business = require('./models/Business');
 
+// REAL NIGERIAN BUSINESSES DATA
+const realBusinesses = [
+    // BANKS
+    { name: 'Zenith Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Leading Nigerian bank with excellent customer service', website: 'https://www.zenithbank.com', phone: '+234-1-2787000' },
+    { name: 'GTBank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Innovative banking solutions for individuals and businesses', website: 'https://www.gtbank.com', phone: '+234-1-4480000' },
+    { name: 'First Bank', category: 'Banks', location: 'Marina, Lagos', description: 'Nigeria\'s oldest bank with nationwide coverage', website: 'https://www.firstbanknigeria.com', phone: '+234-1-9052720' },
+    { name: 'Access Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Comprehensive banking services with digital solutions', website: 'https://www.accessbankplc.com', phone: '+234-1-2712005' },
+    { name: 'UBA', category: 'Banks', location: 'Marina, Lagos', description: 'Pan-African bank serving millions across Africa', website: 'https://www.ubagroup.com', phone: '+234-1-2808822' },
+    { name: 'Ecobank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Pan-African banking with strong Nigerian presence', website: 'https://www.ecobank.com', phone: '+234-1-2700000' },
+    { name: 'Stanbic IBTC', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Premium banking services for corporate and retail', website: 'https://www.stanbicibtcbank.com', phone: '+234-1-4227000' },
+    { name: 'Fidelity Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Reliable banking partner for Nigerians', website: 'https://www.fidelitybank.ng', phone: '+234-1-4485252' },
+    { name: 'Union Bank', category: 'Banks', location: 'Marina, Lagos', description: 'Heritage bank with modern banking solutions', website: 'https://www.unionbankng.com', phone: '+234-1-2808822' },
+    { name: 'Sterling Bank', category: 'Banks', location: 'Marina, Lagos', description: 'Alternative banking with focus on SMEs', website: 'https://www.sterlingbankng.com', phone: '+234-1-4484481' },
+    { name: 'Wema Bank', category: 'Banks', location: 'Marina, Lagos', description: 'Nigeria\'s longest surviving indigenous bank', website: 'https://www.wemabank.com', phone: '+234-1-2778600' },
+    { name: 'Polaris Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Customer-focused banking solutions', website: 'https://www.polarisbanklimited.com', phone: '+234-1-4485500' },
+    { name: 'Heritage Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Innovative banking for entrepreneurs', website: 'https://www.heritagebank.com', phone: '+234-1-4618800' },
+    { name: 'Keystone Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Reliable banking partner', website: 'https://www.keystonebankng.com', phone: '+234-1-2802000' },
+    { name: 'Unity Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Banking for all Nigerians', website: 'https://www.unitybank.com', phone: '+234-1-2715000' },
+    { name: 'FCMB', category: 'Banks', location: 'Marina, Lagos', description: 'Progressive banking solutions', website: 'https://www.fcmb.com', phone: '+234-1-2798800' },
+    { name: 'Providus Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Corporate and commercial banking', website: 'https://www.providusbank.com', phone: '+234-1-2369000' },
+    { name: 'Jaiz Bank', category: 'Banks', location: 'Central Business District, Abuja', description: 'Nigeria\'s first non-interest bank', website: 'https://www.jaizbank.com', phone: '+234-1-4605840' },
+    { name: 'Globus Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Digital-first banking experience', website: 'https://www.globusbank.com', phone: '+234-1-2369000' },
+    { name: 'Suntrust Bank', category: 'Banks', location: 'Victoria Island, Lagos', description: 'Innovative banking for SMEs', website: 'https://www.suntrust.com.ng', phone: '+234-1-2369000' },
+
+    // TELECOM
+    { name: 'MTN Nigeria', category: 'Telecom', location: 'Ikoyi, Lagos', description: 'Nigeria\'s largest mobile network', website: 'https://www.mtnonline.com', phone: '180' },
+    { name: 'Airtel Nigeria', category: 'Telecom', location: 'Banana Island, Lagos', description: 'Affordable data and voice services', website: 'https://www.airtel.com.ng', phone: '111' },
+    { name: 'Glo Mobile', category: 'Telecom', location: 'Victoria Island, Lagos', description: 'Grandmaster of data', website: 'https://www.gloworld.com', phone: '121' },
+    { name: '9mobile', category: 'Telecom', location: 'Banana Island, Lagos', description: 'Innovative telecom solutions', website: 'https://www.9mobile.com.ng', phone: '200' },
+    { name: 'Spectranet', category: 'Telecom', location: 'Ikeja, Lagos', description: '4G LTE internet service', website: 'https://www.spectranet.com.ng', phone: '+234-1-4535000' },
+    { name: 'Smile Nigeria', category: 'Telecom', location: 'Victoria Island, Lagos', description: '4G LTE broadband', website: 'https://www.smilecoms.com', phone: '+234-1-8888888' },
+    { name: 'Swift Networks', category: 'Telecom', location: 'Victoria Island, Lagos', description: 'Fiber optic internet', website: 'https://www.swiftng.com', phone: '+234-1-4535001' },
+    { name: 'Tizeti', category: 'Telecom', location: 'Lekki, Lagos', description: 'Unlimited internet', website: 'https://www.tizeti.com', phone: '+234-1-4535002' },
+    { name: 'Ipnx Nigeria', category: 'Telecom', location: 'Victoria Island, Lagos', description: 'Enterprise connectivity', website: 'https://www.ipnxnigeria.net', phone: '+234-1-4535004' },
+    { name: 'MainOne', category: 'Telecom', location: 'Victoria Island, Lagos', description: 'Wholesale connectivity', website: 'https://www.mainone.net', phone: '+234-1-4535005' },
+
+    // ECOMMERCE
+    { name: 'Jumia', category: 'Ecommerce', location: 'Ikeja, Lagos', description: 'Nigeria\'s largest online marketplace', website: 'https://www.jumia.com.ng', phone: '+234-1-8888888' },
+    { name: 'Konga', category: 'Ecommerce', location: 'Ikeja, Lagos', description: 'Leading e-commerce platform', website: 'https://www.konga.com', phone: '+234-1-8888889' },
+    { name: 'Jiji', category: 'Ecommerce', location: 'Yaba, Lagos', description: 'Classifieds marketplace', website: 'https://www.jiji.ng', phone: '+234-1-8888890' },
+    { name: 'Slot', category: 'Ecommerce', location: 'Ikeja, Lagos', description: 'Mobile phones and gadgets', website: 'https://www.slot.ng', phone: '+234-1-4540213' },
+    { name: 'PayPorte', category: 'Ecommerce', location: 'Lekki, Lagos', description: 'Fashion and lifestyle', website: 'https://www.payporte.com', phone: '+234-1-8888891' },
+    { name: 'Spar Nigeria', category: 'Ecommerce', location: 'Ilupeju, Lagos', description: 'Large supermarket chain', website: 'https://www.spar.ng', phone: '+234-1-2808001' },
+    { name: 'Shoprite', category: 'Ecommerce', location: 'Ikeja, Lagos', description: 'Retail supermarket', website: 'https://www.shoprite.co.za', phone: '+234-1-2808000' },
+    { name: 'Market Square', category: 'Ecommerce', location: 'Port Harcourt, Rivers', description: 'Neighborhood supermarket', website: 'https://www.marketsquareng.com', phone: '+234-1-2369000' },
+    { name: 'Prince Ebeano', category: 'Ecommerce', location: 'Lekki, Lagos', description: 'Supermarket and grocery', website: 'https://www.ebeano.com', phone: '+234-1-2369000' },
+    { name: 'Sahad Stores', category: 'Ecommerce', location: 'Central Area, Abuja', description: 'Large department store', website: 'https://www.sahadstores.com', phone: '+234-1-2369000' },
+
+    // FINTECH
+    { name: 'Paystack', category: 'Fintech', location: 'Ikeja, Lagos', description: 'Modern payments for Africa', website: 'https://www.paystack.com', phone: '+234-1-8888893' },
+    { name: 'Flutterwave', category: 'Fintech', location: 'Ikoyi, Lagos', description: 'Payment infrastructure', website: 'https://www.flutterwave.com', phone: '+234-1-8888894' },
+    { name: 'Interswitch', category: 'Fintech', location: 'Victoria Island, Lagos', description: 'Digital payments and commerce', website: 'https://www.interswitchgroup.com', phone: '+234-1-8888911' },
+    { name: 'Moniepoint', category: 'Fintech', location: 'Lekki, Lagos', description: 'Business banking', website: 'https://www.moniepoint.com', phone: '+234-1-8888892' },
+    { name: 'Opay', category: 'Fintech', location: 'Ikeja, Lagos', description: 'Mobile money', website: 'https://www.opayweb.com', phone: '+234-1-8888889' },
+    { name: 'PalmPay', category: 'Fintech', location: 'Ikeja, Lagos', description: 'Digital payments', website: 'https://www.palmpay.com', phone: '+234-1-8888890' },
+    { name: 'Kuda', category: 'Fintech', location: 'Yaba, Lagos', description: 'Digital bank', website: 'https://www.kuda.com', phone: '+234-1-8888888' },
+    { name: 'PiggyVest', category: 'Fintech', location: 'Ikeja, Lagos', description: 'Savings and investment', website: 'https://www.piggyvest.com', phone: '+234-1-8888891' },
+    { name: 'Cowrywise', category: 'Fintech', location: 'Ikeja, Lagos', description: 'Wealth management', website: 'https://www.cowrywise.com', phone: '+234-1-8888899' },
+    { name: 'Carbon', category: 'Fintech', location: 'Lekki, Lagos', description: 'Digital bank and loans', website: 'https://www.getcarbon.co', phone: '+234-1-8888895' },
+
+    // OIL & GAS / ENERGY
+    { name: 'NNPC Retail', category: 'Energy', location: 'Central Business District, Abuja', description: 'National oil company retail arm', website: 'https://www.nnpcgroup.com', phone: '+234-1-2369000' },
+    { name: 'TotalEnergies', category: 'Energy', location: 'Victoria Island, Lagos', description: 'Multi-energy company', website: 'https://www.totalenergies.ng', phone: '+234-1-2369000' },
+    { name: 'Oando', category: 'Energy', location: 'Victoria Island, Lagos', description: 'Indigenous energy solutions', website: 'https://www.oandoplc.com', phone: '+234-1-2369000' },
+    { name: 'MRS Oil', category: 'Energy', location: 'Apapa, Lagos', description: 'Downstream oil marketing', website: 'https://www.mrsoilnigplc.com', phone: '+234-1-2369000' },
+    { name: 'Conoil', category: 'Energy', location: 'Marina, Lagos', description: 'Petroleum marketing', website: 'https://www.conoilplc.com', phone: '+234-1-2369000' },
+    { name: 'Ardova (Forte Oil)', category: 'Energy', location: 'Victoria Island, Lagos', description: 'Energy solutions provider', website: 'https://www.ardovaplc.com', phone: '+234-1-2369000' },
+    { name: 'Seplat Energy', category: 'Energy', location: 'Ikoyi, Lagos', description: 'Indigenous energy company', website: 'https://www.seplatenergy.com', phone: '+234-1-2369000' },
+    { name: 'Rainoil', category: 'Energy', location: 'Lekki, Lagos', description: 'Downstream oil and gas', website: 'https://www.rainoil.com.ng', phone: '+234-1-2369000' },
+    { name: 'Nipco', category: 'Energy', location: 'Apapa, Lagos', description: 'Petroleum storage and distribution', website: 'https://www.nipponplc.com', phone: '+234-1-2369000' },
+    { name: 'Ikeja Electric', category: 'Energy', location: 'Ikeja, Lagos', description: 'Power distribution', website: 'https://www.ikejaelectric.com', phone: '+234-1-2369000' },
+
+    // FOOD & DRINK
+    { name: 'Chicken Republic', category: 'Food & Drink', location: 'Gbagada, Lagos', description: 'QSR chain', website: 'https://www.chicken-republic.com', phone: '+234-1-2369000' },
+    { name: 'Mr Bigg\'s', category: 'Food & Drink', location: 'Oregun, Lagos', description: 'Fast food restaurant', website: 'https://www.mrbiggs.com', phone: '+234-1-2369000' },
+    { name: 'Tantalizers', category: 'Food & Drink', location: 'Festac, Lagos', description: 'Fast food and outdoor catering', website: 'https://www.tantalizersng.com', phone: '+234-1-2369000' },
+    { name: 'Domino\'s Pizza', category: 'Food & Drink', location: 'Lekki, Lagos', description: 'Pizza delivery chain', website: 'https://www.dominos.ng', phone: '+234-1-2369000' },
+    { name: 'Cold Stone Creamery', category: 'Food & Drink', location: 'Lekki, Lagos', description: 'Ice cream chain', website: 'https://www.coldstonecreamery.ng', phone: '+234-1-2369000' },
+    { name: 'Kilimanjaro', category: 'Food & Drink', location: 'Port Harcourt, Rivers', description: 'Restaurant chain', website: 'https://www.kilimanjaro-restaurants.com', phone: '+234-1-2369000' },
+    { name: 'The Place', category: 'Food & Drink', location: 'Lekki, Lagos', description: 'Restaurant and club', website: 'https://www.theplace.com.ng', phone: '+234-1-2369000' },
+    { name: 'Sweet Sensation', category: 'Food & Drink', location: 'Ikeja, Lagos', description: 'Confectionery and restaurant', website: 'https://www.sweetsensation.ng', phone: '+234-1-2369000' },
+    { name: 'Mega Chicken', category: 'Food & Drink', location: 'Lekki, Lagos', description: 'Restaurant', website: 'https://www.megachicken.com.ng', phone: '+234-1-2369000' },
+    { name: 'Tastee Fried Chicken', category: 'Food & Drink', location: 'Victoria Island, Lagos', description: 'Quick service restaurant', website: 'https://www.tasteenigeria.com', phone: '+234-1-2369000' },
+
+    // HOSPITALITY
+    { name: 'Transcorp Hilton', category: 'Hospitality', location: 'Maitama, Abuja', description: 'Luxury hotel', website: 'https://www.transcorphotels.com', phone: '+234-1-2369000' },
+    { name: 'Eko Hotels & Suites', category: 'Hospitality', location: 'Victoria Island, Lagos', description: 'Luxury hotel and conference center', website: 'https://www.ekohotels.com', phone: '+234-1-2369000' },
+    { name: 'Sheraton Lagos', category: 'Hospitality', location: 'Ikeja, Lagos', description: 'International hotel', website: 'https://www.marriott.com', phone: '+234-1-2369000' },
+    { name: 'Radisson Blu', category: 'Hospitality', location: 'Victoria Island, Lagos', description: 'Upscale hotel', website: 'https://www.radissonhotels.com', phone: '+234-1-2369000' },
+    { name: 'Oriental Hotel', category: 'Hospitality', location: 'Lekki, Lagos', description: 'Luxury hotel', website: 'https://www.lagosoriental.com', phone: '+234-1-2369000' },
+    { name: 'Fraser Suites', category: 'Hospitality', location: 'Central Business District, Abuja', description: 'Luxury serviced apartments', website: 'https://www.frasershospitality.com', phone: '+234-1-2369000' },
+    { name: 'Wheatbaker Hotel', category: 'Hospitality', location: 'Ikoyi, Lagos', description: 'Boutique hotel', website: 'https://www.thewheatbakerlagos.com', phone: '+234-1-2369000' },
+    { name: 'Southern Sun', category: 'Hospitality', location: 'Ikoyi, Lagos', description: 'Hotel', website: 'https://www.southernsun.com', phone: '+234-1-2369000' },
+    { name: 'Ibom Icon Hotel', category: 'Hospitality', location: 'Uyo, Akwa Ibom', description: 'Golf resort', website: 'https://www.ibomicon.com', phone: '+234-1-2369000' },
+    { name: 'Hotel Presidential', category: 'Hospitality', location: 'Port Harcourt, Rivers', description: 'Hotel', website: 'https://www.hotelpresidentialph.com', phone: '+234-1-2369000' },
+
+    // HEALTH
+    { name: 'Lagoon Hospitals', category: 'Health', location: 'Ikoyi, Lagos', description: 'Leading private healthcare', website: 'https://www.lagoonhospitals.com', phone: '+234-1-2369000' },
+    { name: 'Reddington Hospital', category: 'Health', location: 'Victoria Island, Lagos', description: 'Multi-specialist hospital', website: 'https://www.reddingtonhospital.com', phone: '+234-1-2369000' },
+    { name: 'Eko Hospital', category: 'Health', location: 'Ikeja, Lagos', description: 'Private hospital group', website: 'https://www.ekohospital.com', phone: '+234-1-2369000' },
+    { name: 'St. Nicholas Hospital', category: 'Health', location: 'Lagos Island, Lagos', description: 'Private hospital', website: 'https://www.saintnicholashospital.com', phone: '+234-1-2369000' },
+    { name: 'Cedarcrest Hospitals', category: 'Health', location: 'Gudu, Abuja', description: 'Specialist hospital', website: 'https://www.cedarcresthospitals.com', phone: '+234-1-2369000' },
+    { name: 'Nizamiye Hospital', category: 'Health', location: 'Industrial Layout, Abuja', description: 'Nigerian-Turkish hospital', website: 'https://www.nizamiyehospital.com.ng', phone: '+234-1-2369000' },
+    { name: 'Evercare Hospital', category: 'Health', location: 'Lekki, Lagos', description: 'Tertiary care hospital', website: 'https://www.evercare.ng', phone: '+234-1-2369000' },
+    { name: 'Lily Hospitals', category: 'Health', location: 'Warri, Delta', description: 'Private hospital', website: 'https://www.lilyhospitals.com', phone: '+234-1-2369000' },
+    { name: 'Nisa Premier Hospital', category: 'Health', location: 'Jabi, Abuja', description: 'Fertility and general hospital', website: 'https://www.nisa.com.ng', phone: '+234-1-2369000' },
+    { name: 'Bridge Clinic', category: 'Health', location: 'Ikeja, Lagos', description: 'Fertility centre', website: 'https://www.thebridgeclinic.com', phone: '+234-1-2369000' },
+
+    // LOGISTICS
+    { name: 'GIG Logistics', category: 'Logistics', location: 'Gbagada, Lagos', description: 'Logistics and courier services', website: 'https://www.giglogistics.com', phone: '+234-1-2369000' },
+    { name: 'Red Star Express (FedEx)', category: 'Logistics', location: 'Isolo, Lagos', description: 'Courier and logistics', website: 'https://www.redstarplc.com', phone: '+234-1-2369000' },
+    { name: 'DHL Nigeria', category: 'Logistics', location: 'Isolo, Lagos', description: 'International shipping', website: 'https://www.dhl.com/ng-en', phone: '+234-1-2369000' },
+    { name: 'Kobo360', category: 'Logistics', location: 'Yaba, Lagos', description: 'Digital logistics platform', website: 'https://www.kobo360.com', phone: '+234-1-2369000' },
+    { name: 'ABC Transport', category: 'Logistics', location: 'Amuwo Odofin, Lagos', description: 'Haulage and transport', website: 'https://www.abctransport.com', phone: '+234-1-2369000' },
+    { name: 'GUO Transport', category: 'Logistics', location: 'Alaba, Lagos', description: 'Transport and logistics', website: 'https://www.guotransport.com', phone: '+234-1-2369000' },
+    { name: 'Sifax Group', category: 'Logistics', location: 'Apapa, Lagos', description: 'Ports and cargo handling', website: 'https://www.sifaxgroup.com', phone: '+234-1-2369000' },
+    { name: 'Dangote Transport', category: 'Logistics', location: 'Apapa, Lagos', description: 'Haulage', website: 'https://www.dangote.com', phone: '+234-1-2369000' },
+    { name: 'Courier Plus', category: 'Logistics', location: 'Isolo, Lagos', description: 'Logistics services', website: 'https://www.courierplus-ng.com', phone: '+234-1-2369000' },
+    { name: 'Speedaf', category: 'Logistics', location: 'Ikeja, Lagos', description: 'Express delivery', website: 'https://www.speedaf.com', phone: '+234-1-2369000' },
+
+    // AUTOMOBILES
+    { name: 'Innoson Vehicle Manufacturing', category: 'Automobiles', location: 'Nnewi, Anambra', description: 'Indigenous vehicle manufacturer', website: 'https://www.innosonvehicles.com', phone: '+234-1-2369000' },
+    { name: 'Coscharis Motors', category: 'Automobiles', location: 'Lekki, Lagos', description: 'Luxury car dealership', website: 'https://www.coscharisgroup.net', phone: '+234-1-2369000' },
+    { name: 'Elizade Motors', category: 'Automobiles', location: 'Ikeja, Lagos', description: 'Toyota dealership', website: 'https://www.elizade.com', phone: '+234-1-2369000' },
+    { name: 'Globe Motors', category: 'Automobiles', location: 'Victoria Island, Lagos', description: 'Automobile dealership', website: 'https://www.globemotors.ng', phone: '+234-1-2369000' },
+    { name: 'Stallion Motors', category: 'Automobiles', location: 'Victoria Island, Lagos', description: 'Vehicle assembly and sales', website: 'https://www.stalliongroup.com', phone: '+234-1-2369000' },
+    { name: 'Lanre Shittu Motors', category: 'Automobiles', location: 'Surulere, Lagos', description: 'Mack trucks and cars', website: 'https://www.lanreshittu.com', phone: '+234-1-2369000' },
+    { name: 'Kia Nigeria', category: 'Automobiles', location: 'Victoria Island, Lagos', description: 'Kia assembly and sales', website: 'https://www.kiamotorsnigeria.com', phone: '+234-1-2369000' },
+    { name: 'Honda Manufacturing', category: 'Automobiles', location: 'Ota, Ogun', description: 'Honda vehicle assembly', website: 'https://www.honda.com.ng', phone: '+234-1-2369000' },
+    { name: 'Nord Automobiles', category: 'Automobiles', location: 'Sangotedo, Lagos', description: 'Indigenous car manufacturer', website: 'https://www.nordmotion.com', phone: '+234-1-2369000' },
+    { name: 'Jet Systems', category: 'Automobiles', location: 'Gbagada, Lagos', description: 'Electric vehicle manufacturer', website: 'https://www.jet.mn', phone: '+234-1-2369000' },
+
+    // MEDIA
+    { name: 'Channels TV', category: 'Media', location: 'Isheri North, Lagos', description: 'News television station', website: 'https://www.channelstv.com', phone: '+234-1-2369000' },
+    { name: 'Arise News', category: 'Media', location: 'Ikoyi, Lagos', description: 'Global news channel', website: 'https://www.arise.tv', phone: '+234-1-2369000' },
+    { name: 'TVC News', category: 'Media', location: 'Ikosi, Lagos', description: '24-hour news channel', website: 'https://www.tvcnews.tv', phone: '+234-1-2369000' },
+    { name: 'Punch Newspapers', category: 'Media', location: 'Magboro, Ogun', description: 'Daily newspaper', website: 'https://www.punchng.com', phone: '+234-1-2369000' },
+    { name: 'ThisDay', category: 'Media', location: 'Apapa, Lagos', description: 'National newspaper', website: 'https://www.thisdaylive.com', phone: '+234-1-2369000' },
+    { name: 'Vanguard', category: 'Media', location: 'Apapa, Lagos', description: 'Daily news', website: 'https://www.vanguardngr.com', phone: '+234-1-2369000' },
+    { name: 'BusinessDay', category: 'Media', location: 'Apapa, Lagos', description: 'Business news', website: 'https://www.businessday.ng', phone: '+234-1-2369000' },
+    { name: 'Linda Ikeji Blog', category: 'Media', location: 'Lekki, Lagos', description: 'Entertainment blog', website: 'https://www.lindaikejisblog.com', phone: '+234-1-2369000' },
+    { name: 'Pulse Nigeria', category: 'Media', location: 'Lekki, Lagos', description: 'Digital media publisher', website: 'https://www.pulse.ng', phone: '+234-1-2369000' },
+    { name: 'NairaLand', category: 'Media', location: 'Ota, Ogun', description: 'Online forum', website: 'https://www.nairaland.com', phone: '+234-1-2369000' },
+
+    // REAL ESTATE
+    { name: 'Jide Taiwo & Co', category: 'Real Estate', location: 'Victoria Island, Lagos', description: 'Estate surveyors and valuers', website: 'https://www.jidetaiwoandco.com', phone: '+234-1-2369000' },
+    { name: 'Diya Fatimilehin & Co', category: 'Real Estate', location: 'Victoria Island, Lagos', description: 'Real estate firm', website: 'https://www.diyafatimilehin.com', phone: '+234-1-2369000' },
+    { name: 'LandWey', category: 'Real Estate', location: 'Lekki, Lagos', description: 'Real estate development', website: 'https://www.landwey.ng', phone: '+234-1-2369000' },
+    { name: 'Mixta Africa', category: 'Real Estate', location: 'Ikoyi, Lagos', description: 'Real estate developer', website: 'https://www.mixtafrica.com', phone: '+234-1-2369000' },
+    { name: 'Knight Frank Nigeria', category: 'Real Estate', location: 'Lagos Island, Lagos', description: 'Property consultancy', website: 'https://www.knightfrank.ng', phone: '+234-1-2369000' },
+    { name: 'Fine and Country', category: 'Real Estate', location: 'Ikoyi, Lagos', description: 'Luxury real estate', website: 'https://www.fineandcountry.com/ng', phone: '+234-1-2369000' },
+    { name: 'Alpha Mead', category: 'Real Estate', location: 'Ikeja, Lagos', description: 'Facilities management', website: 'https://www.alphamead.com', phone: '+234-1-2369000' },
+    { name: 'UPDC', category: 'Real Estate', location: 'Marina, Lagos', description: 'Property development', website: 'https://www.updcplc.com', phone: '+234-1-2369000' },
+    { name: 'RevolutionPlus Property', category: 'Real Estate', location: 'Ikeja, Lagos', description: 'Real estate company', website: 'https://www.revolutionplusproperty.com', phone: '+234-1-2369000' },
+    { name: 'Adron Homes', category: 'Real Estate', location: 'Omole, Lagos', description: 'Estate development', website: 'https://www.adronhomesproperties.com', phone: '+234-1-2369000' },
+
+    // INSURANCE
+    { name: 'AIICO Insurance', category: 'Insurance', location: 'Victoria Island, Lagos', description: 'Financial services group', website: 'https://www.aiicoplc.com', phone: '+234-1-2369000' },
+    { name: 'AXA Mansard', category: 'Insurance', location: 'Victoria Island, Lagos', description: 'Insurance and asset management', website: 'https://www.axamansard.com', phone: '+234-1-2369000' },
+    { name: 'Leadway Assurance', category: 'Insurance', location: 'Iponri, Lagos', description: 'Insurance services', website: 'https://www.leadway.com', phone: '+234-1-2369000' },
+    { name: 'Mutual Benefits', category: 'Insurance', location: 'Ilupeju, Lagos', description: 'Assurance company', website: 'https://www.mutualbenefitsassurance.com', phone: '+234-1-2369000' },
+    { name: 'Cornerstone Insurance', category: 'Insurance', location: 'Victoria Island, Lagos', description: 'Insurance company', website: 'https://www.cornerstone.com.ng', phone: '+234-1-2369000' },
+    { name: 'Custodian Investment', category: 'Insurance', location: 'Yaba, Lagos', description: 'Investment and insurance', website: 'https://www.custodianplc.com.ng', phone: '+234-1-2369000' },
+    { name: 'NEM Insurance', category: 'Insurance', location: 'Obanikoro, Lagos', description: 'General insurance', website: 'https://www.nem-insurance.com', phone: '+234-1-2369000' },
+    { name: 'Sovereign Trust', category: 'Insurance', location: 'Victoria Island, Lagos', description: 'Insurance company', website: 'https://www.stiplc.com', phone: '+234-1-2369000' },
+    { name: 'Lasaco Assurance', category: 'Insurance', location: 'Ikeja, Lagos', description: 'Insurance services', website: 'https://www.lasacoassurance.com', phone: '+234-1-2369000' },
+    { name: 'Consolidated Hallmark', category: 'Insurance', location: 'Obanikoro, Lagos', description: 'General business insurance', website: 'https://www.chiplc.com', phone: '+234-1-2369000' },
+
+    // EDUCATION
+    { name: 'Covenant University', category: 'Education', location: 'Ota, Ogun', description: 'Private Christian university', website: 'https://www.covenantuniversity.edu.ng', phone: '+234-1-2369000' },
+    { name: 'University of Lagos', category: 'Education', location: 'Akoka, Lagos', description: 'Federal university', website: 'https://www.unilag.edu.ng', phone: '+234-1-2369000' },
+    { name: 'Afe Babalola University', category: 'Education', location: 'Ado-Ekiti, Ekiti', description: 'Private university', website: 'https://www.abuad.edu.ng', phone: '+234-1-2369000' },
+    { name: 'Pan-Atlantic University', category: 'Education', location: 'Ibeju-Lekki, Lagos', description: 'Private university', website: 'https://www.pau.edu.ng', phone: '+234-1-2369000' },
+    { name: 'Babcock University', category: 'Education', location: 'Ilishan-Remo, Ogun', description: 'Seventh-day Adventist university', website: 'https://www.babcock.edu.ng', phone: '+234-1-2369000' },
+    { name: 'Greensprings School', category: 'Education', location: 'Lekki, Lagos', description: 'British international school', website: 'https://www.greensprings-school.com', phone: '+234-1-2369000' },
+    { name: 'Grange School', category: 'Education', location: 'Ikeja, Lagos', description: 'British curriculum school', website: 'https://www.grangeschool.com', phone: '+234-1-2369000' },
+    { name: 'Daywaterman College', category: 'Education', location: 'Abeokuta, Ogun', description: 'Secondary school', website: 'https://www.daywaterman.com', phone: '+234-1-2369000' },
+    { name: 'Corona Schools', category: 'Education', location: 'Ikoyi, Lagos', description: 'Trust council schools', website: 'https://www.coronaschools.org', phone: '+234-1-2369000' },
+    { name: 'Meadow Hall', category: 'Education', location: 'Lekki, Lagos', description: 'Education group', website: 'https://www.meadowhallgroup.com', phone: '+234-1-2369000' },
+
+    // AGRICULTURE
+    { name: 'Olam Nigeria', category: 'Agriculture', location: 'Surulere, Lagos', description: 'Agri-business', website: 'https://www.olamgroup.com', phone: '+234-1-2369000' },
+    { name: 'Flour Mills of Nigeria', category: 'Agriculture', location: 'Apapa, Lagos', description: 'Food and agro-allied', website: 'https://www.fmnplc.com', phone: '+234-1-2369000' },
+    { name: 'Dangote Sugar', category: 'Agriculture', location: 'Apapa, Lagos', description: 'Sugar refining', website: 'https://www.dangotesugar.com.ng', phone: '+234-1-2369000' },
+    { name: 'Presco', category: 'Agriculture', location: 'Benin City, Edo', description: 'Oil palm company', website: 'https://www.presco-plc.com', phone: '+234-1-2369000' },
+    { name: 'Okomu Oil', category: 'Agriculture', location: 'Okomu, Edo', description: 'Oil palm and rubber', website: 'https://www.okomunigeria.com', phone: '+234-1-2369000' },
+    { name: 'Farmcrowdy', category: 'Agriculture', location: 'Lekki, Lagos', description: 'Agritech platform', website: 'https://www.farmcrowdy.com', phone: '+234-1-2369000' },
+    { name: 'Thrive Agric', category: 'Agriculture', location: 'Wuse, Abuja', description: 'Agricultural technology', website: 'https://www.thriveagric.com', phone: '+234-1-2369000' },
+    { name: 'Stallion Group (Rice)', category: 'Agriculture', location: 'Victoria Island, Lagos', description: 'Rice farming', website: 'https://www.stalliongroup.com', phone: '+234-1-2369000' },
+    { name: 'Chi Farms', category: 'Agriculture', location: 'Isolo, Lagos', description: 'Poultry and catfish', website: 'https://www.chifarms.com', phone: '+234-1-2369000' },
+    { name: 'Notore Chemical', category: 'Agriculture', location: 'Onne, Rivers', description: 'Agro-chemicals', website: 'https://www.notore.com', phone: '+234-1-2369000' },
+
+    // OTHER (Construction, Manufacturing, etc.)
+    { name: 'Julius Berger', category: 'Other', location: 'Utako, Abuja', description: 'Construction company', website: 'https://www.julius-berger.com', phone: '+234-1-2369000' },
+    { name: 'Dangote Cement', category: 'Other', location: 'Ikoyi, Lagos', description: 'Cement manufacturer', website: 'https://www.dangotecement.com', phone: '+234-1-2369000' },
+    { name: 'Lafarge Africa', category: 'Other', location: 'Ikoyi, Lagos', description: 'Building solutions', website: 'https://www.lafarge.com.ng', phone: '+234-1-2369000' },
+    { name: 'Nestle Nigeria', category: 'Other', location: 'Ilupeju, Lagos', description: 'Food and beverage', website: 'https://www.nestle-cwa.com', phone: '+234-1-2369000' },
+    { name: 'Unilever Nigeria', category: 'Other', location: 'Oregun, Lagos', description: 'Consumer goods', website: 'https://www.unilever-owa.com', phone: '+234-1-2369000' },
+    { name: 'PZ Cussons', category: 'Other', location: 'Ilupeju, Lagos', description: 'Consumer products', website: 'https://www.pzcussons.com', phone: '+234-1-2369000' },
+    { name: 'Nigerian Breweries', category: 'Other', location: 'Iganmu, Lagos', description: 'Brewing company', website: 'https://www.nbplc.com', phone: '+234-1-2369000' },
+    { name: 'Guinness Nigeria', category: 'Other', location: 'Ikeja, Lagos', description: 'Brewery', website: 'https://www.guinness-nigeria.com', phone: '+234-1-2369000' },
+    { name: 'Reynolds Construction (RCC)', category: 'Other', location: 'Jabi, Abuja', description: 'Construction', website: 'https://www.rcc.com.ng', phone: '+234-1-2369000' },
+    { name: 'Hitech Construction', category: 'Other', location: 'Victoria Island, Lagos', description: 'Civil engineering', website: 'https://www.hitech.com', phone: '+234-1-2369000' }
+];
+
 // Configuration
-const TARGET_PER_CATEGORY = 50; // 50 * 20 = 1000 businesses
+const GENERATE_RANDOM_DATA = false; // Config switch
+const TARGET_PER_CATEGORY = 50;
 const LOCATIONS = [
     'Lagos, Lagos State', 'Ikeja, Lagos', 'Lekki, Lagos', 'Victoria Island, Lagos', 'Yaba, Lagos', 'Surulere, Lagos',
     'Abuja, FCT', 'Wuse 2, Abuja', 'Garki, Abuja', 'Maitama, Abuja',
@@ -19,95 +225,12 @@ const CATEGORIES = [
     'Media', 'Real Estate', 'Telecom', 'Travel & Hotels', 'Other'
 ];
 
-const TIERS = ['basic', 'verified', 'premium', 'enterprise'];
-const TIER_WEIGHTS = [0.6, 0.25, 0.1, 0.05]; // 60% Basic, 25% Verified, 10% Premium, 5% Enterprise
-
-// Data Pools for Generation
-const ADJECTIVES = [
-    'Premier', 'Global', 'Royal', 'Dynamic', 'Elite', 'Innovative', 'Trusted', 'Reliable', 'Modern', 'Future',
-    'Smart', 'Green', 'Golden', 'Silver', 'Blue', 'Red', 'Star', 'Prime', 'First', 'Best',
-    'Rapid', 'Swift', 'Metro', 'Urban', 'National', 'International', 'African', 'Nigerian', 'Lagos', 'Capital',
-    'Unique', 'Advanced', 'Strategic', 'Creative', 'Digital', 'Tech', 'Mega', 'Hyper', 'Super', 'Ultra'
-];
-
-const NOUNS = [
-    'Solutions', 'Ventures', 'Enterprises', 'Group', 'Limited', 'Global', 'Services', 'Systems', 'Holdings', 'Partners',
-    'Consulting', 'Technologies', 'Industries', 'Works', 'Hub', 'Connect', 'Link', 'Network', 'Point', 'Center',
-    'Agency', 'Associates', 'Construct', 'Designs', 'Concept', 'Idea', 'Vision', 'Focus', 'Impact', 'Synergy',
-    'Trust', 'Capital', 'Investments', 'Resources', 'Logistics', 'Motors', 'Foods', 'Farms', 'Health', 'Care'
-];
-
-const DESCRIPTIONS = [
-    "Leading provider of quality services in Nigeria.",
-    "Committed to excellence and customer satisfaction.",
-    "Your number one choice for professional solutions.",
-    "delivering innovative products for the modern world.",
-    "Setting the standard for quality and reliability.",
-    "Experience the difference with our premium services.",
-    "Trusted by thousands of customers across the nation.",
-    "Building a better future with sustainable practices.",
-    "Where quality meets affordability.",
-    "Providing top-notch services tailored to your needs."
-];
-
-// Helper Functions
-const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
 const generatePhone = () => `080${Math.floor(Math.random() * 90000000 + 10000000)}`;
-
-const generateRating = () => (Math.random() * 2 + 3).toFixed(1); // 3.0 to 5.0
-
-const getWeightedTier = () => 'basic';
-
-const generateBusiness = (category, existingNames) => {
-    let name;
-    let attempts = 0;
-
-    // Generate unique name
-    do {
-        const adj = getRandom(ADJECTIVES);
-        const noun = getRandom(NOUNS);
-        // Sometimes add category specific suffix
-        const suffix = Math.random() > 0.7 ? ` ${category}` : '';
-        name = `${adj} ${noun}${suffix}`;
-        attempts++;
-    } while (existingNames.has(name) && attempts < 50);
-
-    if (existingNames.has(name)) {
-        name = `${name} ${Math.floor(Math.random() * 1000)}`;
-    }
-    existingNames.add(name);
-
-    const tier = 'basic';
-    const isVerified = Math.random() > 0.8; // 20% chance of being verified even on basic tier, just for visual variety
-    const location = getRandom(LOCATIONS);
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-    return {
-        name: name,
-        category: category, // Deprecated field, keeping for compatibility
-        categories: [category], // New array field
-        location: location,
-        description: `${name} is a ${getRandom(DESCRIPTIONS).toLowerCase()} We specialize in ${category.toLowerCase()} services.`,
-        website: `https://www.${slug}.com.ng`,
-        phone: generatePhone(),
-        email: `info@${slug}.com.ng`,
-        rating: parseFloat(generateRating()),
-        reviewCount: Math.floor(Math.random() * 100),
-        isVerified: isVerified,
-        status: 'approved',
-        subscriptionTier: tier,
-        subscriptionStatus: tier === 'basic' ? 'inactive' : 'active',
-        viewCount: Math.floor(Math.random() * 1000),
-        createdAt: new Date(),
-        updatedAt: new Date()
-    };
-};
 
 async function seedMassive() {
     try {
         if (!process.env.MONGODB_URI) {
-            console.error('❌ MONGODB_URI is undefined. Check your .env file.');
+            console.error('❌ MONGODB_URI is undefined. Check your .env file or run from the correct directory.');
             process.exit(1);
         }
 
@@ -115,59 +238,50 @@ async function seedMassive() {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('✅ Connected to database');
 
-        // 1. Identify businesses to keep (those with owners)
         console.log('🔍 Scanning for existing businesses with owners...');
         const businessesWithOwners = await Business.find({
             owner: { $exists: true, $ne: null }
         });
-
         const keptIds = businessesWithOwners.map(b => b._id);
-        console.log(`🛡️ Found ${businessesWithOwners.length} businesses with owners. These will be PRESERVED.`);
-
-        // 2. Delete businesses without owners
-        console.log('🗑️ Clearing businesses without owners...');
-        const deleteResult = await Business.deleteMany({
-            owner: { $exists: false } // Or $eq: null which isn't standard but specific queries can vary. Safest is checking existence/null.
-            // Actually, let's be more precise: delete matches that are NOT in keptIds
-        });
-
-        // A safer delete query to ensure we absolutely don't touch the kept ones
-        // const deleteResult = await Business.deleteMany({ _id: { $nin: keptIds } });
-        // The above is safer. Let's use that.
-
-        const finalDeleteResult = await Business.deleteMany({ _id: { $nin: keptIds } });
-        console.log(`🧹 Deleted ${finalDeleteResult.deletedCount} unowned businesses.`);
-
-        // 3. Generate new businesses
-        console.log(`🏭 Generating new businesses across ${CATEGORIES.length} categories...`);
-
-        const newBusinesses = [];
         const existingNames = new Set(businessesWithOwners.map(b => b.name));
+        console.log(`🛡️ Preserving ${businessesWithOwners.length} businesses with owners.`);
 
-        // Count existing businesses per category to know how many more to add
-        const currentCounts = {};
-        businessesWithOwners.forEach(b => {
-            // Check both category field and categories array
-            const cat = b.category || (b.categories && b.categories[0]) || 'Other';
-            currentCounts[cat] = (currentCounts[cat] || 0) + 1;
-        });
+        console.log('🗑️ Clearing unowned businesses...');
+        await Business.deleteMany({ _id: { $nin: keptIds } });
 
-        for (const category of CATEGORIES) {
-            const existingCount = currentCounts[category] || 0;
-            const needed = Math.max(0, TARGET_PER_CATEGORY - existingCount);
+        console.log(`🏭 Generating businesses...`);
+        const newBusinesses = [];
 
-            if (needed > 0) {
-                // console.log(`   - Generating ${needed} for ${category}...`);
-                for (let i = 0; i < needed; i++) {
-                    newBusinesses.push(generateBusiness(category, existingNames));
-                }
+        // 1. Add Real Businesses First
+        console.log('   - Adding Real Nigerian Companies...');
+        for (const biz of realBusinesses) {
+            if (!existingNames.has(biz.name)) {
+                const slug = biz.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                newBusinesses.push({
+                    ...biz,
+                    categories: [biz.category],
+                    description: biz.description || `${biz.name} is a leading player in the ${biz.category} industry.`,
+                    website: biz.website || `https://www.${slug}.com.ng`,
+                    phone: biz.phone || generatePhone(),
+                    email: `info@${slug}.com.ng`,
+                    rating: (Math.random() * 1.5 + 3.5).toFixed(1), // Real ones get slightly better ratings
+                    reviewCount: Math.floor(Math.random() * 100 + 50),
+                    isVerified: Math.random() > 0.5, // 50% chance for real ones
+                    status: 'approved',
+                    subscriptionTier: 'basic',
+                    subscriptionStatus: 'inactive',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+                existingNames.add(biz.name);
             }
         }
 
-        // 4. Batch Insert
+        // 2. SKIPPED RANDOM GENERATION
+
+        // 3. Batch Insert
         if (newBusinesses.length > 0) {
-            console.log(`💾 Inserting ${newBusinesses.length} new businesses...`);
-            // Insert in chunks of 100 to avoid memory issues or timeout
+            console.log(`💾 Inserting ${newBusinesses.length} businesses...`);
             const chunkSize = 100;
             for (let i = 0; i < newBusinesses.length; i += chunkSize) {
                 const chunk = newBusinesses.slice(i, i + chunkSize);
@@ -175,32 +289,11 @@ async function seedMassive() {
                 process.stdout.write('.');
             }
             console.log('\n✅ Insertion complete!');
-        } else {
-            console.log('✨ Target counts already met. No new businesses needed.');
         }
 
-        // 5. Verification Summary
-        console.log('\n📊 Final Distribution:');
-        const finalCounts = await Business.aggregate([
-            { $group: { _id: '$category', count: { $sum: 1 } } },
-            { $sort: { count: -1 } }
-        ]);
-
-        finalCounts.forEach(c => {
-            console.log(`   ${c._id}: ${c.count}`);
-        });
-
-        const tierCounts = await Business.aggregate([
-            { $group: { _id: '$subscriptionTier', count: { $sum: 1 } } }
-        ]);
-
-        console.log('\n🏆 Tier Distribution:');
-        tierCounts.forEach(c => {
-            console.log(`   ${c._id}: ${c.count}`);
-        });
-
+        // 4. Summary
         const total = await Business.countDocuments();
-        console.log(`\n🎉 Total Businesses in Database: ${total}`);
+        console.log(`\n🎉 Total Businesses: ${total}`);
 
         process.exit(0);
     } catch (error) {
