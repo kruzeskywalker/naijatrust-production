@@ -20,6 +20,21 @@ const verifyToken = async (req, res, next) => {
     }
 };
 
+// Get recent reviews (Global)
+router.get('/recent', async (req, res) => {
+    try {
+        const reviews = await Review.find({ isHidden: { $ne: true } })
+            .populate('business', 'name logo')
+            .populate('user', 'name avatar')
+            .sort('-createdAt')
+            .limit(6);
+
+        res.status(200).json({ status: 'success', data: { reviews } });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
 // Get reviews for a specific business
 router.get('/:businessId', async (req, res) => {
     try {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SEO } from '../App';
 import './Home.css';
@@ -15,12 +16,26 @@ const Home = () => {
         { name: 'Fintech', icon: <Zap size={24} />, color: '#38b2ac' },
     ];
 
-    const recentReviews = [
-        { id: 1, biz: 'Kuda Bank', user: 'Emeka O.', text: 'Excellent customer service and very fast transactions. Best bank in Nigeria!', stars: 5 },
-        { id: 2, biz: 'Jumia Nigeria', user: 'Chizoba A.', text: 'Got my delivery within 48 hours. The package was intact. Great job!', stars: 4 },
-        { id: 3, biz: 'Mtn Nigeria', user: 'Sanni K.', text: 'Network has been very stable lately. The data plans are also fair.', stars: 5 },
-        { id: 4, biz: 'Flutterwave', user: 'Victoria E.', text: 'Seamless integration for my business. Payments are always prompt.', stars: 5 },
-    ];
+    const [recentReviews, setRecentReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRecentReviews = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/reviews/recent');
+                const data = await response.json();
+                if (data.status === 'success') {
+                    setRecentReviews(data.data.reviews);
+                }
+            } catch (error) {
+                console.error('Error fetching recent reviews:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRecentReviews();
+    }, []);
 
     return (
         <div className="home-page">
@@ -63,16 +78,22 @@ const Home = () => {
                 <section className="recent-reviews container">
                     <h2>Recent Activity</h2>
                     <div className="review-grid">
-                        {recentReviews.map((rev) => (
-                            <div key={rev.id} className="mini-review-card">
-                                <div className="review-stars">
-                                    <StarRating rating={rev.stars} size={16} />
+                        {loading ? (
+                            <p>Loading recent activity...</p>
+                        ) : recentReviews.length > 0 ? (
+                            recentReviews.map((rev) => (
+                                <div key={rev._id} className="mini-review-card">
+                                    <div className="review-stars">
+                                        <StarRating rating={rev.rating} size={16} />
+                                    </div>
+                                    <h3>{rev.business?.name || 'Unknown Business'}</h3>
+                                    <p>"{rev.content.substring(0, 100)}{rev.content.length > 100 ? '...' : ''}"</p>
+                                    <span className="reviewer">- {rev.user?.name || 'Anonymous'}</span>
                                 </div>
-                                <h3>{rev.biz}</h3>
-                                <p>"{rev.text}"</p>
-                                <span className="reviewer">- {rev.user}</span>
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p>No recent activity yet.</p>
+                        )}
                     </div>
                 </section>
             </div>
