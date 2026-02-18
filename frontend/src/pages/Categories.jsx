@@ -4,7 +4,8 @@ import { SEO } from '../App';
 import {
     Globe, Zap, ShieldCheck, ShoppingBag, Truck, CreditCard,
     Smartphone, Car, Coffee, Utensils, Home, Briefcase,
-    HeartPulse, GraduationCap, Plane, Camera, Monitor, Settings, Star
+    HeartPulse, GraduationCap, Plane, Camera, Monitor, Settings, Star,
+    Sparkles, Shirt, Dumbbell, Factory, Megaphone
 } from 'lucide-react';
 import { businesses } from '../mockData';
 import './Categories.css';
@@ -14,25 +15,33 @@ const Categories = () => {
     // Map categories to icons/colors
     const getCategoryData = (name) => {
         const mapping = {
-            'Agriculture': { icon: <Globe size={32} />, color: '#48bb78' },
-            'Automobiles': { icon: <Car size={32} />, color: '#e53e3e' },
-            'Banks': { icon: <CreditCard size={32} />, color: '#4299e1' },
-            'Ecommerce': { icon: <ShoppingBag size={32} />, color: '#ed8936' },
-            'Education': { icon: <GraduationCap size={32} />, color: '#667eea' },
-            'Energy': { icon: <Zap size={32} />, color: '#fbbf24' },
-            'Fintech': { icon: <Zap size={32} />, color: '#38b2ac' },
-            'Food & Drink': { icon: <Utensils size={32} />, color: '#ecc94b' },
-            'Health': { icon: <HeartPulse size={32} />, color: '#f687b3' },
-            'Hospitality': { icon: <Coffee size={32} />, color: '#9f7aea' },
-            'Insurance': { icon: <ShieldCheck size={32} />, color: '#008751' },
-            'IT Services': { icon: <Monitor size={32} />, color: '#1a202c' },
-            'Jobs': { icon: <Briefcase size={32} />, color: '#718096' },
-            'Legal Services': { icon: <Briefcase size={32} />, color: '#2b6cb0' },
-            'Logistics': { icon: <Truck size={32} />, color: '#f56565' },
-            'Media': { icon: <Camera size={32} />, color: '#a0aec0' },
-            'Real Estate': { icon: <Home size={32} />, color: '#2d3748' },
-            'Telecom': { icon: <Smartphone size={32} />, color: '#805ad5' },
-            'Travel & Hotels': { icon: <Plane size={32} />, color: '#9f7aea' },
+            'Agriculture': { icon: <Globe size={32} />, color: '#48bb78' }, // Green
+            'Automobiles': { icon: <Car size={32} />, color: '#e53e3e' }, // Red
+            'Aviation': { icon: <Plane size={32} />, color: '#0bc5ea' }, // Cyan
+            'Banks': { icon: <CreditCard size={32} />, color: '#4299e1' }, // Blue
+            'Beauty & Spa': { icon: <Sparkles size={32} />, color: '#d53f8c' }, // Pink
+            'Consulting': { icon: <Briefcase size={32} />, color: '#718096' }, // Gray
+            'Coworking': { icon: <Briefcase size={32} />, color: '#38a169' }, // Green-ish
+            'Ecommerce': { icon: <ShoppingBag size={32} />, color: '#ed8936' }, // Orange
+            'Education': { icon: <GraduationCap size={32} />, color: '#667eea' }, // Indigo
+            'Energy': { icon: <Zap size={32} />, color: '#fbbf24' }, // Yellow
+            'Fashion & Lifestyle': { icon: <Shirt size={32} />, color: '#9f7aea' }, // Purple
+            'Fintech': { icon: <Zap size={32} />, color: '#38b2ac' }, // Teal
+            'Fitness': { icon: <Dumbbell size={32} />, color: '#f56565' }, // Red
+            'Food & Drink': { icon: <Utensils size={32} />, color: '#ecc94b' }, // Yellow-Orange
+            'Health': { icon: <HeartPulse size={32} />, color: '#f687b3' }, // Pink-Red
+            'Hospitality': { icon: <Coffee size={32} />, color: '#9f7aea' }, // Purple
+            'Insurance': { icon: <ShieldCheck size={32} />, color: '#008751' }, // Green
+            'IT Services': { icon: <Monitor size={32} />, color: '#1a202c' }, // Dark
+            'Jobs': { icon: <Briefcase size={32} />, color: '#718096' }, // Gray
+            'Legal Services': { icon: <Briefcase size={32} />, color: '#2b6cb0' }, // Blue
+            'Logistics': { icon: <Truck size={32} />, color: '#f56565' }, // Red
+            'Manufacturing': { icon: <Factory size={32} />, color: '#4a5568' }, // Gray
+            'Marketing & Advertising': { icon: <Megaphone size={32} />, color: '#dd6b20' }, // Orange
+            'Media': { icon: <Camera size={32} />, color: '#a0aec0' }, // Gray
+            'Real Estate': { icon: <Home size={32} />, color: '#2d3748' }, // Dark
+            'Telecom': { icon: <Smartphone size={32} />, color: '#805ad5' }, // Purple
+            'Travel & Hotels': { icon: <Plane size={32} />, color: '#9f7aea' }, // Purple
             'Other': { icon: <Star size={32} />, color: '#cbd5e0' }
         };
         return mapping[name] || mapping['Other'];
