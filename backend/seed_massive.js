@@ -79,6 +79,7 @@ const realBusinesses = [
     { name: 'Daytona Supermarket', category: 'Ecommerce', location: 'Lekki, Lagos' },
     { name: 'Old English Supermarket', category: 'Ecommerce', location: 'Ibadan, Oyo' },
     { name: 'Feedwell Supermarket', category: 'Ecommerce', location: 'Akure, Ondo' },
+    { name: 'CDcare', category: 'Ecommerce', location: 'Ikeja, Lagos' },
 
     // --- FINTECH (25) ---
     { name: 'Paystack', category: 'Fintech', location: 'Ikeja, Lagos' },
@@ -549,7 +550,12 @@ const realBusinesses = [
     { name: 'Venia', category: 'Coworking', location: 'Lekki, Lagos' },
     { name: 'CapitalSquare', category: 'Coworking', location: 'Lekki, Lagos' },
     { name: 'Lagos Garage', category: 'Coworking', location: 'Ikoyi, Lagos' },
-    { name: 'The Village', category: 'Coworking', location: 'Yaba, Lagos' }
+    { name: 'The Village', category: 'Coworking', location: 'Yaba, Lagos' },
+
+    // --- TRAVEL & TOURS ---
+    { name: 'Citytours Africa', category: 'Travel & Hotels', location: 'Lekki, Lagos' },
+    { name: 'Wakanow', category: 'Travel & Hotels', location: 'Lekki, Lagos' },
+    { name: 'Travelstart', category: 'Travel & Hotels', location: 'Ikeja, Lagos' }
 ];
 
 const generatePhone = () => `080${Math.floor(Math.random() * 90000000 + 10000000)}`;
