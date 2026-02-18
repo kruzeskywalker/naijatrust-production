@@ -22,6 +22,14 @@ const businessSchema = new mongoose.Schema({
     },
     claimedAt: { type: Date },
 
+    // Approval Status (New)
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending',
+        index: true
+    },
+
     // Verification
     isVerified: { type: Boolean, default: false },
     verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },

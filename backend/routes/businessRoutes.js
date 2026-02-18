@@ -39,7 +39,10 @@ const optionalAuth = async (req, res, next) => {
 router.get('/', async (req, res) => {
     try {
         const { category, q, rating, verified, page = 1, limit = 20 } = req.query;
-        let query = {};
+        const { category, q, rating, verified, page = 1, limit = 20, status } = req.query;
+        let query = {
+            status: 'approved' // Default to only showing approved businesses
+        };
 
         if (category) {
             // Find businesses where 'categories' array contains the category

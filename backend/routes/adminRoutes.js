@@ -379,7 +379,8 @@ router.post('/businesses', verifyAdminToken, async (req, res) => {
             // Verification status is now strictly tied to the subscription tier
             isVerified: false, // Defaults to basic tier, so not verified
             claimStatus: 'unclaimed',
-            isClaimed: false
+            isClaimed: false,
+            status: 'approved' // Admin created businesses are approved by default
         });
 
         // Log action
@@ -397,6 +398,55 @@ router.post('/businesses', verifyAdminToken, async (req, res) => {
         });
     } catch (error) {
         console.error('Create business error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// PUT /api/admin/businesses/:id/status - Update business status (approve/reject)
+router.put('/businesses/:id/status', verifyAdminToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['pending', 'approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ status: 'fail', message: 'Invalid status' });
+        }
+
+        const business = await Business.findById(id);
+        if (!business) {
+            return res.status(404).json({ status: 'fail', message: 'Business not found' });
+        }
+
+        // Update status
+        business.status = status;
+
+        // If approved, strictly tie verification to subscription tier
+        if (status === 'approved') {
+            // Ensure verification is consistent with tier
+            business.isVerified = business.subscriptionTier !== 'basic';
+            if (business.isVerified) {
+                business.verifiedBy = req.admin._id;
+                business.verifiedAt = new Date();
+            }
+        }
+
+        await business.save();
+
+        // Log action
+        await req.admin.logAction(
+            'update_business_status',
+            'business',
+            business._id,
+            `Updated status to ${status} for ${business.name}`
+        );
+
+        res.status(200).json({
+            status: 'success',
+            message: `Business status updated to ${status}`,
+            data: { business }
+        });
+    } catch (error) {
+        console.error('Update business status error:', error);
         res.status(500).json({ status: 'fail', message: error.message });
     }
 });

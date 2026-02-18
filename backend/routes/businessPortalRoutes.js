@@ -217,7 +217,8 @@ router.post('/register', verifyBusinessToken, verifyVerifiedBusinessUser, async 
             email,
             owner: user._id,
             claimStatus: 'pending', // Special status for new registration, treat as pending claim
-            isVerified: false
+            isVerified: false,
+            status: 'pending' // Default to pending approval
         });
 
         // Create claim request for the new business (so admins can review documents)
