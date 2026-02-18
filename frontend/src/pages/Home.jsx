@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiBaseUrl } from '../utils/urlUtils';
 import { SEO } from '../App';
 import './Home.css';
 import StarRating from '../components/StarRating';
@@ -22,7 +23,8 @@ const Home = () => {
     useEffect(() => {
         const fetchRecentReviews = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/reviews/recent');
+                const API_URL = getApiBaseUrl(import.meta.env.VITE_API_URL);
+                const response = await fetch(`${API_URL}/reviews/recent`);
                 const data = await response.json();
                 if (data.status === 'success') {
                     setRecentReviews(data.data.reviews);
