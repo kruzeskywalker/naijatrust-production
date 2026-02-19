@@ -9,6 +9,8 @@ const businessUserSchema = new mongoose.Schema({
     // Verification status
     isEmailVerified: { type: Boolean, default: false },
     isAdminVerified: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpires: { type: Date },
     emailVerificationToken: { type: String },
     emailVerificationExpires: { type: Date },
 

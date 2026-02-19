@@ -35,6 +35,12 @@ const Signup = () => {
         setIsLoading(false);
 
         if (result.success) {
+            if (result.requiresOtp) {
+                toast.success('Please check your email for the verification code.');
+                navigate(`/verify-otp?type=user&email=${encodeURIComponent(result.email)}`);
+                return;
+            }
+
             setSuccess(result.message);
             toast.success(result.message);
             setTimeout(() => navigate('/dashboard'), 2000);

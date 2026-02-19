@@ -50,7 +50,10 @@ router.post('/signup', async (req, res) => {
             });
         }
 
-        // Create new business user (Verified by default)
+        // Create new business user (Unverified)
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
         const businessUser = new BusinessUser({
             name,
             email: email.toLowerCase(),
@@ -59,55 +62,30 @@ router.post('/signup', async (req, res) => {
             phone,
             position,
             companyName,
-            isEmailVerified: true // Auto-verified
+            isEmailVerified: false,
+            otp,
+            otpExpires
         });
 
         await businessUser.save();
 
-        // Generate JWT token immediately
-        const token = jwt.sign(
-            { id: businessUser._id, role: businessUser.role },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-        );
+        // Send OTP email
+        try {
+            const { sendOtpEmail } = require('../utils/emailService');
+            await sendOtpEmail(email, name, otp);
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+        }
 
-        // Send success response with token
+        // Return success without token (requires verification)
         res.status(201).json({
             status: 'success',
-            message: 'Account created successfully!',
+            message: 'Registration successful! Please verify your email.',
             data: {
-                token,
-                user: {
-                    id: businessUser._id,
-                    name: businessUser.name,
-                    email: businessUser.email,
-                    isEmailVerified: businessUser.isEmailVerified,
-                    isAdminVerified: businessUser.isAdminVerified
-                }
+                email: businessUser.email,
+                requiresOtp: true
             }
         });
-
-        // Send Welcome email in background
-        sendEmail({
-            to: email,
-            subject: 'Welcome to NaijaTrust Business!',
-            html: `
-                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
-                    <div style="background: linear-gradient(135deg, #00A86B 0%, #008854 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                        <h1>Welcome to NaijaTrust Business!</h1>
-                    </div>
-                    <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #eee;">
-                        <p>Hi ${name},</p>
-                        <p>Thank you for signing up for NaijaTrust Business. Your account has been successfully created and verified.</p>
-                        <p>You can now log in to your dashboard to claim your existing business profile or register a new one to start building trust with your customers.</p>
-                        <div style="text-align: center; margin: 20px 0;">
-                            <a href="https://www.naijatrust.ng/business/login" style="display: inline-block; padding: 15px 30px; background: #00A86B; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Login to Dashboard</a>
-                        </div>
-                        <p>Best regards,<br>The NaijaTrust Team</p>
-                    </div>
-                </div>
-            `
-        }).catch(err => console.error('⚠️ Failed to send welcome email:', err.message));
 
     } catch (error) {
         console.error('Business signup error:', error);
@@ -186,7 +164,100 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// GET /api/business-auth/verify-email/:token
+// POST /api/business-auth/verify-otp
+router.post('/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ status: 'fail', message: 'Please provide email and OTP' });
+        }
+
+        const user = await BusinessUser.findOne({
+            email: email.toLowerCase(),
+            otp,
+            otpExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ status: 'fail', message: 'Invalid or expired OTP' });
+        }
+
+        // Verify user
+        user.isEmailVerified = true;
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        await user.save();
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Email verified successfully!',
+            data: {
+                token,
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    businessEmail: user.businessEmail,
+                    isEmailVerified: user.isEmailVerified,
+                    isAdminVerified: user.isAdminVerified,
+                    claimedBusinesses: user.claimedBusinesses
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Verify OTP error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// POST /api/business-auth/resend-otp
+router.post('/resend-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ status: 'fail', message: 'Please provide email' });
+        }
+
+        const user = await BusinessUser.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        if (user.isEmailVerified) {
+            return res.status(400).json({ status: 'fail', message: 'Email already verified' });
+        }
+
+        // Generate new OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        await user.save();
+
+        // Send OTP email
+        const { sendOtpEmail } = require('../utils/emailService');
+        await sendOtpEmail(user.email, user.name, otp);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'OTP resent successfully'
+        });
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// GET /api/business-auth/verify-email/:token (Legacy Link Support)
 router.get('/verify-email/:token', async (req, res) => {
     try {
         const { token } = req.params;
@@ -219,7 +290,7 @@ router.get('/verify-email/:token', async (req, res) => {
     }
 });
 
-// POST /api/business-auth/resend-verification
+// POST /api/business-auth/resend-verification (Legacy Link Support)
 router.post('/resend-verification', verifyBusinessToken, async (req, res) => {
     try {
         const user = req.user;

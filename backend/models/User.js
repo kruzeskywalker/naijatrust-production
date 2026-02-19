@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
     avatar: { type: String },
     isBlocked: { type: Boolean, default: false }, // Admin block status
     isVerified: { type: Boolean, default: false },
+    otp: { type: String },
+    otpExpires: { type: Date },
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date },
     googleId: { type: String, unique: true, sparse: true },

@@ -53,36 +53,35 @@ router.post('/signup', authLimiter, async (req, res) => {
             return res.status(400).json({ status: 'fail', message: 'Email already registered' });
         }
 
-        // Create new user
+        // Create new user (Unverified)
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
         const newUser = await User.create({
             name,
             email,
             password,
-            isVerified: true // Auto-verified
+            isVerified: false,
+            otp,
+            otpExpires
         });
 
-        // Send welcome email
+        // Send OTP email
         try {
-            await sendWelcomeEmail(email, name);
+            const { sendOtpEmail } = require('../utils/emailService');
+            await sendOtpEmail(email, name, otp);
         } catch (emailError) {
             console.error('Email sending failed:', emailError);
+            // Optionally delete user if email fails, or allow them to resend
         }
-
-        const token = signToken(newUser._id);
 
         res.status(201).json({
             status: 'success',
-            token,
+            message: 'Registration successful! Please verify your email.',
             data: {
-                user: {
-                    id: newUser._id,
-                    name: newUser.name,
-                    email: newUser.email,
-                    isVerified: newUser.isVerified,
-                    avatar: newUser.avatar
-                }
-            },
-            message: 'Registration successful! Welcome to NaijaTrust.'
+                email: newUser.email,
+                requiresOtp: true
+            }
         });
     } catch (err) {
         console.error('Signup error:', err);
@@ -128,7 +127,98 @@ router.post('/login', authLimiter, async (req, res) => {
     }
 });
 
-// Verify email route
+// Verify OTP route
+router.post('/verify-otp', authLimiter, async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ status: 'fail', message: 'Please provide email and OTP' });
+        }
+
+        const user = await User.findOne({
+            email,
+            otp,
+            otpExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ status: 'fail', message: 'Invalid or expired OTP' });
+        }
+
+        // Verify user
+        user.isVerified = true;
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        await user.save();
+
+        // Send welcome email after successful verification
+        try {
+            await sendWelcomeEmail(user.email, user.name);
+        } catch (err) {
+            console.error('Welcome email error:', err);
+        }
+
+        const token = signToken(user._id);
+
+        res.status(200).json({
+            status: 'success',
+            token,
+            data: {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isVerified: user.isVerified,
+                    avatar: user.avatar
+                }
+            },
+            message: 'Email verified successfully!'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Resend OTP route
+router.post('/resend-otp', authLimiter, async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ status: 'fail', message: 'Please provide email' });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ status: 'fail', message: 'Email is already verified' });
+        }
+
+        // Generate new OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        await user.save();
+
+        // Send number email
+        const { sendOtpEmail } = require('../utils/emailService');
+        await sendOtpEmail(user.email, user.name, otp);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'OTP resent successfully'
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Verify email route (Legacy Link)
 router.get('/verify-email/:token', async (req, res) => {
     try {
         const { token } = req.params;

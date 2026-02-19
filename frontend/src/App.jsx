@@ -14,6 +14,7 @@ import Signup from './pages/Signup';
 import Categories from './pages/Categories';
 import WriteReview from './pages/WriteReview';
 
+import OtpVerification from './pages/Auth/OtpVerification';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -183,6 +184,7 @@ const AnimatedRoutes = () => {
             <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
             <Route path="/review/:id" element={<PageTransition><WriteReview /></PageTransition>} />
             <Route path="/verify-email" element={<PageTransition><VerifyEmail /></PageTransition>} />
+            <Route path="/verify-otp" element={<PageTransition><OtpVerification /></PageTransition>} />
             <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
             <Route path="/reset-password/:token" element={<PageTransition><ResetPassword /></PageTransition>} />
             <Route path="/auth/callback" element={<OAuthCallback />} />

@@ -55,6 +55,10 @@ export const AuthProvider = ({ children }) => {
             const data = await response.json();
 
             if (response.ok) {
+                if (data.data && data.data.requiresOtp) {
+                    return { success: true, requiresOtp: true, email: data.data.email, message: data.message };
+                }
+
                 const authToken = data.token;
                 setToken(authToken);
                 setUser(data.data.user);

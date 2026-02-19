@@ -1,0 +1,52 @@
+[dotenv@17.2.3] injecting env (11) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+(node:92189) [MONGOOSE] Warning: Duplicate schema index on {"email":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92189) [MONGOOSE] Warning: Duplicate schema index on {"googleId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:92189) [MONGOOSE] Warning: Duplicate schema index on {"paymentReference":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:92189) [MONGOOSE] Warning: Duplicate schema index on {"reference":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+Connected to MongoDB
+Server running on port 5001
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55
+--- Admin Token Verification ---
+Auth Header exists: true
+Token exists: true
+Token decoded successfully for ID: 697cbe362659838e4dc9ef55

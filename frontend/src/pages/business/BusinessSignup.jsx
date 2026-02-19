@@ -48,6 +48,10 @@ const BusinessSignup = () => {
             const data = await response.json();
 
             if (data.status === 'success') {
+                if (data.data?.requiresOtp) {
+                    navigate(`/verify-otp?type=business&email=${encodeURIComponent(data.data.email)}`);
+                    return;
+                }
                 setSuccess(true);
             } else {
                 setError(data.message || 'Registration failed');
