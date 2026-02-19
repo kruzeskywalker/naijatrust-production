@@ -12,6 +12,9 @@ const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
+// Trust the first proxy (Render Load Balancer)
+app.set('trust proxy', 1);
+
 // Compression middleware - reduces response size by 60-80%
 const compression = require('compression');
 app.use(compression());
