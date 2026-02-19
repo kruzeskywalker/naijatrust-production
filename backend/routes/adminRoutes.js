@@ -379,11 +379,12 @@ router.post('/businesses', verifyAdminToken, async (req, res) => {
             website,
             phone,
             email,
-            // Verification status is now strictly tied to the subscription tier
             isVerified: false, // Defaults to basic tier, so not verified
             claimStatus: 'unclaimed',
             isClaimed: false,
-            status: 'approved' // Admin created businesses are approved by default
+            status: 'approved', // Admin created businesses are approved by default
+            rating: 5,
+            reviewCount: 0
         });
 
         // Log action

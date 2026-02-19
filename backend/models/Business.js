@@ -36,7 +36,7 @@ const businessSchema = new mongoose.Schema({
     verifiedAt: { type: Date },
 
     // Reviews and ratings
-    rating: { type: Number, default: 0 },
+    rating: { type: Number, default: 5 },
     reviewCount: { type: Number, default: 0 },
 
     // Analytics (Aggregated)
