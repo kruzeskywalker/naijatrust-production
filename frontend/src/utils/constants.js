@@ -26,5 +26,6 @@ export const BUSINESS_CATEGORIES = [
     'Real Estate',
     'Telecom',
     'Travel & Hotels',
+    'NGO',
     'Other'
 ];

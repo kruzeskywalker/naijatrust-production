@@ -1,5 +1,6 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getApiBaseUrl } from '../utils/urlUtils';
 import { SEO } from '../App';
 import {
     Globe, Zap, ShieldCheck, ShoppingBag, Truck, CreditCard,
@@ -12,6 +13,9 @@ import './Categories.css';
 import { BUSINESS_CATEGORIES } from '../utils/constants';
 
 const Categories = () => {
+    // Map categories to icons/colors
+    const [categoryCounts, setCategoryCounts] = useState({});
+
     // Map categories to icons/colors
     const getCategoryData = (name) => {
         const mapping = {
@@ -39,6 +43,7 @@ const Categories = () => {
             'Manufacturing': { icon: <Factory size={32} />, color: '#4a5568' }, // Gray
             'Marketing & Advertising': { icon: <Megaphone size={32} />, color: '#dd6b20' }, // Orange
             'Media': { icon: <Camera size={32} />, color: '#a0aec0' }, // Gray
+            'NGO': { icon: <Globe size={32} />, color: '#38b2ac' }, // Teal
             'Real Estate': { icon: <Home size={32} />, color: '#2d3748' }, // Dark
             'Telecom': { icon: <Smartphone size={32} />, color: '#805ad5' }, // Purple
             'Travel & Hotels': { icon: <Plane size={32} />, color: '#9f7aea' }, // Purple
@@ -47,10 +52,27 @@ const Categories = () => {
         return mapping[name] || mapping['Other'];
     };
 
+    useEffect(() => {
+        const fetchCategoryCounts = async () => {
+            try {
+                const API_URL = getApiBaseUrl(import.meta.env.VITE_API_URL);
+                const response = await fetch(`${API_URL}/businesses/stats/categories`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    setCategoryCounts(data.data.categoryCounts);
+                }
+            } catch (error) {
+                console.error('Error fetching category counts:', error);
+            }
+        };
+
+        fetchCategoryCounts();
+    }, []);
+
     const categories = BUSINESS_CATEGORIES.map(name => ({
         name,
         ...getCategoryData(name),
-        count: Math.floor(Math.random() * 200) + 20 // Mock count for now
+        count: categoryCounts[name] || 0
     }));
 
     const trendingBusinesses = [...businesses].sort((a, b) => b.reviews - a.reviews).slice(0, 8);

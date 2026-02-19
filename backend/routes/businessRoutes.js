@@ -35,6 +35,58 @@ const optionalAuth = async (req, res, next) => {
     }
 };
 
+// GET /api/businesses/stats/categories - Get count of businesses per category
+router.get('/stats/categories', async (req, res) => {
+    try {
+        // Aggregate businesses by category
+        // We need to handle both the legacy 'category' field and the new 'categories' array
+        const stats = await Business.aggregate([
+            {
+                $facet: {
+                    // Count from legacy field
+                    legacyParamConfig: [
+                        { $match: { status: 'approved', category: { $exists: true, $ne: null } } },
+                        { $group: { _id: "$category", count: { $sum: 1 } } }
+                    ],
+                    // Count from new array field (unwind first)
+                    arrayParamConfig: [
+                        { $match: { status: 'approved', categories: { $exists: true, $ne: [] } } },
+                        { $unwind: "$categories" },
+                        { $group: { _id: "$categories", count: { $sum: 1 } } }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    allStats: { $concatArrays: ["$legacyParamConfig", "$arrayParamConfig"] }
+                }
+            },
+            { $unwind: "$allStats" },
+            {
+                $group: {
+                    _id: "$allStats._id",
+                    count: { $sum: "$allStats.count" }
+                }
+            }
+        ]);
+
+        // Convert to a map for easier lookup { "Category Name": count }
+        const categoryCounts = {};
+        stats.forEach(item => {
+            if (item._id) {
+                categoryCounts[item._id] = item.count;
+            }
+        });
+
+        res.status(200).json({
+            status: 'success',
+            data: { categoryCounts }
+        });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
 // Get all businesses (with search, category filters, and pagination)
 router.get('/', async (req, res) => {
     try {
