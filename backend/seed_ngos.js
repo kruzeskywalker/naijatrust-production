@@ -10,6 +10,7 @@ const ngos = [
         name: 'Sydani Group',
         category: 'NGO',
         categories: ['NGO', 'Consulting'],
+        status: 'approved',
         rating: 4.8,
         reviewCount: 45,
         location: 'Abuja, Nigeria',
@@ -76,6 +77,7 @@ const ngos = [
         name: 'SERAP',
         category: 'NGO',
         categories: ['NGO', 'Legal Services'],
+        status: 'approved',
         rating: 4.4,
         reviewCount: 150,
         location: 'Lagos, Nigeria',
@@ -105,6 +107,9 @@ const seedNGOs = async () => {
                 console.log(`- Skipped: ${ngo.name} (already exists)`);
                 skippedCount++;
             } else {
+                // Ensure status is approved
+                if (!ngo.status) ngo.status = 'approved';
+
                 await Business.create(ngo);
                 console.log(`+ Added: ${ngo.name}`);
                 addedCount++;

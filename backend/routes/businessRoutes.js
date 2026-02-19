@@ -40,32 +40,32 @@ router.get('/stats/categories', async (req, res) => {
     try {
         // Aggregate businesses by category
         // We need to handle both the legacy 'category' field and the new 'categories' array
+        // Logic: specific categories array takes precedence, fallback to category string wrapped in array
         const stats = await Business.aggregate([
-            {
-                $facet: {
-                    // Count from legacy field
-                    legacyParamConfig: [
-                        { $match: { status: 'approved', category: { $exists: true, $ne: null } } },
-                        { $group: { _id: "$category", count: { $sum: 1 } } }
-                    ],
-                    // Count from new array field (unwind first)
-                    arrayParamConfig: [
-                        { $match: { status: 'approved', categories: { $exists: true, $ne: [] } } },
-                        { $unwind: "$categories" },
-                        { $group: { _id: "$categories", count: { $sum: 1 } } }
-                    ]
-                }
-            },
+            { $match: { status: 'approved' } },
             {
                 $project: {
-                    allStats: { $concatArrays: ["$legacyParamConfig", "$arrayParamConfig"] }
+                    // Use categories if exists and not empty, otherwise wrap category in array
+                    allCategories: {
+                        $cond: {
+                            if: {
+                                $and: [
+                                    { $isArray: "$categories" },
+                                    { $gt: [{ $size: "$categories" }, 0] }
+                                ]
+                            },
+                            then: "$categories",
+                            else: ["$category"]
+                        }
+                    }
                 }
             },
-            { $unwind: "$allStats" },
+            { $unwind: "$allCategories" },
+            { $match: { allCategories: { $exists: true, $ne: null } } }, // Filter out nulls
             {
                 $group: {
-                    _id: "$allStats._id",
-                    count: { $sum: "$allStats.count" }
+                    _id: "$allCategories",
+                    count: { $sum: 1 }
                 }
             }
         ]);
