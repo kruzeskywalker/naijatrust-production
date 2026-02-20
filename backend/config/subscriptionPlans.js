@@ -78,8 +78,8 @@ module.exports = {
         },
         paystackPlanCode: {
             NGN: {
-                monthly: 'PLN_x08kh6vpfahlf0b',
-                annual: 'PLN_VERIFIED_ANNUAL_NGN' // TODO: Update if annual code provided
+                monthly: 'PLN_rrtvrpb3ht84h4g',
+                annual: 'PLN_1de7t72n5xk4arl'
             }
         }
     },
@@ -124,8 +124,8 @@ module.exports = {
         },
         paystackPlanCode: {
             NGN: {
-                monthly: 'PLN_ldc1tafmetd132f',
-                annual: 'PLN_PREMIUM_ANNUAL_NGN' // TODO: Update if annual code provided
+                monthly: 'PLN_p6l3zhfd3kymrbj',
+                annual: 'PLN_n91zqdbajgxtw6f'
             }
         }
     },
