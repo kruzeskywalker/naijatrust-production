@@ -228,6 +228,7 @@ router.put('/claim-requests/:id/approve', verifyAdminToken, async (req, res) => 
         business.isClaimed = true;
         business.owner = claim.user._id;
         business.claimedAt = new Date();
+        business.status = 'approved'; // Make the business publicly visible
 
         // Verification status is now strictly tied to the subscription tier
         // Basic tier (default) is NOT verified. Only higher tiers are.
