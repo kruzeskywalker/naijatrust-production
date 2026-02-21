@@ -202,15 +202,14 @@ const ClaimBusiness = () => {
                         {!success && (
                             <form onSubmit={handleClaimSubmit}>
                                 <div className="form-group">
-                                    <label>Official Business Email</label>
+                                    <label>Official Business Email (Optional)</label>
                                     <input
                                         type="email"
-                                        required
                                         className="form-control"
                                         value={claimForm.businessEmail}
                                         onChange={e => setClaimForm({ ...claimForm, businessEmail: e.target.value })}
                                     />
-                                    <small className="text-gray-500 text-xs">We'll send verification details here.</small>
+                                    <small className="text-gray-500 text-xs">We'll send verification details here if provided.</small>
                                 </div>
 
                                 <div className="form-group">

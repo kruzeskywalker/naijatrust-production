@@ -141,7 +141,7 @@ const BusinessSignup = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Business Email</label>
+                            <label>Business Email (Optional)</label>
                             <div className="input-wrapper">
                                 <Mail size={18} />
                                 <input
@@ -150,10 +150,9 @@ const BusinessSignup = () => {
                                     placeholder="john@company.com"
                                     value={formData.businessEmail}
                                     onChange={handleChange}
-                                    required
                                 />
                             </div>
-                            <small className="hint">We use this to verify your affiliation with the business.</small>
+                            <small className="hint">We use this to verify your affiliation with the business if provided.</small>
                         </div>
 
                         <div className="form-row">

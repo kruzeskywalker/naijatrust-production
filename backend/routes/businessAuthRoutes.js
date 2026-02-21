@@ -26,15 +26,15 @@ router.post('/signup', async (req, res) => {
         const { name, email, password, businessEmail, phone, position, companyName } = req.body;
 
         // Validate required fields
-        if (!name || !email || !password || !businessEmail || !phone || !position) {
+        if (!name || !email || !password || !phone || !position) {
             return res.status(400).json({
                 status: 'fail',
                 message: 'Please provide all required fields'
             });
         }
 
-        // Validate business email
-        if (!isBusinessEmail(businessEmail)) {
+        // Validate business email if provided
+        if (businessEmail && !isBusinessEmail(businessEmail)) {
             return res.status(400).json({
                 status: 'fail',
                 message: 'Please use a business email address (not Gmail, Yahoo, etc.)'
@@ -58,7 +58,7 @@ router.post('/signup', async (req, res) => {
             name,
             email: email.toLowerCase(),
             password,
-            businessEmail: businessEmail.toLowerCase(),
+            businessEmail: businessEmail ? businessEmail.toLowerCase() : '',
             phone,
             position,
             companyName,

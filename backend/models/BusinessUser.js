@@ -15,7 +15,7 @@ const businessUserSchema = new mongoose.Schema({
     emailVerificationExpires: { type: Date },
 
     // Business information
-    businessEmail: { type: String, required: true },
+    businessEmail: { type: String },
     phone: { type: String, required: true },
     position: { type: String, required: true }, // Owner, Manager, etc.
     companyName: { type: String },
