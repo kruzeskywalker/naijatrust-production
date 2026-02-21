@@ -262,7 +262,7 @@ router.post('/upload-logo/:businessId', verifyBusinessToken, verifyVerifiedBusin
             return res.status(404).json({ status: 'fail', message: 'Business not found or access denied' });
         }
 
-        business.logo = `/uploads/${req.file.filename}`;
+        business.logo = req.file.path;
         await business.save();
 
         res.status(200).json({

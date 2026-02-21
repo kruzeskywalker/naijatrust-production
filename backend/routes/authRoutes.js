@@ -394,7 +394,7 @@ router.post('/upload-avatar', verifyToken, upload.single('avatar'), async (req, 
         // For simplicity and robustness, returning relative path.
         // Ensure to remove old file if needed (optional optimization).
 
-        user.avatar = `/uploads/${req.file.filename}`;
+        user.avatar = req.file.path;
         await user.save({ validateBeforeSave: false });
 
         res.status(200).json({
