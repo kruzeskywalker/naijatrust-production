@@ -13,7 +13,7 @@ const claimRequestSchema = new mongoose.Schema({
     },
 
     // Claim details
-    businessEmail: { type: String, required: true },
+    businessEmail: { type: String },
     phone: { type: String, required: true },
     position: { type: String, required: true },
 

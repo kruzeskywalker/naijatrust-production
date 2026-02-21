@@ -180,18 +180,17 @@ const RegisterBusiness = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="email">Public Business Email *</label>
+                        <label htmlFor="email">Public Business Email (Optional)</label>
                         <input
                             type="email"
                             id="email"
                             name="email"
-                            required
                             className="form-control"
                             placeholder="contact@company.com"
                             value={formData.email}
                             onChange={handleChange}
                         />
-                        <small className="helper-text">This email will be displayed on your public profile.</small>
+                        <small className="helper-text">This email will be displayed on your public profile if provided.</small>
                     </div>
 
                     <button type="submit" className="submit-btn" disabled={submitting}>
