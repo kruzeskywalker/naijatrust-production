@@ -8,6 +8,14 @@ const { sendEmail, sendPasswordResetEmail } = require('../utils/emailService');
 
 const { verifyBusinessToken } = require('../middleware/businessAuth');
 
+// Auth-specific rate limiter
+const rateLimit = require('express-rate-limit');
+const authLimiter = rateLimit({
+    max: 10, // 10 requests per hour
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many login/signup attempts, please try again in an hour!'
+});
+
 // Helper function to validate business email
 const isBusinessEmail = (email) => {
     const freeEmailDomains = [
@@ -20,7 +28,7 @@ const isBusinessEmail = (email) => {
 };
 
 // POST /api/business-auth/signup
-router.post('/signup', async (req, res) => {
+router.post('/signup', authLimiter, async (req, res) => {
     console.log('--- SIGNUP REQUEST RECEIVED ---');
     try {
         const { name, email, password, businessEmail, phone, position, companyName } = req.body;
@@ -94,7 +102,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // POST /api/business-auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -165,7 +173,7 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/business-auth/verify-otp
-router.post('/verify-otp', async (req, res) => {
+router.post('/verify-otp', authLimiter, async (req, res) => {
     try {
         const { email, otp } = req.body;
 
@@ -219,7 +227,7 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 // POST /api/business-auth/resend-otp
-router.post('/resend-otp', async (req, res) => {
+router.post('/resend-otp', authLimiter, async (req, res) => {
     try {
         const { email } = req.body;
 
@@ -413,7 +421,7 @@ router.put('/change-password', verifyBusinessToken, async (req, res) => {
 });
 
 // POST /api/business-auth/forgot-password
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', authLimiter, async (req, res) => {
     try {
         const { email } = req.body;
         const user = await BusinessUser.findOne({ email: email.toLowerCase() });
@@ -448,7 +456,7 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 // POST /api/business-auth/reset-password/:token
-router.patch('/reset-password/:token', async (req, res) => {
+router.patch('/reset-password/:token', authLimiter, async (req, res) => {
     try {
         const hashedToken = crypto
             .createHash('sha256')
