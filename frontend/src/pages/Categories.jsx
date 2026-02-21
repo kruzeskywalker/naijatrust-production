@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getApiBaseUrl } from '../utils/urlUtils';
+import { getApiBaseUrl, getImageUrl } from '../utils/urlUtils';
 import { SEO } from '../App';
 import {
     Globe, Zap, ShieldCheck, ShoppingBag, Truck, CreditCard,
@@ -8,13 +8,14 @@ import {
     HeartPulse, GraduationCap, Plane, Camera, Monitor, Settings, Star,
     Sparkles, Shirt, Dumbbell, Factory, Megaphone
 } from 'lucide-react';
-import { businesses } from '../mockData';
 import './Categories.css';
 import { BUSINESS_CATEGORIES } from '../utils/constants';
 
 const Categories = () => {
     // Map categories to icons/colors
     const [categoryCounts, setCategoryCounts] = useState({});
+    const [trendingBusinesses, setTrendingBusinesses] = useState([]);
+    const [isLoadingTrending, setIsLoadingTrending] = useState(true);
 
     // Map categories to icons/colors
     const getCategoryData = (name) => {
@@ -66,7 +67,29 @@ const Categories = () => {
             }
         };
 
+        const fetchTrendingBusinesses = async () => {
+            setIsLoadingTrending(true);
+            try {
+                const API_URL = getApiBaseUrl(import.meta.env.VITE_API_URL);
+                // Fetch top 8 businesses to show as most reviewed
+                const response = await fetch(`${API_URL}/businesses?limit=8`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Assuming the backend doesn't explicitly sort by reviewCount yet for this endpoint
+                    // Let's sort them purely by review count descending
+                    const sortedBiz = data.data.businesses.sort((a, b) => (b.reviewCount || 0) - (a.reviewCount || 0));
+                    setTrendingBusinesses(sortedBiz);
+                }
+            } catch (error) {
+                console.error('Error fetching trending businesses:', error);
+            } finally {
+                setIsLoadingTrending(false);
+            }
+        };
+
         fetchCategoryCounts();
+        fetchTrendingBusinesses();
     }, []);
 
     const categories = BUSINESS_CATEGORIES.map(name => ({
@@ -74,8 +97,6 @@ const Categories = () => {
         ...getCategoryData(name),
         count: categoryCounts[name] || 0
     }));
-
-    const trendingBusinesses = [...businesses].sort((a, b) => b.reviews - a.reviews).slice(0, 8);
 
     return (
         <div className="categories-page container">
@@ -107,22 +128,39 @@ const Categories = () => {
 
             <section className="top-businesses-preview">
                 <h2>Most Reviewed Today</h2>
-                <div className="biz-mini-list">
-                    {trendingBusinesses.map((biz) => (
-                        <Link to={`/business/${biz.id}`} key={biz.id} className="biz-mini-card">
-                            <div className="biz-mini-logo" style={{ color: 'white', background: 'var(--primary-color)' }}>{biz.name[0]}</div>
-                            <div className="biz-mini-details">
-                                <h4>{biz.name}</h4>
-                                <div className="biz-mini-stars">
-                                    {[...Array(5)].map((_, j) => (
-                                        <Star key={j} size={14} fill={j < Math.floor(biz.rating) ? "var(--star-gold)" : "none"} color="var(--star-gold)" />
-                                    ))}
-                                    <span style={{ fontSize: '0.8rem', marginLeft: '4px', color: 'var(--text-dark)' }}>{biz.rating}</span>
+                {isLoadingTrending ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-light)' }}>
+                        <p>Loading trending businesses...</p>
+                    </div>
+                ) : trendingBusinesses.length > 0 ? (
+                    <div className="biz-mini-list">
+                        {trendingBusinesses.map((biz) => (
+                            <Link to={`/business/${biz._id}`} key={biz._id} className="biz-mini-card">
+                                {biz.logo ? (
+                                    <div className="biz-mini-logo" style={{ backgroundImage: `url(${getImageUrl(biz.logo)})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+                                ) : (
+                                    <div className="biz-mini-logo" style={{ color: 'white', background: 'var(--primary-color)' }}>{biz.name[0]}</div>
+                                )}
+                                <div className="biz-mini-details">
+                                    <h4>{biz.name}</h4>
+                                    <div className="biz-mini-stars">
+                                        {[...Array(5)].map((_, j) => (
+                                            <Star key={j} size={14} fill={j < Math.floor(biz.rating || 0) ? "var(--star-gold)" : "none"} color="var(--star-gold)" />
+                                        ))}
+                                        <span style={{ fontSize: '0.8rem', marginLeft: '4px', color: 'var(--text-dark)' }}>{biz.rating || 0}</span>
+                                    </div>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '4px', display: 'block' }}>
+                                        {biz.reviewCount || 0} reviews
+                                    </span>
                                 </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                            </Link>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-light)' }}>
+                        <p>No businesses found yet.</p>
+                    </div>
+                )}
             </section>
         </div>
     );
