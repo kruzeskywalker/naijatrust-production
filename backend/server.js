@@ -60,16 +60,17 @@ if (process.env.NODE_ENV !== 'test') {
     app.use('/api', limiter);
 }
 
-// const mongoSanitize = require('express-mongo-sanitize');
-// if (process.env.NODE_ENV !== 'test') {
-//    app.use(mongoSanitize());
-// }
+// Data sanitization against NoSQL query injection
+const mongoSanitize = require('express-mongo-sanitize');
+if (process.env.NODE_ENV !== 'test') {
+    app.use(mongoSanitize());
+}
 
 // Data sanitization against XSS
 const xss = require('xss-clean');
-// if (process.env.NODE_ENV !== 'test') {
-//    app.use(xss());
-// }
+if (process.env.NODE_ENV !== 'test') {
+    app.use(xss());
+}
 app.use(cookieParser());
 
 // Session configuration
