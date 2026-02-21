@@ -74,7 +74,7 @@ router.post('/initialize', verifyBusinessToken, async (req, res) => {
         console.error('Error Stack:', error.stack);
         res.status(500).json({
             success: false,
-            message: 'Failed to initialize payment',
+            message: error.message || 'Failed to initialize payment',
             error: error.message
         });
     }
