@@ -54,7 +54,12 @@ const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
     max: 10000,
     windowMs: 60 * 60 * 1000,
-    message: 'Too many requests from this IP, please try again in an hour!'
+    message: 'Too many requests from this IP, please try again in an hour!',
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        return req.headers['x-forwarded-for'] || req.ip;
+    }
 });
 if (process.env.NODE_ENV !== 'test') {
     app.use('/api', limiter);
