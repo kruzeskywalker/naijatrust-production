@@ -39,12 +39,7 @@ const rateLimit = require('express-rate-limit');
 const authLimiter = rateLimit({
     max: 10, // 10 requests per hour
     windowMs: 60 * 60 * 1000,
-    message: 'Too many login/signup attempts, please try again in an hour!',
-    standardHeaders: true,
-    legacyHeaders: false,
-    keyGenerator: (req) => {
-        return req.headers['x-forwarded-for'] || req.ip;
-    }
+    message: { status: 'fail', message: 'Too many login/signup attempts, please try again in an hour!' }
 });
 
 // Signup route

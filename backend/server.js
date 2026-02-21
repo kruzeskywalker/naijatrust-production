@@ -12,8 +12,8 @@ const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
-// Trust the first proxy (Render Load Balancer)
-app.set('trust proxy', 1);
+// Trust all proxies (Render Load Balancer + Cloudflare etc)
+app.set('trust proxy', true);
 
 // Compression middleware - reduces response size by 60-80%
 const compression = require('compression');
@@ -54,28 +54,23 @@ const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
     max: 10000,
     windowMs: 60 * 60 * 1000,
-    message: 'Too many requests from this IP, please try again in an hour!',
-    standardHeaders: true,
-    legacyHeaders: false,
-    keyGenerator: (req) => {
-        return req.headers['x-forwarded-for'] || req.ip;
-    }
+    message: { status: 'fail', message: 'Too many requests from this IP, please try again in an hour!' }
 });
 if (process.env.NODE_ENV !== 'test') {
     app.use('/api', limiter);
 }
 
 // Data sanitization against NoSQL query injection
-const mongoSanitize = require('express-mongo-sanitize');
-if (process.env.NODE_ENV !== 'test') {
-    app.use(mongoSanitize());
-}
+// const mongoSanitize = require('express-mongo-sanitize');
+// if (process.env.NODE_ENV !== 'test') {
+//    app.use(mongoSanitize());
+// }
 
 // Data sanitization against XSS
-const xss = require('xss-clean');
-if (process.env.NODE_ENV !== 'test') {
-    app.use(xss());
-}
+// const xss = require('xss-clean');
+// if (process.env.NODE_ENV !== 'test') {
+//    app.use(xss());
+// }
 app.use(cookieParser());
 
 // Session configuration
