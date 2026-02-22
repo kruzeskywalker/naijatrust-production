@@ -35,6 +35,9 @@ const BusinessLogin = () => {
             if (data.status === 'success') {
                 login(data.data.user, data.data.token);
                 navigate('/business/dashboard');
+            } else if (data.data && data.data.requiresOtp) {
+                // Intercept unverified users and send them to OTP verification
+                navigate(`/verify-otp?email=${encodeURIComponent(data.data.email)}&type=business`);
             } else {
                 setError(data.message || 'Login failed');
             }

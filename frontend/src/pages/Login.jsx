@@ -26,6 +26,9 @@ const Login = () => {
 
         if (result.success) {
             navigate('/dashboard');
+        } else if (result.requiresOtp) {
+            // Intercept unverified users and send them to OTP verification
+            navigate(`/verify-otp?email=${encodeURIComponent(result.email)}&type=user`);
         } else {
             setError(result.message);
         }

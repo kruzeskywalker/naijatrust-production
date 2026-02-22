@@ -90,6 +90,9 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('naijaTrustToken', authToken);
                 return { success: true };
             } else {
+                if (data.data?.requiresOtp) {
+                    return { success: false, requiresOtp: true, email: data.data.email, message: data.message };
+                }
                 return { success: false, message: data.message };
             }
         } catch (error) {

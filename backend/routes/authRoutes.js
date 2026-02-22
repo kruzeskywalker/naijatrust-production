@@ -103,6 +103,32 @@ router.post('/login', authLimiter, async (req, res) => {
             return res.status(401).json({ message: 'Incorrect email or password' });
         }
 
+        // Check if email is verified
+        if (!user.isVerified) {
+            // Generate a fresh OTP for them
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            user.otp = otp;
+            user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+            await user.save();
+
+            // Fire off the OTP email
+            try {
+                const { sendOtpEmail } = require('../utils/emailService');
+                await sendOtpEmail(user.email, user.name, otp);
+            } catch (emailError) {
+                console.error('Login OTP email sending failed:', emailError);
+            }
+
+            return res.status(403).json({
+                status: 'fail',
+                message: 'Please verify your email address before logging in.',
+                data: {
+                    email: user.email,
+                    requiresOtp: true
+                }
+            });
+        }
+
         if (user.isBlocked) {
             return res.status(403).json({ message: 'Your account has been blocked. Please contact support.' });
         }
