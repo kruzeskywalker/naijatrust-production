@@ -77,12 +77,12 @@ router.post('/signup', authLimiter, async (req, res) => {
 
         await businessUser.save();
 
-        // Send OTP email asynchronously in the background so the user doesn't wait
+        // Send OTP email
         try {
             const { sendOtpEmail } = require('../utils/emailService');
-            sendOtpEmail(email, name, otp).catch(err => console.error('Background Email Error:', err));
+            await sendOtpEmail(email, name, otp);
         } catch (emailError) {
-            console.error('Email module import failed:', emailError);
+            console.error('Email sending failed:', emailError);
         }
 
         // Return success without token (requires verification)
