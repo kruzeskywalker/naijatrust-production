@@ -721,6 +721,29 @@ router.put('/users/:id/block', verifyAdminToken, async (req, res) => {
     }
 });
 
+// DELETE /api/admin/users/:id - Permanently delete a regular user
+router.delete('/users/:id', verifyAdminToken, async (req, res) => {
+    try {
+        const User = require('../models/User');
+        const user = await User.findByIdAndDelete(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+
+        await req.admin.logAction(
+            'delete_user',
+            'user',
+            user._id,
+            `Deleted user ${user.email}`
+        );
+
+        res.status(200).json({ status: 'success', message: 'User permanently deleted' });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
 // GET /api/admin/business-owners - List all business owners with their claimed businesses
 router.get('/business-owners', verifyAdminToken, async (req, res) => {
     try {
@@ -795,6 +818,28 @@ router.put('/business-owners/:id/suspend', verifyAdminToken, async (req, res) =>
             status: 'success',
             message: `Business owner ${isSuspended ? 'suspended' : 'unsuspended'} successfully`
         });
+    } catch (error) {
+        res.status(500).json({ status: 'fail', message: error.message });
+    }
+});
+
+// DELETE /api/admin/business-owners/:id - Permanently delete a business owner
+router.delete('/business-owners/:id', verifyAdminToken, async (req, res) => {
+    try {
+        const user = await BusinessUser.findByIdAndDelete(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'Business owner not found' });
+        }
+
+        await req.admin.logAction(
+            'delete_business_owner',
+            'business_user',
+            user._id,
+            `Deleted business owner ${user.email}`
+        );
+
+        res.status(200).json({ status: 'success', message: 'Business owner permanently deleted' });
     } catch (error) {
         res.status(500).json({ status: 'fail', message: error.message });
     }

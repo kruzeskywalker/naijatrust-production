@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { Link } from 'react-router-dom';
-import { Search, Loader2, Ban, CheckCircle, AlertTriangle, UserX, Calendar, ArrowLeft, Building2, ChevronDown, ChevronUp, Mail, Phone, Briefcase } from 'lucide-react';
+import { Search, Loader2, Ban, CheckCircle, AlertTriangle, UserX, Calendar, ArrowLeft, Building2, ChevronDown, ChevronUp, Briefcase, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import './ManageUsers.css';
 
@@ -67,6 +67,33 @@ const ManageBusinessOwners = () => {
         } catch (error) {
             console.error('Error toggling suspend status:', error);
             toast.error('Failed to update owner status');
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const deleteOwner = async (ownerId) => {
+        if (!window.confirm('Are you ABSOLUTELY sure you want to permanently delete this business owner? This action cannot be undone and will unclaim all of their businesses.')) return;
+
+        setProcessingId(`del-${ownerId}`);
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/business-owners/${ownerId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                toast.success(data.message);
+                setOwners(owners.filter(o => o._id !== ownerId));
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Error deleting business owner:', error);
+            toast.error('Failed to delete owner');
         } finally {
             setProcessingId(null);
         }
@@ -240,6 +267,19 @@ const ManageBusinessOwners = () => {
                                                         <><CheckCircle size={16} /> Unsuspend</>
                                                     ) : (
                                                         <><Ban size={16} /> Suspend</>
+                                                    )}
+                                                </button>
+                                                <button
+                                                    className="action-btn block-btn"
+                                                    style={{ background: '#fff5f5', color: '#c53030', border: '1px solid #feb2b2', marginLeft: '8px' }}
+                                                    onClick={() => deleteOwner(owner._id)}
+                                                    disabled={processingId === `del-${owner._id}`}
+                                                    title="Permanently Delete Owner"
+                                                >
+                                                    {processingId === `del-${owner._id}` ? (
+                                                        <Loader2 className="animate-spin" size={16} />
+                                                    ) : (
+                                                        <><Trash2 size={16} /> Delete</>
                                                     )}
                                                 </button>
                                             </td>

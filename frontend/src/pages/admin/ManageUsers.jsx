@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { Link } from 'react-router-dom';
-import { Search, Loader2, Ban, CheckCircle, AlertTriangle, UserX, Calendar, ArrowLeft } from 'lucide-react';
+import { Search, Loader2, Ban, CheckCircle, AlertTriangle, UserX, Calendar, ArrowLeft, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getImageUrl } from '../../utils/urlUtils';
 import './ManageUsers.css';
@@ -69,6 +69,33 @@ const ManageUsers = () => {
         } catch (error) {
             console.error('Error toggling block status:', error);
             toast.error('Failed to update user status');
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    const deleteUser = async (userId) => {
+        if (!window.confirm('Are you ABSOLUTELY sure you want to permanently delete this user? This action cannot be undone.')) return;
+
+        setProcessingId(`del-${userId}`);
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                toast.success(data.message);
+                setUsers(users.filter(u => u._id !== userId));
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            toast.error('Failed to delete user');
         } finally {
             setProcessingId(null);
         }
@@ -198,6 +225,19 @@ const ManageUsers = () => {
                                                 <>
                                                     <Ban size={16} /> Block User
                                                 </>
+                                            )}
+                                        </button>
+                                        <button
+                                            className="action-btn block-btn"
+                                            style={{ background: '#fff5f5', color: '#c53030', border: '1px solid #feb2b2', marginLeft: '8px' }}
+                                            onClick={() => deleteUser(user._id)}
+                                            disabled={processingId === `del-${user._id}`}
+                                            title="Permanently Delete User"
+                                        >
+                                            {processingId === `del-${user._id}` ? (
+                                                <Loader2 className="animate-spin" size={16} />
+                                            ) : (
+                                                <><Trash2 size={16} /> Delete</>
                                             )}
                                         </button>
                                     </td>
