@@ -5,9 +5,8 @@ const resendApiKey = process.env.RESEND_API_KEY || 're_H3YqVyos_49EKxVkvugajv2nM
 const resend = new Resend(resendApiKey);
 
 // Identify the sender address. Resend requires verified domains in production. 
-// For onboarding without a domain, you MUST use 'onboarding@resend.dev'.
 const getFromAddress = () => {
-    return process.env.EMAIL_FROM || 'NaijaTrust <onboarding@resend.dev>';
+    return process.env.EMAIL_FROM || 'NaijaTrust <support@naijatrust.ng>';
 };
 
 // Generic send email function
