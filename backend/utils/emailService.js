@@ -1,25 +1,31 @@
 const nodemailer = require('nodemailer');
 
-// Create reusable transporter
-const createTransporter = () => {
+// Global reusable transporter singleton to prevent connection pool exhaustion
+let transporterInstance = null;
+
+const getTransporter = () => {
+    if (transporterInstance) return transporterInstance;
+
     // Check if we have email configuration
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
         console.warn('Email credentials not configured. Emails will be logged to console.');
         return null;
     }
 
-    return nodemailer.createTransport({
+    transporterInstance = nodemailer.createTransport({
         service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD // App Password for Gmail
         }
     });
+
+    return transporterInstance;
 };
 
 // Generic send email function
 const sendEmail = async ({ to, subject, html, text }) => {
-    const transporter = createTransporter();
+    const transporter = getTransporter();
 
     const mailOptions = {
         from: `"NaijaTrust" <${process.env.EMAIL_USER || 'noreply@naijatrust.com'}>`,
