@@ -276,6 +276,27 @@ const emailTemplates = {
             </body>
             </html>
         `
+    }),
+    businessRegistrationSuccess: (userName, businessName) => ({
+        subject: `Welcome to NaijaTrust - Next Steps for ${businessName}`,
+        html: `
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #00A86B;">Welcome to NaijaTrust!</h2>
+                    <p>Hi ${userName},</p>
+                    <p>Congratulations on successfully registering <strong>${businessName}</strong> on NaijaTrust! 🎉</p>
+                    <p>You've taken a great step toward building trust with thousands of Nigerians. Your business profile has been created, but it is currently <strong>pending approval</strong>.</p>
+                    <p><strong>To get your business verified quickly, please complete this final step:</strong></p>
+                    <p>Reply to this email, or send an email directly to <a href="mailto:support@naijatrust.ng" style="color: #00A86B; text-decoration: none;"><strong>support@naijatrust.ng</strong></a> with your official business registration document (e.g., CAC Certificate) attached.</p>
+                    <p>Our admin team will review your document within 2-3 business days. Once approved, your business will go live and you can start collecting reviews!</p>
+                    <p>We are excited to have you on board!</p>
+                    <p>Best regards,<br>The NaijaTrust Team</p>
+                </div>
+            </body>
+            </html>
+        `
     })
 };
 

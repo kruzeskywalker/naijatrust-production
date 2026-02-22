@@ -236,6 +236,14 @@ router.post('/register', verifyBusinessToken, verifyVerifiedBusinessUser, async 
 
         // Note: We don't verify automatically. Admins must review the documents.
 
+        // Send a congratulatory email with instructions for verification
+        const emailContent = emailTemplates.businessRegistrationSuccess(user.name, newBusiness.name);
+        await sendEmail({
+            to: user.email, // Send to their primary login email
+            subject: emailContent.subject,
+            html: emailContent.html
+        });
+
         res.status(201).json({
             status: 'success',
             message: 'Business registered successfully. Documents submitted for review.',
