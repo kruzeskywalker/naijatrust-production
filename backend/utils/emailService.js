@@ -1,56 +1,20 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// Global reusable transporter singleton to prevent connection pool exhaustion
-let transporterInstance = null;
+// Initialize Resend with the API key from environment variables
+const resendApiKey = process.env.RESEND_API_KEY || 're_H3YqVyos_49EKxVkvugajv2nM1fXvqMM6';
+const resend = new Resend(resendApiKey);
 
-const getTransporter = () => {
-    if (transporterInstance) return transporterInstance;
-
-    // Check if we have email configuration
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-        console.warn('Email credentials not configured. Emails will be logged to console.');
-        return null;
-    }
-
-    transporterInstance = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // true for 465, false for other ports (uses STARTTLS)
-        requireTLS: true,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
-        },
-        connectionTimeout: 10000, // Fail fast if network is blocked
-        greetingTimeout: 10000,
-        socketTimeout: 15000,
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
-    return transporterInstance;
+// Identify the sender address. Resend requires verified domains in production. 
+// For onboarding without a domain, you MUST use 'onboarding@resend.dev'.
+const getFromAddress = () => {
+    return process.env.EMAIL_FROM || 'NaijaTrust <onboarding@resend.dev>';
 };
 
 // Generic send email function
 const sendEmail = async ({ to, subject, html, text }) => {
-    const transporter = getTransporter();
-
-    const mailOptions = {
-        from: `"NaijaTrust" <${process.env.EMAIL_USER || 'noreply@naijatrust.com'}>`,
-        to,
-        subject,
-        html,
-        text: text || html.replace(/<[^>]*>/g, '')
-    };
-
     try {
-        if (transporter) {
-            const info = await transporter.sendMail(mailOptions);
-            console.log(`✅ Email sent to ${to}:`, info.messageId);
-            return { success: true, messageId: info.messageId };
-        } else {
-            // Development mode - log the email
+        if (!resendApiKey) {
+            console.warn('⚠️ No RESEND_API_KEY configured. Falling back to console log.');
             console.log('\n📧 ===== EMAIL (DEV MODE) =====');
             console.log(`To: ${to}`);
             console.log(`Subject: ${subject}`);
@@ -58,12 +22,24 @@ const sendEmail = async ({ to, subject, html, text }) => {
             console.log('==============================\n');
             return { success: true, devMode: true };
         }
-    } catch (error) {
-        console.error('❌ Error sending email:', error);
-        // In dev mode, don't fail
-        if (!transporter) {
-            return { success: false, devMode: true, error: error.message };
+
+        const response = await resend.emails.send({
+            from: getFromAddress(),
+            to: Array.isArray(to) ? to : [to],
+            subject,
+            html,
+            text: text || html.replace(/<[^>]*>/g, '')
+        });
+
+        if (response.error) {
+            console.error('❌ Resend API Error:', response.error);
+            return { success: false, error: response.error.message };
         }
+
+        console.log(`✅ Email sent to ${to}:`, response.data?.id);
+        return { success: true, messageId: response.data?.id };
+    } catch (error) {
+        console.error('❌ Exception sending email via Resend:', error.message);
         throw error;
     }
 };
