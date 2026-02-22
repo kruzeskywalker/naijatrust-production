@@ -1,8 +1,11 @@
 const { Resend } = require('resend');
 
 // Initialize Resend with the API key from environment variables
-const resendApiKey = process.env.RESEND_API_KEY || 're_H3YqVyos_49EKxVkvugajv2nM1fXvqMM6';
-const resend = new Resend(resendApiKey);
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) {
+    console.warn('⚠️ No RESEND_API_KEY initially found in environment variables. Email sending may fail if not provided in production setup.');
+}
+const resend = new Resend(resendApiKey || 'dummy_key_to_prevent_crash');
 
 // Identify the sender address. Resend requires verified domains in production. 
 const getFromAddress = () => {
