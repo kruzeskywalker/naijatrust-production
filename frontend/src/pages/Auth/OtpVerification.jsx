@@ -114,7 +114,16 @@ const OtpVerification = () => {
 
                 setTimeout(() => {
                     if (userType === 'business') {
-                        window.location.href = '/business/dashboard';
+                        // Check if the user has any claimed businesses returning from the backend auth payload
+                        const hasClaimedBusinesses = data.data && data.data.user && data.data.user.claimedBusinesses && data.data.user.claimedBusinesses.length > 0;
+
+                        if (!hasClaimedBusinesses) {
+                            // First time verified user: immediately prompt them to set up their business profile
+                            window.location.href = '/business/register';
+                        } else {
+                            // Returning user who just verified a new device / recovered account
+                            window.location.href = '/business/dashboard';
+                        }
                     } else {
                         window.location.href = '/dashboard';
                     }

@@ -13,6 +13,7 @@ const RegisterBusiness = () => {
     const navigate = useNavigate();
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const [formData, setFormData] = useState({
         name: '',
@@ -61,6 +62,7 @@ const RegisterBusiness = () => {
         e.preventDefault();
         setSubmitting(true);
         setError('');
+        setSuccess('');
 
         try {
             const response = await fetch(`${API_BASE_URL}/business-portal/register`, {
@@ -75,9 +77,10 @@ const RegisterBusiness = () => {
             const data = await response.json();
 
             if (data.status === 'success') {
-                // Redirect to dashboard with explicit state/message potentially needed
-                // For now, simple redirect
-                navigate('/business/dashboard', { state: { message: 'Business registered successfully! Pending approval.' } });
+                setSuccess('Business registered successfully! Redirecting to your dashboard...');
+                setTimeout(() => {
+                    navigate('/business/dashboard', { state: { message: 'Business pending approval.' } });
+                }, 2000);
             } else {
                 setError(data.message || 'Registration failed');
             }
@@ -99,6 +102,7 @@ const RegisterBusiness = () => {
                 </header>
 
                 {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message" style={{ backgroundColor: '#ecfdf5', color: '#047857', padding: '12px', borderRadius: '6px', marginBottom: '20px', border: '1px solid #10b981' }}>{success}</div>}
 
                 <form onSubmit={handleSubmit} className="register-form">
                     <div className="form-group">
