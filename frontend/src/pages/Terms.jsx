@@ -8,7 +8,7 @@ const Terms = () => {
             <SEO title="Terms of Use" />
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                 <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>NaijaTrust Terms of Use</h1>
-                <p style={{ color: 'var(--text-light)' }}>Effective Date: [Insert Date]</p>
+                <p style={{ color: 'var(--text-light)' }}>Effective Date: 16th February 2026</p>
             </div>
 
             <div style={{
