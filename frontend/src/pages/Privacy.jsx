@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../App';
 
 const Privacy = () => {
     return (
         <div className="container" style={{ padding: '3rem 1rem', maxWidth: '900px' }}>
+            <SEO title="Privacy Policy" />
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Privacy Policy</h1>
-                <p style={{ color: 'var(--text-light)' }}>Last updated: January 30, 2026</p>
+                <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>NaijaTrust Privacy Policy</h1>
             </div>
 
             <div style={{
@@ -17,62 +18,76 @@ const Privacy = () => {
                 border: '1px solid var(--border-color)',
                 lineHeight: '1.8'
             }}>
+                <p style={{ color: 'var(--text-dark)', marginBottom: '2rem' }}>
+                    This Policy explains how we collect, use, and protect your personal data in compliance with the Nigeria Data Protection Regulation (NDPR).
+                </p>
+
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>1. Information We Collect</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>1. Data We Collect</h2>
                     <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
-                        We collect information that you provide directly to us, including:
+                        We may collect:
                     </p>
                     <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
-                        <li>Account information (name, email address, password)</li>
-                        <li>Profile information (avatar, bio, location)</li>
-                        <li>Reviews and ratings you submit</li>
-                        <li>Communications with us</li>
+                        <li>Name, email, phone</li>
+                        <li>Business information</li>
+                        <li>Reviews and user-generated content</li>
+                        <li>Device and usage data</li>
+                        <li>Location (optional)</li>
                     </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>2. How We Use Your Information</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>2. Legal Basis</h2>
                     <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
-                        We use the information we collect to:
+                        We process data based on:
                     </p>
                     <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
-                        <li>Provide, maintain, and improve our services</li>
-                        <li>Send you technical notices and support messages</li>
-                        <li>Respond to your comments and questions</li>
-                        <li>Monitor and analyze trends and usage</li>
-                        <li>Detect and prevent fraud and abuse</li>
+                        <li>Consent</li>
+                        <li>Contractual necessity</li>
+                        <li>Legal obligations</li>
+                        <li>Legitimate interest</li>
                     </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>3. Information Sharing</h2>
-                    <p style={{ color: 'var(--text-dark)' }}>
-                        We do not sell your personal information. We may share your information in the following circumstances:
+                    <h2 style={{ marginBottom: '1rem' }}>3. How We Use Data</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        Your data is used to:
                     </p>
                     <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
-                        <li>With your consent</li>
-                        <li>To comply with legal obligations</li>
-                        <li>To protect our rights and prevent fraud</li>
-                        <li>With service providers who assist in our operations</li>
+                        <li>Provide services</li>
+                        <li>Verify businesses</li>
+                        <li>Improve security and trust</li>
+                        <li>Communicate updates</li>
+                        <li>Prevent fraud</li>
                     </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>4. Data Security</h2>
-                    <p style={{ color: 'var(--text-dark)' }}>
-                        We implement appropriate technical and organizational measures to protect your personal
-                        information against unauthorized access, alteration, disclosure, or destruction. However,
-                        no internet transmission is completely secure, and we cannot guarantee absolute security.
+                    <h2 style={{ marginBottom: '1rem' }}>4. Data Sharing</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        We may share data with:
                     </p>
+                    <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        <li>Regulatory authorities</li>
+                        <li>Verification partners</li>
+                        <li>Law enforcement</li>
+                        <li>Payment providers</li>
+                    </ul>
+                    <p style={{ color: 'var(--text-dark)' }}>We do not sell personal data.</p>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>5. Cookies and Tracking</h2>
-                    <p style={{ color: 'var(--text-dark)' }}>
-                        We use cookies and similar tracking technologies to collect information about your browsing
-                        activities. You can control cookies through your browser settings, but disabling cookies may
-                        affect your ability to use certain features of our platform.
+                    <h2 style={{ marginBottom: '1rem' }}>5. Data Security</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        We implement:
                     </p>
+                    <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
+                        <li>Encryption</li>
+                        <li>Secure hosting</li>
+                        <li>Access control</li>
+                        <li>Monitoring and audit</li>
+                    </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
@@ -81,37 +96,39 @@ const Privacy = () => {
                         You have the right to:
                     </p>
                     <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
-                        <li>Access and update your personal information</li>
-                        <li>Delete your account and associated data</li>
-                        <li>Opt out of marketing communications</li>
-                        <li>Request a copy of your data</li>
+                        <li>Access your data</li>
+                        <li>Request correction</li>
+                        <li>Withdraw consent</li>
+                        <li>Request deletion</li>
+                        <li>Object to processing</li>
                     </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>7. Children's Privacy</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>7. Data Retention</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        Our service is not intended for users under the age of 13. We do not knowingly collect
-                        personal information from children under 13. If you become aware that a child has provided
-                        us with personal information, please contact us.
+                        We retain data only as long as necessary.
                     </p>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>8. Changes to This Policy</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>8. Cookies</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        We may update this Privacy Policy from time to time. We will notify you of any changes by
-                        posting the new policy on this page and updating the "Last updated" date.
+                        We use cookies for performance and analytics.
+                    </p>
+                </section>
+
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ marginBottom: '1rem' }}>9. Contact</h2>
+                    <p style={{ color: 'var(--text-dark)' }}>
+                        For complaints: <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)' }}>support@naijatrust.ng</a>
                     </p>
                 </section>
 
                 <section>
-                    <h2 style={{ marginBottom: '1rem' }}>9. Contact Us</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>10. International Transfers</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        If you have questions about this Privacy Policy, please contact us at{' '}
-                        <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)' }}>
-                            support@naijatrust.ng
-                        </a>
+                        Where data is stored outside Nigeria, safeguards will apply.
                     </p>
                 </section>
             </div>

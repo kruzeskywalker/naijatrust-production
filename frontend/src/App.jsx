@@ -29,6 +29,10 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Plans from './pages/Plans';
 import HelpCenter from './pages/HelpCenter';
+import ContentModeration from './pages/ContentModeration';
+import DisputeResolution from './pages/DisputeResolution';
+import ContentTakeDown from './pages/ContentTakeDown';
+import AntiDefamation from './pages/AntiDefamation';
 
 // Business Portal Pages
 import BusinessSignup from './pages/business/BusinessSignup';
@@ -196,6 +200,10 @@ const AnimatedRoutes = () => {
             <Route path="/jobs" element={<PageTransition><Jobs /></PageTransition>} />
             <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
             <Route path="/privacy" element={<PageTransition><Privacy /></PageTransition>} />
+            <Route path="/content-moderation" element={<PageTransition><ContentModeration /></PageTransition>} />
+            <Route path="/dispute-resolution" element={<PageTransition><DisputeResolution /></PageTransition>} />
+            <Route path="/content-take-down" element={<PageTransition><ContentTakeDown /></PageTransition>} />
+            <Route path="/anti-defamation" element={<PageTransition><AntiDefamation /></PageTransition>} />
             <Route path="/plans" element={<PageTransition><Plans /></PageTransition>} />
             <Route path="/help" element={<PageTransition><HelpCenter /></PageTransition>} />
 

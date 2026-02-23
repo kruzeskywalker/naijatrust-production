@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../App';
 
 const Terms = () => {
     return (
         <div className="container" style={{ padding: '3rem 1rem', maxWidth: '900px' }}>
+            <SEO title="Terms of Use" />
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Terms of Service</h1>
-                <p style={{ color: 'var(--text-light)' }}>Last updated: January 30, 2026</p>
+                <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>NaijaTrust Terms of Use</h1>
+                <p style={{ color: 'var(--text-light)' }}>Effective Date: [Insert Date]</p>
             </div>
 
             <div style={{
@@ -17,81 +19,107 @@ const Terms = () => {
                 border: '1px solid var(--border-color)',
                 lineHeight: '1.8'
             }}>
+                <p style={{ color: 'var(--text-dark)', marginBottom: '2rem' }}>
+                    Welcome to NaijaTrust, a digital platform owned and operated by Black Legacy Limited (“Company”, “we”, “us”, or “our”). By accessing or using NaijaTrust, you agree to be bound by these Terms.
+                </p>
+
                 <section style={{ marginBottom: '2rem' }}>
                     <h2 style={{ marginBottom: '1rem' }}>1. Acceptance of Terms</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        By accessing and using NaijaTrust, you accept and agree to be bound by the terms and
-                        provisions of this agreement. If you do not agree to these terms, please do not use our service.
+                        By registering, accessing, or using NaijaTrust, you confirm that you are at least 18 years old and legally capable of entering a binding agreement.
                     </p>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>2. Use of Service</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>2. Platform Purpose</h2>
                     <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
-                        NaijaTrust provides a platform for users to share and read reviews about businesses
-                        operating in Nigeria. You agree to:
+                        NaijaTrust provides a platform where users can:
+                    </p>
+                    <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        <li>Search and verify businesses</li>
+                        <li>Share reviews and experiences</li>
+                        <li>List and promote verified businesses</li>
+                        <li>Improve transparency and trust in the Nigerian marketplace</li>
+                    </ul>
+                    <p style={{ color: 'var(--text-dark)' }}>We do not guarantee the accuracy of user-generated content.</p>
+                </section>
+
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ marginBottom: '1rem' }}>3. User Responsibilities</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        You agree to:
                     </p>
                     <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
-                        <li>Provide accurate and truthful information in your reviews</li>
-                        <li>Not post defamatory, abusive, or misleading content</li>
-                        <li>Respect the intellectual property rights of others</li>
-                        <li>Not use the platform for any illegal or unauthorized purpose</li>
+                        <li>Provide truthful, accurate, and lawful content</li>
+                        <li>Not post defamatory, misleading, or false information</li>
+                        <li>Respect privacy and intellectual property rights</li>
+                        <li>Not use the platform for fraud, harassment, or illegal activity</li>
                     </ul>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>3. User Accounts</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>4. Business Listings</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        Businesses must:
+                    </p>
+                    <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        <li>Provide accurate business details</li>
+                        <li>Comply with Nigerian laws</li>
+                        <li>Not misrepresent their services or identity</li>
+                    </ul>
+                    <p style={{ color: 'var(--text-dark)' }}>NaijaTrust reserves the right to remove listings.</p>
+                </section>
+
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ marginBottom: '1rem' }}>5. Reviews and Content</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        All reviews must be:
+                    </p>
+                    <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        <li>Based on real experiences</li>
+                        <li>Free from hate, threats, or illegal content</li>
+                        <li>Non-manipulated or incentivised</li>
+                    </ul>
+                    <p style={{ color: 'var(--text-dark)' }}>We may moderate, edit, or remove content.</p>
+                </section>
+
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ marginBottom: '1rem' }}>6. Intellectual Property</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        You are responsible for maintaining the confidentiality of your account credentials and
-                        for all activities that occur under your account. You agree to notify us immediately of
-                        any unauthorized use of your account.
+                        All platform content, trademarks, and design belong to Black Legacy Limited.
                     </p>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>4. Content Guidelines</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>7. Limitation of Liability</h2>
+                    <p style={{ color: 'var(--text-dark)', marginBottom: '0.75rem' }}>
+                        NaijaTrust is not responsible for:
+                    </p>
+                    <ul style={{ paddingLeft: '1.5rem', color: 'var(--text-dark)' }}>
+                        <li>Transactions between users and businesses</li>
+                        <li>Loss or damages arising from reliance on reviews</li>
+                        <li>Service interruptions</li>
+                    </ul>
+                </section>
+
+                <section style={{ marginBottom: '2rem' }}>
+                    <h2 style={{ marginBottom: '1rem' }}>8. Suspension and Termination</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        Reviews must be based on genuine experiences. We reserve the right to remove content that
-                        violates our guidelines, including but not limited to fake reviews, spam, hate speech, or
-                        content that infringes on intellectual property rights.
+                        We may suspend or terminate accounts for violations.
                     </p>
                 </section>
 
                 <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>5. Intellectual Property</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>9. Governing Law</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        The NaijaTrust platform, including its design, features, and content, is owned by NaijaTrust
-                        and protected by copyright and other intellectual property laws. User-generated content remains
-                        the property of the user, but by posting, you grant NaijaTrust a license to use, display, and
-                        distribute that content on our platform.
-                    </p>
-                </section>
-
-                <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>6. Limitation of Liability</h2>
-                    <p style={{ color: 'var(--text-dark)' }}>
-                        NaijaTrust is provided "as is" without warranties of any kind. We are not responsible for
-                        the accuracy of user-generated content and do not endorse any opinions expressed in reviews.
-                        We shall not be liable for any damages arising from your use of the platform.
-                    </p>
-                </section>
-
-                <section style={{ marginBottom: '2rem' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>7. Changes to Terms</h2>
-                    <p style={{ color: 'var(--text-dark)' }}>
-                        We reserve the right to modify these terms at any time. We will notify users of significant
-                        changes via email or through the platform. Continued use of NaijaTrust after changes constitutes
-                        acceptance of the modified terms.
+                        These Terms are governed by the laws of the Federal Republic of Nigeria.
                     </p>
                 </section>
 
                 <section>
-                    <h2 style={{ marginBottom: '1rem' }}>8. Contact</h2>
+                    <h2 style={{ marginBottom: '1rem' }}>10. Updates</h2>
                     <p style={{ color: 'var(--text-dark)' }}>
-                        If you have questions about these Terms of Service, please contact us at{' '}
-                        <a href="mailto:support@naijatrust.ng" style={{ color: 'var(--primary-color)' }}>
-                            support@naijatrust.ng
-                        </a>
+                        We may update these Terms periodically.
                     </p>
                 </section>
             </div>

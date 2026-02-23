@@ -65,16 +65,23 @@ export const helpContent = [
     {
         id: 'r1',
         category: 'Reviews & Trust',
-        question: 'Why was my review removed?',
-        answer: 'Reviews are usually removed if our moderation system detects a violation of our policy, such as spam, abusive language, or fake content. Check our content guidelines for more details.',
+        question: 'What is your Content Moderation Policy?',
+        answer: 'We do not allow defamation, hate speech, harassment, fraud, or spam. We use AI screening, human review, and community reporting to enforce our policies. Read our full Content Moderation Policy at /content-moderation.',
         keywords: ['removed', 'moderation', 'policy', 'rules']
     },
     {
         id: 'r2',
         category: 'Reviews & Trust',
-        question: 'How do I know a review is real?',
-        answer: 'We use automated systems and manual checks to verify reviews. Look for the "Verified Purchase" tag (coming soon) or check the reviewer\'s history for consistency.',
-        keywords: ['fake', 'real', 'verify', 'trust']
+        question: 'How do you handle Defamation and False Accusations?',
+        answer: 'We require accounts to be real and verify transactions when necessary. False or malicious users face suspension or permanent bans in compliance with Nigerian defamation laws. Check out our Anti-Defamation Framework at /anti-defamation.',
+        keywords: ['defamation', 'false', 'fake', 'framework']
+    },
+    {
+        id: 'r3',
+        category: 'Reviews & Trust',
+        question: 'How can I submit a Dispute or Request a Content Take-Down?',
+        answer: 'You can submit a complaint via our support. We will review the evidence, notify the business, and may remove content that violates laws or our Terms within 48-72 hours. For detailed guidelines, view our Dispute Resolution Policy (/dispute-resolution) and Content Take-Down Policy (/content-take-down).',
+        keywords: ['takedown', 'dispute', 'resolution', 'remove review', 'conflict']
     }
 ];
 
