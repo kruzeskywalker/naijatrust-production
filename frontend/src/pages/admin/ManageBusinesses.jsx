@@ -18,6 +18,7 @@ const ManageBusinesses = () => {
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('newest');
     const [processing, setProcessing] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -247,6 +248,13 @@ const ManageBusinesses = () => {
         }
     };
 
+    const displayBusinesses = [...businesses].sort((a, b) => {
+        if (sortBy === 'alphabetical') {
+            return a.name.localeCompare(b.name);
+        }
+        return 0;
+    });
+
     return (
         <div className="admin-layout">
             <AdminHeader />
@@ -275,6 +283,16 @@ const ManageBusinesses = () => {
                     </form>
 
                     <div className="filter-tabs">
+                        <select
+                            className="sort-select"
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #e5e7eb', marginRight: '16px', backgroundColor: 'white', cursor: 'pointer', outline: 'none' }}
+                        >
+                            <option value="newest">Newest First</option>
+                            <option value="alphabetical">Alphabetical (A-Z)</option>
+                        </select>
+                        <div className="divider-vertical" style={{ marginRight: '16px' }}></div>
                         <button
                             className={`tab ${filter === 'all' ? 'active' : ''}`}
                             onClick={() => setFilter('all')}
@@ -330,7 +348,7 @@ const ManageBusinesses = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {businesses.map(biz => (
+                                {displayBusinesses.map(biz => (
                                     <tr key={biz._id}>
                                         <td>
                                             <div className="biz-cell">

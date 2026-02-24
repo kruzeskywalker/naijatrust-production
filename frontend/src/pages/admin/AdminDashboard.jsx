@@ -15,6 +15,8 @@ const AdminDashboard = () => {
         pendingClaims: 0,
         totalBusinesses: 0,
         activeBusinessUsers: 0,
+        totalReviews: 0,
+        totalUsers: 0,
         recentClaims: []
     });
     const [loadingStats, setLoadingStats] = useState(true);
@@ -96,12 +98,23 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="stat-card">
+                        <div className="icon-wrapper" style={{ background: '#fef3c7', color: '#d97706' }}>
+                            <Star size={24} />
+                        </div>
+                        <div className="stat-content">
+                            <h3>{stats.totalReviews || 0}</h3>
+                            <p>Total Reviews</p>
+                            <Link to="/admin/reviews" className="stat-link">Manage Reviews →</Link>
+                        </div>
+                    </div>
+
+                    <div className="stat-card">
                         <div className="icon-wrapper businesses">
                             <User size={24} />
                         </div>
                         <div className="stat-content">
-                            <h3>Users</h3>
-                            <p>Manage Users</p>
+                            <h3>{stats.totalUsers || 0}</h3>
+                            <p>Total Users</p>
                             <Link to="/admin/users" className="stat-link">View All →</Link>
                         </div>
                     </div>

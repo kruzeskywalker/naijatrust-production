@@ -120,6 +120,8 @@ router.get('/dashboard', verifyAdminToken, async (req, res) => {
             pendingClaims: await ClaimRequest.countDocuments({ status: 'pending' }),
             totalBusinesses: await Business.countDocuments(),
             activeBusinessUsers: await BusinessUser.countDocuments({ isActive: true }),
+            totalReviews: await Review.countDocuments(),
+            totalUsers: await require('../models/User').countDocuments(),
             recentClaims: await ClaimRequest.find()
                 .sort('-submittedAt')
                 .limit(5)
