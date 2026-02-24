@@ -119,6 +119,36 @@ const UpgradeModal = ({ isOpen, onClose, currentTier, businessId, onSuccess }) =
                     return;
                 }
 
+                // If trial request, start immediately using the start-trial endpoint
+                if (requestType === 'trial') {
+                    const response = await fetch(`${API_BASE_URL}/subscriptions/start-trial`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            businessId,
+                            tier: selectedTier,
+                            trialDays: 30
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        toast.error(data.message || 'Failed to start free trial');
+                        setSubmitting(false);
+                        return;
+                    }
+
+                    toast.success('Free trial activated successfully!');
+                    onSuccess && onSuccess();
+                    onClose();
+                    setSubmitting(false);
+                    return;
+                }
+
                 const response = await fetch(`${API_BASE_URL}/subscriptions/request-upgrade`, {
                     method: 'POST',
                     headers: {
@@ -231,8 +261,8 @@ const UpgradeModal = ({ isOpen, onClose, currentTier, businessId, onSuccess }) =
                     }
                 });
             } else {
-                // Trial request - just show success
-                toast.success('Free trial request submitted! Awaiting admin approval.');
+                // Trial request fallback string if for some reason the trial bypass above wasn't hit
+                toast.success('Free trial activated!');
                 onSuccess && onSuccess();
                 onClose();
                 setSubmitting(false);

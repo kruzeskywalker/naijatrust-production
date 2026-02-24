@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ import './Auth.css';
 const Login = () => {
     const { login, initiateGoogleLogin } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +26,8 @@ const Login = () => {
         setIsLoading(false);
 
         if (result.success) {
-            navigate('/dashboard');
+            const redirectTo = location.state?.redirectTo || '/dashboard';
+            navigate(redirectTo);
         } else if (result.requiresOtp) {
             // Intercept unverified users and send them to OTP verification
             navigate(`/verify-otp?email=${encodeURIComponent(result.email)}&type=user`);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Star, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './WriteReview.css';
@@ -75,7 +75,7 @@ const WriteReview = () => {
             } else {
                 if (response.status === 401) {
                     logout();
-                    navigate('/login');
+                    navigate('/login', { state: { redirectTo: `/review/${id}` } });
                     return;
                 }
                 setStatus({ type: 'error', message: data.message || 'Failed to post review.' });
@@ -90,6 +90,33 @@ const WriteReview = () => {
 
     if (loading) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}><Loader2 className="animate-spin" /> Loading...</div>;
     if (!business) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>Business not found</div>;
+
+    if (!user) {
+        return (
+            <div className="write-review-page container">
+                <div className="review-flow-card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                    <div className="review-biz-header" style={{ justifyContent: 'center', marginBottom: '2rem' }}>
+                        <div className="mini-biz-logo">{business.name ? business.name[0] : 'B'}</div>
+                        <h2>Reviewing {business.name}</h2>
+                    </div>
+                    <AlertCircle size={48} color="#f59e0b" style={{ margin: '0 auto 1rem' }} />
+                    <h3 style={{ marginBottom: '1rem' }}>Login Required</h3>
+                    <p style={{ marginBottom: '2rem', color: '#4b5563', maxWidth: '400px', margin: '0 auto 2rem' }}>
+                        You must be logged in safely to leave a review for this business. Your authentic feedback helps others make informed decisions.
+                    </p>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate('/login', { state: { redirectTo: `/review/${id}` } })}
+                    >
+                        Log in to continue
+                    </button>
+                    <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: '#6b7280' }}>
+                        Don't have an account? <Link to="/signup" style={{ color: '#047857', fontWeight: '600', textDecoration: 'none' }}>Sign up</Link>
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     // Helper to get color based on rating
     const getStarColor = (val) => {
