@@ -307,12 +307,13 @@ router.post('/resend-verification', verifyToken, authLimiter, async (req, res) =
 if (process.env.GOOGLE_CLIENT_ID &&
     process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id.apps.googleusercontent.com' &&
     process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id') {
-    router.get('/google',
+    router.get('/google', (req, res, next) => {
         passport.authenticate('google', {
             scope: ['profile', 'email'],
-            prompt: 'select_account'
-        })
-    );
+            prompt: 'select_account',
+            state: req.query.state ? req.query.state : undefined
+        })(req, res, next);
+    });
 
     router.get('/google/callback',
         passport.authenticate('google', {
@@ -323,8 +324,20 @@ if (process.env.GOOGLE_CLIENT_ID &&
             // Generate JWT token
             const token = signToken(req.user._id);
 
+            let stateParam = '';
+            if (req.query.state) {
+                try {
+                    const decodedState = Buffer.from(req.query.state, 'base64').toString('utf8');
+                    if (decodedState.startsWith('/')) {
+                        stateParam = `&redirectTo=${encodeURIComponent(decodedState)}`;
+                    }
+                } catch (e) {
+                    console.error('Invalid google state param');
+                }
+            }
+
             // Redirect to frontend with token
-            res.redirect(`${getClientUrl()}/auth/callback?token=${token}`);
+            res.redirect(`${getClientUrl()}/auth/callback?token=${token}${stateParam}`);
         }
     );
 } else {

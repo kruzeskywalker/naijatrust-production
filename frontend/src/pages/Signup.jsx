@@ -97,12 +97,7 @@ const Signup = () => {
                 <div className="social-auth-top">
                     <button
                         className="btn btn-outline social-btn google"
-                        onClick={() => {
-                            if (location.state?.redirectTo) {
-                                localStorage.setItem('postLoginRedirect', location.state.redirectTo);
-                            }
-                            initiateGoogleLogin();
-                        }}
+                        onClick={() => initiateGoogleLogin(location.state?.redirectTo)}
                         disabled={isLoading}
                         type="button"
                     >

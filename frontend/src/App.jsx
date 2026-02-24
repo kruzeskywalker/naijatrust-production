@@ -74,10 +74,14 @@ const OAuthCallback = () => {
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
 
+    const redirectToParam = params.get('redirectTo');
+
     if (token) {
       const processLogin = async () => {
         await handleGoogleOAuthCallback(token);
-        const redirectUrl = localStorage.getItem('postLoginRedirect');
+
+        // Use backend decoded param first, fallback to robust cleanout of any remnant localStorage state.
+        let redirectUrl = redirectToParam || localStorage.getItem('postLoginRedirect');
         if (redirectUrl) {
           localStorage.removeItem('postLoginRedirect');
           navigate(redirectUrl);

@@ -155,9 +155,16 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('naijaTrustToken');
     };
 
-    const initiateGoogleLogin = () => {
-        // Redirect to backend Google OAuth endpoint
-        window.location.href = `${API_URL}/google`;
+    const initiateGoogleLogin = (redirectTo = null) => {
+        let url = `${API_URL}/google`;
+        if (redirectTo && typeof redirectTo === 'string') {
+            try {
+                url += `?state=${encodeURIComponent(btoa(redirectTo))}`;
+            } catch (e) {
+                console.error("Could not encode redirect state", e);
+            }
+        }
+        window.location.href = url;
     };
 
     const updateProfile = async (name, email) => {
