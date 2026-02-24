@@ -99,7 +99,7 @@ const Signup = () => {
                         className="btn btn-outline social-btn google"
                         onClick={() => {
                             if (location.state?.redirectTo) {
-                                sessionStorage.setItem('postLoginRedirect', location.state.redirectTo);
+                                localStorage.setItem('postLoginRedirect', location.state.redirectTo);
                             }
                             initiateGoogleLogin();
                         }}
