@@ -77,7 +77,13 @@ const OAuthCallback = () => {
     if (token) {
       const processLogin = async () => {
         await handleGoogleOAuthCallback(token);
-        navigate('/dashboard');
+        const redirectUrl = sessionStorage.getItem('postLoginRedirect');
+        if (redirectUrl) {
+          sessionStorage.removeItem('postLoginRedirect');
+          navigate(redirectUrl);
+        } else {
+          navigate('/dashboard');
+        }
       };
       processLogin();
     } else {

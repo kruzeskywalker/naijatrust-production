@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShieldCheck, ArrowRight, User, Mail, Lock, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ import './Auth.css';
 const Signup = () => {
     const { signup, initiateGoogleLogin } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -96,7 +97,12 @@ const Signup = () => {
                 <div className="social-auth-top">
                     <button
                         className="btn btn-outline social-btn google"
-                        onClick={initiateGoogleLogin}
+                        onClick={() => {
+                            if (location.state?.redirectTo) {
+                                sessionStorage.setItem('postLoginRedirect', location.state.redirectTo);
+                            }
+                            initiateGoogleLogin();
+                        }}
                         disabled={isLoading}
                         type="button"
                     >

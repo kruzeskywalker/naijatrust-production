@@ -65,7 +65,12 @@ const Login = () => {
                 <div className="social-auth-top">
                     <button
                         className="btn btn-outline social-btn google"
-                        onClick={initiateGoogleLogin}
+                        onClick={() => {
+                            if (location.state?.redirectTo) {
+                                sessionStorage.setItem('postLoginRedirect', location.state.redirectTo);
+                            }
+                            initiateGoogleLogin();
+                        }}
                         disabled={isLoading}
                         type="button"
                     >
